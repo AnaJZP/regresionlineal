@@ -189,8 +189,8 @@ footer{
     <p class="hero-lead">Metodología completa con ejemplos numéricos, desarrollo matricial, pruebas de diagnóstico y pronóstico — aplicada a datos reales de California Housing.</p>
   </div>
   <div class="progress-wrap">
-    <div class="progress-label">Avance del material — 2 de 6 secciones</div>
-    <div class="progress-bar"><div class="progress-fill"></div></div>
+    <div class="progress-label">Avance del material — 5 secciones + Apéndice TCL</div>
+    <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
   </div>
 </div>
 
@@ -270,40 +270,49 @@ footer{
     </a>
 
     <!-- S04 -->
-    <div class="module-card soon">
+    <a href="s04_vif_metricas.html" class="module-card done">
       <div class="module-num">Sección 04</div>
       <div class="module-title">VIF · Train/Test · Métricas</div>
-      <div class="module-desc">Factor de Inflación de Varianza, división de datos, validación cruzada K-Fold y medidas de error fuera de muestra.</div>
-      <span class="module-status">Próximamente</span>
+      <div class="module-desc">Factor de Inflación de Varianza, división de datos, validación cruzada K-Fold y medidas de error fuera de muestra: RMSE, MAE, MAPE y R².</div>
+      <span class="module-status">
+        <svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3.5 6l1.8 1.8 3.2-3.6" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+        Disponible
+      </span>
       <div class="module-footer">
         <span class="module-topics">VIF · RMSE · MAE · R² test</span>
-        <span class="module-arrow" style="color:var(--faint)">→</span>
+        <span class="module-arrow">→</span>
       </div>
-    </div>
+    </a>
 
     <!-- S05 -->
-    <div class="module-card soon">
+    <a href="s05_pronostico.html" class="module-card done">
       <div class="module-num">Sección 05</div>
       <div class="module-title">Pronóstico e Intervalos</div>
-      <div class="module-desc">Predicción puntual, intervalo de confianza para la media vs. intervalo de predicción. Corrección de sesgo de Jensen en modelos log-lineales.</div>
-      <span class="module-status">Próximamente</span>
+      <div class="module-desc">Predicción puntual, IC para la media vs. IP para un individuo, corrección de Jensen y calculadora interactiva de pronóstico.</div>
+      <span class="module-status">
+        <svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3.5 6l1.8 1.8 3.2-3.6" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+        Disponible
+      </span>
       <div class="module-footer">
         <span class="module-topics">IC · IP · Jensen · log-lineal</span>
-        <span class="module-arrow" style="color:var(--faint)">→</span>
+        <span class="module-arrow">→</span>
       </div>
-    </div>
+    </a>
 
-    <!-- S06 -->
-    <div class="module-card soon">
-      <div class="module-num">Sección 06</div>
-      <div class="module-title">Ridge, LASSO y Comparación</div>
-      <div class="module-desc">Regularización L1 y L2, selección de λ por validación cruzada, bias-variance tradeoff y comparación final de modelos.</div>
-      <span class="module-status">Próximamente</span>
+    <!-- TCL -->
+    <a href="apendice_tcl.html" class="module-card done">
+      <div class="module-num">Apéndice A</div>
+      <div class="module-title">Teorema Central del Límite</div>
+      <div class="module-desc">Por qué la media muestral siempre se comporta como una normal con n grande — y por qué eso justifica la inferencia en regresión sin asumir normalidad en los datos.</div>
+      <span class="module-status">
+        <svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3.5 6l1.8 1.8 3.2-3.6" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+        Disponible
+      </span>
       <div class="module-footer">
-        <span class="module-topics">Ridge · LASSO · ElasticNet · λ</span>
-        <span class="module-arrow" style="color:var(--faint)">→</span>
+        <span class="module-topics">TCL · simulación · inferencia asintótica</span>
+        <span class="module-arrow">→</span>
       </div>
-    </div>
+    </a>
 
     <!-- TCL -->
     <a href="apendice_tcl.html" class="module-card done">

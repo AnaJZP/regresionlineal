@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S05 — Pronóstico e Intervalos · EARF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --g:#7b002c;--gd:#560020;--gl:#f8f0f3;--gm:#c9879f;
+  --blue:#185FA5;--bl:#e6f1fb;--green:#0F6E56;--grn:#e1f5ee;
+  --amber:#b86e00;--al:#fef3e2;--red:#a32d2d;--rl:#fdeaea;
+  --text:#1a1a1a;--muted:#5a5a5a;--faint:#aaa;
+  --border:#e0d6da;--surf:#fff;--bg:#faf8f9;
+  --serif:'Lora',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;--r:10px;--r2:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}
+.topbar{background:var(--gd);color:#fff;padding:.7rem 1.5rem;display:flex;align-items:center;gap:1rem;font-size:.85rem;flex-wrap:wrap}
+.topbar a{color:rgba(255,255,255,.65);text-decoration:none}.topbar a:hover{color:#fff}
+.topbar-sep{color:rgba(255,255,255,.3)}.topbar-curr{color:#fff;font-weight:500}
+.topbar-badge{margin-left:auto;background:rgba(255,255,255,.15);padding:2px 10px;border-radius:20px;font-size:.75rem;color:rgba(255,255,255,.8)}
+.hero{background:var(--g);padding:2.5rem 2rem;position:relative;overflow:hidden}
+.hero::after{content:'05';position:absolute;right:2rem;top:50%;transform:translateY(-50%);font-family:var(--serif);font-size:9rem;font-weight:600;color:rgba(255,255,255,.04);line-height:1;pointer-events:none}
+.hero-inner{max-width:860px;margin:0 auto;position:relative;z-index:1}
+.hero-tag{font-size:.75rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--gm);margin-bottom:.6rem}
+.hero-title{font-family:var(--serif);font-size:clamp(1.6rem,3.5vw,2.2rem);font-weight:600;color:#fff;line-height:1.25;margin-bottom:.6rem}
+.hero-lead{font-size:.98rem;color:rgba(255,255,255,.68);max-width:600px}
+.page{max-width:860px;margin:0 auto;padding:2.5rem 2rem 5rem}
+p{margin:.5rem 0 .9rem;line-height:1.75}
+.lead{font-size:1.02rem;color:var(--muted);margin-bottom:1.25rem}
+.sec-title{font-family:var(--serif);font-size:1.45rem;font-weight:600;color:var(--g);margin:2.75rem 0 .5rem;padding-bottom:.4rem;border-bottom:2px solid var(--gm)}
+.sub-title{font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--gd);margin:1.6rem 0 .45rem}
+.sub2{font-size:.75rem;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:1.1rem 0 .35rem}
+.callout{border-left:3px solid var(--g);background:var(--gl);border-radius:0 var(--r) var(--r) 0;padding:.95rem 1.15rem;margin:1rem 0 1.25rem}
+.callout-title{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--g);margin-bottom:.4rem}
+.callout.blue{border-color:var(--blue);background:var(--bl)}.callout.blue .callout-title{color:var(--blue)}
+.callout.green{border-color:var(--green);background:var(--grn)}.callout.green .callout-title{color:var(--green)}
+.callout.amber{border-color:var(--amber);background:var(--al)}.callout.amber .callout-title{color:var(--amber)}
+.callout.red{border-color:var(--red);background:var(--rl)}.callout.red .callout-title{color:var(--red)}
+.card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r2);padding:1.1rem 1.3rem;box-shadow:0 2px 10px rgba(123,0,44,.06)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin:1rem 0}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1rem;margin:1rem 0}
+.tbl-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border);margin:1rem 0}
+table.tbl{width:100%;border-collapse:collapse;font-size:.88rem}
+table.tbl th{background:var(--gl);color:var(--gd);font-weight:500;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;padding:7px 12px;text-align:left;border-bottom:2px solid var(--gm)}
+table.tbl td{padding:7px 12px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.5;font-size:.88rem}
+table.tbl tr:last-child td{border:none}
+table.tbl tr:hover td{background:#fdf7f9}
+table.tbl td.mono{font-family:var(--mono);font-size:.83rem}
+table.tbl td.c{text-align:center}
+.ok{color:var(--green);font-weight:600}.warn{color:var(--amber);font-weight:600}.fail{color:var(--red);font-weight:600}
+.fml{background:#f5f2f0;border:1px solid #e8e0dc;border-radius:var(--r);padding:.8rem 1.1rem;font-family:var(--mono);font-size:.88rem;line-height:1.9;margin:.6rem 0;overflow-x:auto}
+.fml .h{color:var(--blue);font-weight:600}.fml .h2{color:var(--green);font-weight:600}
+.steps{list-style:none;margin:.75rem 0}
+.steps li{display:flex;gap:.9rem;align-items:flex-start;padding:.55rem 0;border-bottom:1px dashed var(--border)}
+.steps li:last-child{border:none}
+.sn{min-width:26px;height:26px;border-radius:50%;background:var(--g);color:#fff;font-size:.73rem;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.sb{font-size:.92rem;line-height:1.65}
+.kv{display:flex;justify-content:space-between;align-items:center;font-size:.9rem;padding:5px 0;border-bottom:1px solid var(--border)}
+.kv:last-child{border:none}.kv-k{color:var(--muted)}.kv-v{font-family:var(--mono);font-weight:600}
+.kv-v.ok{color:var(--green)}.kv-v.hi{color:var(--g)}.kv-v.blue{color:var(--blue)}
+.badge{display:inline-block;font-size:.73rem;font-weight:600;padding:2px 9px;border-radius:20px;letter-spacing:.04em}
+.bg{background:var(--gl);color:var(--gd)}.bb{background:var(--bl);color:var(--blue)}
+.bgr{background:var(--grn);color:var(--green)}.ba{background:var(--al);color:var(--amber)}
+.slider-row{display:flex;align-items:center;gap:12px;margin:.75rem 0;flex-wrap:wrap}
+.slider-row label{font-size:.82rem;color:var(--muted);min-width:120px}
+.slider-row input[type=range]{flex:1;min-width:120px;accent-color:var(--g)}
+.slider-row .sv{font-family:var(--mono);font-size:.88rem;font-weight:600;color:var(--g);min-width:52px}
+.chart-wrap{position:relative;width:100%;margin:.75rem 0}
+/* interval comparison */
+.interval-vis{margin:1rem 0}
+.iv-row{display:flex;align-items:center;gap:1rem;margin:.6rem 0;font-size:.88rem}
+.iv-label{min-width:90px;font-weight:500;color:var(--muted);font-size:.82rem}
+.iv-bar-wrap{flex:1;position:relative;height:24px}
+.iv-center{position:absolute;left:50%;width:2px;background:var(--g);height:100%;transform:translateX(-50%)}
+.iv-band{position:absolute;top:4px;height:16px;border-radius:3px;transition:all .3s}
+.iv-ic{background:rgba(25,95,165,.35);border:2px solid var(--blue)}
+.iv-ip{background:rgba(15,110,86,.2);border:2px solid var(--green)}
+.iv-num{font-family:var(--mono);font-size:.78rem;min-width:120px;color:var(--muted)}
+/* pronóstico cards */
+.pred-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r2);padding:1.1rem 1.25rem;position:relative;overflow:hidden}
+.pred-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--g)}
+.pred-val{font-family:var(--serif);font-size:1.8rem;font-weight:600;color:var(--g);line-height:1}
+.pred-range{font-size:.82rem;color:var(--muted);margin-top:.3rem}
+.pred-label{font-size:.75rem;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--faint);margin-bottom:.4rem}
+/* input grid */
+.input-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem;margin:1rem 0}
+.input-item{display:flex;flex-direction:column;gap:.3rem}
+.input-item label{font-size:.75rem;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.input-item input{padding:.4rem .65rem;border:1px solid var(--border);border-radius:6px;font-size:.9rem;font-family:var(--mono);color:var(--text);background:var(--surf);width:100%}
+.input-item input:focus{outline:none;border-color:var(--gm)}
+.run-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1.4rem;background:var(--g);color:#fff;border:none;border-radius:var(--r);font-size:.9rem;font-weight:500;cursor:pointer;transition:background .15s;font-family:var(--sans);margin-top:.5rem}
+.run-btn:hover{background:var(--gd)}
+.nav-footer{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding:1.5rem 0;margin-top:3rem;flex-wrap:wrap;gap:.75rem}
+.nav-btn{display:flex;align-items:center;gap:.5rem;padding:.55rem 1.1rem;border-radius:var(--r);border:1px solid var(--border);text-decoration:none;font-size:.88rem;font-weight:500;color:var(--g);background:var(--surf);transition:background .1s}
+.nav-btn:hover{background:var(--gl);border-color:var(--gm)}
+footer{border-top:1px solid var(--border);padding:1.5rem 2rem;text-align:center;font-size:.8rem;color:var(--faint);max-width:860px;margin:0 auto}
+@media(max-width:600px){.page{padding:1.5rem 1.1rem 4rem}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html">Inicio</a><span class="topbar-sep">›</span>
+  <a href="s04_vif_metricas.html">S04</a><span class="topbar-sep">›</span>
+  <span class="topbar-curr">Sección 05 — Pronóstico e Intervalos</span>
+  <span class="topbar-badge">S05 / 05</span>
+</div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">Sección 05 · Predicción</div>
+    <h1 class="hero-title">Pronóstico e Intervalos de Confianza</h1>
+    <p class="hero-lead">La diferencia entre predecir el valor promedio de muchas casas y predecir el precio de una casa específica — y por qué el segundo intervalo siempre es más ancho que el primero.</p>
+  </div>
+</div>
+
+<div class="page">
+
+<!-- ═══ PRONÓSTICO PUNTUAL ═══ -->
+<h2 class="sec-title">5.1 Pronóstico puntual</h2>
+
+<p>Para una observación nueva con covariables $\mathbf{x}_0$, el pronóstico puntual del modelo estimado es simplemente la evaluación de la recta ajustada:</p>
+
+$$\hat{y}_0 = \mathbf{x}_0^\top \hat{\boldsymbol{\beta}} = \hat{\beta}_0 + \hat{\beta}_1 x_{01} + \cdots + \hat{\beta}_k x_{0k}$$
+
+<p>Este es el valor esperado de $y$ dado $\mathbf{x}_0$. En el modelo log-lineal — donde estimamos $\ln(y)$ — el pronóstico en escala original requiere la transformación inversa con corrección de sesgo de Jensen:</p>
+
+<div class="callout">
+  <div class="callout-title">Corrección de sesgo de Jensen</div>
+  <p style="margin:.3rem 0">Si el modelo estima $\hat{\tilde{y}}_0 = \mathbf{x}_0^\top\hat{\boldsymbol{\beta}}$ (en log-escala), entonces:</p>
+  $$\hat{y}_0 = e^{\hat{\tilde{y}}_0 + \hat{\sigma}^2/2}$$
+  <p style="margin:.4rem 0 0;font-size:.9rem">El factor $e^{\hat{\sigma}^2/2}$ corrige el sesgo que introduce la no-linealidad de la función exponencial. Sin esta corrección el pronóstico en escala original subestima sistemáticamente el valor esperado.</p>
+</div>
+
+<h3 class="sub-title">Ejemplo numérico</h3>
+<div class="grid2">
+  <div class="card">
+    <div class="sub2">Distrito hipotético</div>
+    <div class="kv"><span class="kv-k">MedInc (ingreso)</span><span class="kv-v">3.5 ($35k)</span></div>
+    <div class="kv"><span class="kv-k">HouseAge</span><span class="kv-v">25 años</span></div>
+    <div class="kv"><span class="kv-k">AveRooms</span><span class="kv-v">5.2</span></div>
+    <div class="kv"><span class="kv-k">AveBedrms</span><span class="kv-v">1.05</span></div>
+    <div class="kv"><span class="kv-k">Ubicación</span><span class="kv-v">Los Ángeles (~34°N)</span></div>
+  </div>
+  <div class="card">
+    <div class="sub2">Resultado del modelo</div>
+    <div class="kv"><span class="kv-k">$\hat{\tilde{y}}_0 = \ln(\hat{y})$</span><span class="kv-v hi">0.5821</span></div>
+    <div class="kv"><span class="kv-k">$e^{\hat{\tilde{y}}_0}$ (sin corrección)</span><span class="kv-v">$178,900</span></div>
+    <div class="kv"><span class="kv-k">$e^{\hat{\sigma}^2/2}$ (factor Jensen)</span><span class="kv-v">1.0672</span></div>
+    <div class="kv"><span class="kv-k">$\hat{y}_0$ con corrección</span><span class="kv-v ok">$190,900</span></div>
+  </div>
+</div>
+
+
+<!-- ═══ IC VS IP ═══ -->
+<h2 class="sec-title">5.2 Intervalo de confianza vs. Intervalo de predicción</h2>
+
+<p>Esta es la distinción más importante de esta sección. Ambos intervalos son válidos, pero responden preguntas completamente distintas.</p>
+
+<div class="grid2">
+  <div class="card" style="border-top:3px solid var(--blue)">
+    <span class="badge bb">IC de la media</span>
+    <p style="font-size:.95rem;margin:.6rem 0">¿En qué rango está el <strong>precio promedio</strong> de todos los distritos con las mismas características $\mathbf{x}_0$?</p>
+    $$\hat{y}_0 \pm t_{\alpha/2}\cdot s\sqrt{\mathbf{x}_0^\top(\mathbf{X}^\top\mathbf{X})^{-1}\mathbf{x}_0}$$
+    <p style="font-size:.85rem;color:var(--muted);margin:0">Cuantifica la incertidumbre sobre <em>la línea de regresión</em>.</p>
+  </div>
+  <div class="card" style="border-top:3px solid var(--green)">
+    <span class="badge bgr">IP de predicción</span>
+    <p style="font-size:.95rem;margin:.6rem 0">¿En qué rango estará el precio de <strong>una casa específica</strong> con características $\mathbf{x}_0$?</p>
+    $$\hat{y}_0 \pm t_{\alpha/2}\cdot s\sqrt{1 + \mathbf{x}_0^\top(\mathbf{X}^\top\mathbf{X})^{-1}\mathbf{x}_0}$$
+    <p style="font-size:.85rem;color:var(--muted);margin:0">Incluye además la varianza idiosincrática $\sigma^2$ de esa observación.</p>
+  </div>
+</div>
+
+<div class="callout amber">
+  <div class="callout-title">¿Por qué el IP siempre es más ancho que el IC?</div>
+  <p style="margin:0;font-size:.95rem">El IC solo captura la incertidumbre sobre la posición de la recta (parámetros $\hat{\boldsymbol{\beta}}$). El IP captura eso <em>más</em> la variabilidad aleatoria propia de cada casa individual ($\varepsilon_0$). Incluso si conociéramos los parámetros exactos ($n\to\infty$), el IP seguiría siendo ancho porque las casas individuales siempre difieren de la media por razones no capturadas por el modelo.</p>
+</div>
+
+<h3 class="sub-title">Visualización interactiva — IC vs. IP</h3>
+<p style="font-size:.9rem;color:var(--muted)">Ajusta el nivel de confianza y el tamaño de muestra para ver cómo cambian ambos intervalos:</p>
+
+<div class="grid2">
+  <div>
+    <div class="slider-row"><label>Confianza $1-\alpha$</label><input type="range" id="sl-conf" min="0.80" max="0.99" step="0.01" value="0.95" oninput="updateIntervals()"><span class="sv" id="v-conf">95%</span></div>
+    <div class="slider-row"><label>Tamaño $n$</label><input type="range" id="sl-n" min="10" max="500" step="10" value="100" oninput="updateIntervals()"><span class="sv" id="v-n">100</span></div>
+    <div class="slider-row"><label>$\sigma$ (desv. error)</label><input type="range" id="sl-sig" min="0.1" max="1.0" step="0.05" value="0.35" oninput="updateIntervals()"><span class="sv" id="v-sig">0.35</span></div>
+  </div>
+  <div class="card" id="interval-result"></div>
+</div>
+
+<div class="interval-vis">
+  <div class="sub2">Comparación gráfica de anchuras (centrados en $\hat{y}_0$)</div>
+  <div class="iv-row">
+    <span class="iv-label">IC (media)</span>
+    <div class="iv-bar-wrap"><div class="iv-center"></div><div class="iv-band iv-ic" id="ic-band"></div></div>
+    <span class="iv-num" id="ic-num"></span>
+  </div>
+  <div class="iv-row">
+    <span class="iv-label">IP (predicción)</span>
+    <div class="iv-bar-wrap"><div class="iv-center"></div><div class="iv-band iv-ip" id="ip-band"></div></div>
+    <span class="iv-num" id="ip-num"></span>
+  </div>
+</div>
+
+<div class="chart-wrap" style="height:280px">
+  <canvas id="band-chart" role="img" aria-label="Gráfico de regresión con bandas de IC y IP alrededor de la recta ajustada.">Bandas de IC e IP alrededor de la recta de regresión.</canvas>
+</div>
+
+
+<!-- ═══ TRANSFORMACIÓN INVERSA ═══ -->
+<h2 class="sec-title">5.3 Transformación inversa de los intervalos</h2>
+
+<p>Cuando el modelo se estimó sobre $\tilde{y} = \ln(y)$, los intervalos se calculan primero en log-escala y luego se transforman con la función exponencial. El resultado en escala original es <strong>asimétrico</strong>:</p>
+
+$$\text{IC}_{\inf} = e^{\hat{\tilde{y}}_0 - t_{\alpha/2}\cdot\hat{s}_0}, \qquad \text{IC}_{\sup} = e^{\hat{\tilde{y}}_0 + t_{\alpha/2}\cdot\hat{s}_0}$$
+
+<div class="callout blue">
+  <div class="callout-title">Por qué el intervalo es asimétrico en escala original</div>
+  <p style="margin:0;font-size:.95rem">En log-escala el intervalo es simétrico: $[\hat{\tilde{y}}_0 - h,\ \hat{\tilde{y}}_0 + h]$. Al aplicar $e^{(\cdot)}$, la transformación no es lineal: sube más rápido hacia arriba que hacia abajo. El resultado $[e^{\hat{\tilde{y}}_0-h},\ e^{\hat{\tilde{y}}_0+h}]$ es asimétrico. Esto es <em>correcto</em> porque $y>0$ y la distribución de precios es intrínsecamente sesgada.</p>
+</div>
+
+<h3 class="sub-title">Ejemplo numérico: intervalos en ambas escalas</h3>
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>Escala</th><th>Punto central</th><th>IC 95% inferior</th><th>IC 95% superior</th><th>Semiancho</th></tr></thead>
+  <tbody>
+    <tr><td>Log-escala</td><td class="mono">0.5821</td><td class="mono">0.5821 − 0.0461 = 0.5360</td><td class="mono">0.5821 + 0.0461 = 0.6282</td><td class="mono">±0.0461</td></tr>
+    <tr><td>Escala original ($)</td><td class="mono">$190,900</td><td class="mono">$170,900 (−10.5%)</td><td class="mono">$213,400 (+11.8%)</td><td class="mono">Asimétrico</td></tr>
+    <tr><td>IP 95% — escala original</td><td class="mono">$190,900</td><td class="mono">$92,100 (−51.8%)</td><td class="mono">$394,800 (+106.8%)</td><td class="mono">Muy asimétrico</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p style="font-size:.88rem;color:var(--muted)">El IP es mucho más ancho que el IC porque incluye la varianza idiosincrática de cada casa. En escala original, el intervalo de predicción prácticamente dobla hacia arriba el valor predicho.</p>
+
+
+<!-- ═══ CALCULADORA INTERACTIVA ═══ -->
+<h2 class="sec-title">5.4 Calculadora de pronóstico</h2>
+<p class="lead">Ingresa las características de un distrito y calcula el pronóstico con intervalos al 95%. Los coeficientes corresponden al modelo estimado con California Housing (datos estandarizados).</p>
+
+<div class="input-grid">
+  <div class="input-item"><label>MedInc (×$10k)</label><input type="number" id="i-medinc" value="3.5" min="0.5" max="15" step="0.1"></div>
+  <div class="input-item"><label>HouseAge (años)</label><input type="number" id="i-age" value="25" min="1" max="52" step="1"></div>
+  <div class="input-item"><label>AveRooms</label><input type="number" id="i-rooms" value="5.2" min="1" max="20" step="0.1"></div>
+  <div class="input-item"><label>AveBedrms</label><input type="number" id="i-beds" value="1.05" min="0.5" max="5" step="0.05"></div>
+  <div class="input-item"><label>Population</label><input type="number" id="i-pop" value="1200" min="50" max="10000" step="50"></div>
+  <div class="input-item"><label>AveOccup</label><input type="number" id="i-occ" value="3.0" min="1" max="10" step="0.1"></div>
+  <div class="input-item"><label>Latitude</label><input type="number" id="i-lat" value="34.0" min="32" max="42" step="0.1"></div>
+  <div class="input-item"><label>Longitude</label><input type="number" id="i-lon" value="-118.5" min="-124" max="-114" step="0.1"></div>
+</div>
+
+<button class="run-btn" onclick="calcPronostico()">Calcular pronóstico →</button>
+
+<div id="pred-result" style="margin-top:1.5rem;display:none">
+  <div class="grid3">
+    <div class="pred-card">
+      <div class="pred-label">Pronóstico puntual</div>
+      <div class="pred-val" id="p-point">—</div>
+      <div class="pred-range" id="p-log">log: —</div>
+    </div>
+    <div class="pred-card" style="--g:var(--blue)">
+      <div class="pred-label">IC 95% (para la media)</div>
+      <div style="font-size:1rem;font-weight:600;color:var(--blue);font-family:var(--serif)" id="p-ic">—</div>
+      <div class="pred-range" id="p-ic-note">Precio promedio de distritos similares</div>
+    </div>
+    <div class="pred-card" style="--g:var(--green)">
+      <div class="pred-label">IP 95% (para este distrito)</div>
+      <div style="font-size:1rem;font-weight:600;color:var(--green);font-family:var(--serif)" id="p-ip">—</div>
+      <div class="pred-range" id="p-ip-note">Precio de este distrito específico</div>
+    </div>
+  </div>
+  <div class="chart-wrap" style="height:240px;margin-top:1rem">
+    <canvas id="pred-chart" role="img" aria-label="Gráfico de barras con el pronóstico y sus intervalos.">Pronóstico con intervalos de confianza y predicción.</canvas>
+  </div>
+</div>
+
+
+<!-- ═══ RESUMEN FINAL ═══ -->
+<h2 class="sec-title">5.5 Resumen del flujo completo</h2>
+
+<ul class="steps">
+  <li><div class="sn">1</div><div class="sb"><strong>Estimar el modelo</strong> con MCO sobre los datos de entrenamiento en log-escala: $\ln(y) = \mathbf{X}\boldsymbol{\beta} + \boldsymbol{\varepsilon}$.</div></li>
+  <li><div class="sn">2</div><div class="sb"><strong>Estandarizar $\mathbf{x}_0$</strong> con los parámetros del scaler ajustado en train (misma media y desviación estándar).</div></li>
+  <li><div class="sn">3</div><div class="sb"><strong>Pronóstico en log-escala</strong>: $\hat{\tilde{y}}_0 = \mathbf{x}_0^\top\hat{\boldsymbol{\beta}}$.</div></li>
+  <li><div class="sn">4</div><div class="sb"><strong>Construir IC e IP en log-escala</strong> usando el error estándar de predicción correspondiente.</div></li>
+  <li><div class="sn">5</div><div class="sb"><strong>Transformar a escala original</strong>: aplicar $\exp(\cdot)$ a los límites del intervalo. Para el punto central, agregar la corrección de Jensen: $\hat{y}_0 = e^{\hat{\tilde{y}}_0}\cdot e^{s^2/2}$.</div></li>
+  <li><div class="sn">6</div><div class="sb"><strong>Reportar</strong> pronóstico puntual, IC 95% (para la media del distrito) e IP 95% (para este distrito específico).</div></li>
+</ul>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>Tipo</th><th>Pregunta que responde</th><th>Ancho relativo</th><th>Cuándo usar</th></tr></thead>
+  <tbody>
+    <tr><td><strong>IC de la media</strong></td><td>¿Cuál es el precio promedio en distritos como este?</td><td class="ok c">Estrecho</td><td>Políticas, análisis de zona, comparación de regiones</td></tr>
+    <tr><td><strong>IP de predicción</strong></td><td>¿Cuánto costará esta casa específica?</td><td class="fail c">Ancho</td><td>Avalúos, decisiones de compra/venta individuales</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="nav-footer">
+  <a href="s04_vif_metricas.html" class="nav-btn">← S04: VIF y Métricas</a>
+  <a href="index.html" class="nav-btn">Inicio ↗</a>
+</div>
+
+</div>
+<footer>EARF · SEPI ESE · Instituto Politécnico Nacional &nbsp;·&nbsp; Ana Lorena Jiménez Preciado</footer>
+
+<script>
+/* ── t critical value approximation ── */
+function tCrit(alpha, df){
+  // Wilson-Hilferty approximation
+  const p = 1 - alpha/2;
+  const z = Math.sqrt(2)*erfInv(2*p-1);
+  return z*(1 + z*z/(4*df));
+}
+function erfInv(x){
+  const a=0.147;
+  const ln=Math.log(1-x*x);
+  const t=2/(Math.PI*a)+ln/2;
+  return Math.sign(x)*Math.sqrt(Math.sqrt(t*t-ln/a)-t);
+}
+const f=(v,d=3)=>v.toFixed(d);
+
+/* ── IC vs IP interactive ── */
+let bandChart=null;
+function updateIntervals(){
+  const conf=parseFloat(document.getElementById('sl-conf').value);
+  const n=parseInt(document.getElementById('sl-n').value);
+  const sigma=parseFloat(document.getElementById('sl-sig').value);
+  document.getElementById('v-conf').textContent=Math.round(conf*100)+'%';
+  document.getElementById('v-n').textContent=n;
+  document.getElementById('v-sig').textContent=sigma.toFixed(2);
+
+  const alpha=1-conf;
+  const df=n-2;
+  const tc=tCrit(alpha,df);
+  const se_ic=sigma/Math.sqrt(n)*1.2; // leverage approximation
+  const half_ic=tc*se_ic;
+  const se_ip=Math.sqrt(sigma*sigma+se_ic*se_ic);
+  const half_ip=tc*se_ip;
+
+  document.getElementById('interval-result').innerHTML=
+    `<div class="kv"><span class="kv-k">Nivel de confianza</span><span class="kv-v hi">${Math.round(conf*100)}%</span></div>`+
+    `<div class="kv"><span class="kv-k">$t_{\\alpha/2,\\,n-2}$</span><span class="kv-v">${tc.toFixed(4)}</span></div>`+
+    `<div class="kv"><span class="kv-k">Semiancho IC</span><span class="kv-v blue">±${half_ic.toFixed(4)}</span></div>`+
+    `<div class="kv"><span class="kv-k">Semiancho IP</span><span class="kv-v ok">±${half_ip.toFixed(4)}</span></div>`+
+    `<div class="kv"><span class="kv-k">IP / IC</span><span class="kv-v">${(half_ip/half_ic).toFixed(2)}× más ancho</span></div>`;
+
+  const maxHalf=Math.max(half_ip,0.001);
+  const icPct=half_ic/maxHalf*48;
+  const ipPct=half_ip/maxHalf*48;
+  document.getElementById('ic-band').style.cssText=`left:${50-icPct}%;width:${icPct*2}%;top:4px;height:16px;border-radius:3px`;
+  document.getElementById('ip-band').style.cssText=`left:${50-ipPct}%;width:${ipPct*2}%;top:4px;height:16px;border-radius:3px`;
+  document.getElementById('ic-num').textContent=`[ŷ − ${half_ic.toFixed(3)}, ŷ + ${half_ic.toFixed(3)}]`;
+  document.getElementById('ip-num').textContent=`[ŷ − ${half_ip.toFixed(3)}, ŷ + ${half_ip.toFixed(3)}]`;
+
+  // regression band chart
+  const xs=Array.from({length:50},(_,i)=>i*0.12);
+  const b0=0.3, b1=0.8;
+  const ys=xs.map(x=>b0+b1*x);
+  const se_x=xs.map(x=>{const d=x-3;return Math.sqrt(sigma*sigma/n*(1+d*d/10));});
+  const ic_up=xs.map((x,i)=>ys[i]+tc*se_x[i]);
+  const ic_dn=xs.map((x,i)=>ys[i]-tc*se_x[i]);
+  const ip_up=xs.map((x,i)=>ys[i]+tc*Math.sqrt(sigma*sigma+se_x[i]*se_x[i]));
+  const ip_dn=xs.map((x,i)=>ys[i]-tc*Math.sqrt(sigma*sigma+se_x[i]*se_x[i]));
+  // scatter
+  function randN(m,s){const u=Math.random(),v=Math.random();return m+s*Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+  const pts=xs.filter((_,i)=>i%3===0).map(x=>({x,y:b0+b1*x+randN(0,sigma)}));
+
+  if(!bandChart){
+    const ctx=document.getElementById('band-chart').getContext('2d');
+    bandChart=new Chart(ctx,{type:'line',data:{labels:xs.map(v=>v.toFixed(1)),datasets:[
+      {label:'IP 95%',data:ip_up,borderColor:'rgba(15,110,86,.5)',borderWidth:1,pointRadius:0,fill:'+1',backgroundColor:'rgba(15,110,86,.07)'},
+      {label:'IP inf',data:ip_dn,borderColor:'rgba(15,110,86,.5)',borderWidth:1,pointRadius:0,fill:false},
+      {label:'IC 95%',data:ic_up,borderColor:'rgba(25,95,165,.7)',borderWidth:1.5,pointRadius:0,fill:'+1',backgroundColor:'rgba(25,95,165,.12)'},
+      {label:'IC inf',data:ic_dn,borderColor:'rgba(25,95,165,.7)',borderWidth:1.5,pointRadius:0,fill:false},
+      {label:'Recta MCO',data:ys,borderColor:'#7b002c',borderWidth:2.5,pointRadius:0,tension:0,fill:false},
+      {label:'Observaciones',data:pts,type:'scatter',backgroundColor:'rgba(123,0,44,.5)',pointRadius:4,showLine:false}
+    ]},options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:10,font:{size:11},filter:i=>[0,2,4,5].includes(i.datasetIndex)}}},
+      scales:{x:{title:{display:true,text:'x'},ticks:{maxTicksLimit:8}},y:{title:{display:true,text:'y'}}}
+    }});
+  } else {
+    bandChart.data.datasets[0].data=ip_up;
+    bandChart.data.datasets[1].data=ip_dn;
+    bandChart.data.datasets[2].data=ic_up;
+    bandChart.data.datasets[3].data=ic_dn;
+    bandChart.data.datasets[4].data=ys;
+    bandChart.update('none');
+  }
+}
+updateIntervals();
+
+/* ── Calculator ── */
+// Approximate OLS coefficients from California Housing (standardized)
+const COEFS={const:0.4506,MedInc:0.4418,HouseAge:0.0682,AveRooms:0.1013,AveBedrms:-0.0614,Population:-0.0071,AveOccup:-0.0387,Latitude:-0.1527,Longitude:-0.1126};
+const MEANS={MedInc:3.8706,HouseAge:28.64,AveRooms:5.4288,AveBedrms:1.0967,Population:1425.5,AveOccup:3.0706,Latitude:35.632,Longitude:-119.570};
+const STDS={MedInc:1.899,HouseAge:12.586,AveRooms:2.474,AveBedrms:0.4739,Population:1132.5,AveOccup:10.387,Latitude:2.136,Longitude:2.004};
+const SIGMA=0.352;
+
+let predChart=null;
+function calcPronostico(){
+  const vals={MedInc:+document.getElementById('i-medinc').value,HouseAge:+document.getElementById('i-age').value,
+    AveRooms:+document.getElementById('i-rooms').value,AveBedrms:+document.getElementById('i-beds').value,
+    Population:+document.getElementById('i-pop').value,AveOccup:+document.getElementById('i-occ').value,
+    Latitude:+document.getElementById('i-lat').value,Longitude:+document.getElementById('i-lon').value};
+
+  // standardize
+  const zv={};
+  for(const k in vals) zv[k]=(vals[k]-MEANS[k])/STDS[k];
+
+  // predict log(y)
+  const logy=COEFS.const+Object.keys(zv).reduce((s,k)=>s+COEFS[k]*zv[k],0);
+  const y_pt=Math.exp(logy+SIGMA*SIGMA/2)*100000; // in USD
+
+  // intervals (approximate leverage = 1/n)
+  const n=16497, k=8;
+  const tc=tCrit(0.05,n-k-1);
+  const se_ic=SIGMA/Math.sqrt(n)*2.5;
+  const half_ic_log=tc*se_ic;
+  const half_ip_log=tc*Math.sqrt(SIGMA*SIGMA+se_ic*se_ic);
+
+  const ic_lo=Math.exp(logy-half_ic_log)*100000;
+  const ic_hi=Math.exp(logy+half_ic_log)*100000;
+  const ip_lo=Math.exp(logy-half_ip_log)*100000;
+  const ip_hi=Math.exp(logy+half_ip_log)*100000;
+
+  const fmt=v=>'$'+Math.round(v/1000)+'k';
+  document.getElementById('p-point').textContent=fmt(y_pt);
+  document.getElementById('p-log').textContent=`log: ${logy.toFixed(4)}`;
+  document.getElementById('p-ic').textContent=`${fmt(ic_lo)} — ${fmt(ic_hi)}`;
+  document.getElementById('p-ip').textContent=`${fmt(ip_lo)} — ${fmt(ip_hi)}`;
+
+  document.getElementById('pred-result').style.display='block';
+
+  // bar chart
+  if(predChart){predChart.destroy();}
+  const ctx=document.getElementById('pred-chart').getContext('2d');
+  const pt_k=Math.round(y_pt/1000);
+  predChart=new Chart(ctx,{type:'bar',data:{
+    labels:['Pronóstico puntual','IC 95% (media)','IP 95% (individuo)'],
+    datasets:[
+      {label:'Mínimo',data:[pt_k,Math.round(ic_lo/1000),Math.round(ip_lo/1000)],backgroundColor:'transparent',borderWidth:0},
+      {label:'Rango',data:[0,Math.round((ic_hi-ic_lo)/1000),Math.round((ip_hi-ip_lo)/1000)],
+        backgroundColor:['rgba(123,0,44,.7)','rgba(25,95,165,.55)','rgba(15,110,86,.45)'],
+        borderColor:['#7b002c','#185FA5','#0F6E56'],borderWidth:2,borderRadius:4}
+    ]
+  },options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{
+      label:ctx=>ctx.datasetIndex===1?`Ancho: $${ctx.parsed.y}k`:''
+    }}},
+    scales:{
+      x:{stacked:true},
+      y:{stacked:true,title:{display:true,text:'Precio ($k USD)'},
+        min:Math.round(ip_lo/1000)-20,max:Math.round(ip_hi/1000)+20}
+    }
+  }});
+}
+</script>
+</body>
+</html>

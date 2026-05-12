@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teorema Central del Límite · EARF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --g:#7b002c;--gd:#560020;--gl:#f8f0f3;--gm:#c9879f;
+  --blue:#185FA5;--bl:#e6f1fb;--green:#0F6E56;--grn:#e1f5ee;
+  --amber:#b86e00;--al:#fef3e2;--red:#a32d2d;--rl:#fdeaea;
+  --text:#1a1a1a;--muted:#5a5a5a;--faint:#aaa;
+  --border:#e0d6da;--surf:#fff;--bg:#faf8f9;
+  --serif:'Lora',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;--r:10px;--r2:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}
+
+/* topbar */
+.topbar{background:var(--gd);color:#fff;padding:.7rem 1.5rem;display:flex;align-items:center;gap:1rem;font-size:.85rem;flex-wrap:wrap}
+.topbar a{color:rgba(255,255,255,.65);text-decoration:none}.topbar a:hover{color:#fff}
+.topbar-sep{color:rgba(255,255,255,.3)}.topbar-curr{color:#fff;font-weight:500}
+.topbar-badge{margin-left:auto;background:rgba(255,255,255,.15);padding:2px 10px;border-radius:20px;font-size:.75rem;color:rgba(255,255,255,.8)}
+
+/* hero */
+.hero{
+  background:var(--gd);padding:3rem 2rem 3.5rem;
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 70% 50%, rgba(201,135,159,.18) 0%, transparent 65%);
+}
+.hero::after{
+  content:'TCL';position:absolute;right:-1rem;top:50%;transform:translateY(-50%);
+  font-family:var(--serif);font-size:11rem;font-weight:600;
+  color:rgba(255,255,255,.04);line-height:1;pointer-events:none;letter-spacing:-.02em;
+}
+.hero-inner{max-width:860px;margin:0 auto;position:relative;z-index:1}
+.hero-tag{font-size:.75rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gm);margin-bottom:.7rem}
+.hero-title{font-family:var(--serif);font-size:clamp(1.8rem,4vw,2.6rem);font-weight:600;color:#fff;line-height:1.2;margin-bottom:.75rem}
+.hero-title em{color:var(--gm);font-style:italic}
+.hero-lead{font-size:1rem;color:rgba(255,255,255,.68);max-width:580px;line-height:1.75}
+
+/* page */
+.page{max-width:860px;margin:0 auto;padding:2.5rem 2rem 5rem}
+p{margin:.5rem 0 .9rem;color:var(--text);line-height:1.75}
+.lead{font-size:1.02rem;color:var(--muted);margin-bottom:1.5rem;line-height:1.75}
+
+/* headings */
+.sec-title{font-family:var(--serif);font-size:1.45rem;font-weight:600;color:var(--g);
+  margin:2.75rem 0 .5rem;padding-bottom:.4rem;border-bottom:2px solid var(--gm)}
+.sub-title{font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--gd);margin:1.6rem 0 .45rem}
+.sub2{font-size:.75rem;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:1.2rem 0 .35rem}
+
+/* callout */
+.callout{border-left:3px solid var(--g);background:var(--gl);border-radius:0 var(--r) var(--r) 0;padding:.95rem 1.15rem;margin:1rem 0 1.25rem}
+.callout-title{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--g);margin-bottom:.4rem}
+.callout.blue{border-color:var(--blue);background:var(--bl)}.callout.blue .callout-title{color:var(--blue)}
+.callout.green{border-color:var(--green);background:var(--grn)}.callout.green .callout-title{color:var(--green)}
+.callout.amber{border-color:var(--amber);background:var(--al)}.callout.amber .callout-title{color:var(--amber)}
+
+/* card */
+.card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r2);padding:1.15rem 1.3rem;box-shadow:0 2px 12px rgba(123,0,44,.06)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin:1rem 0}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1rem;margin:1rem 0}
+.grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.75rem;margin:1rem 0}
+
+/* stat */
+.stat{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:.9rem 1rem;text-align:center}
+.stat-val{font-family:var(--serif);font-size:1.7rem;font-weight:600;line-height:1.1}
+.stat-label{font-size:.78rem;color:var(--muted);margin-top:.2rem;line-height:1.4}
+
+/* table */
+.tbl-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border);margin:1rem 0}
+table.tbl{width:100%;border-collapse:collapse;font-size:.88rem}
+table.tbl th{background:var(--gl);color:var(--gd);font-weight:500;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;padding:7px 12px;text-align:right;border-bottom:2px solid var(--gm)}
+table.tbl th:first-child{text-align:center}
+table.tbl td{padding:7px 12px;border-bottom:1px solid var(--border);text-align:right;font-family:var(--mono);font-size:.85rem}
+table.tbl td:first-child{text-align:center;font-family:var(--sans);font-weight:600;color:var(--g)}
+table.tbl tr:last-child td{border:none;background:var(--gl);font-weight:600}
+table.tbl tr:hover td{background:#fdf7f9}
+
+/* formula */
+.fml{background:#f5f2f0;border:1px solid #e8e0dc;border-radius:var(--r);padding:.8rem 1.1rem;
+  font-family:var(--mono);font-size:.88rem;line-height:1.9;margin:.6rem 0;overflow-x:auto;color:var(--text)}
+.fml .h{color:var(--blue);font-weight:600}.fml .h2{color:var(--green);font-weight:600}.fml .h3{color:var(--g);font-weight:600}
+
+/* simulation panel */
+.sim-panel{background:var(--surf);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;margin:1.5rem 0;box-shadow:0 4px 20px rgba(123,0,44,.08)}
+.sim-header{background:var(--gd);padding:1rem 1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.sim-header-title{font-family:var(--serif);font-size:1rem;font-weight:600;color:#fff;flex:1}
+.sim-badge{font-size:.72rem;background:rgba(255,255,255,.15);color:rgba(255,255,255,.85);padding:3px 10px;border-radius:20px;white-space:nowrap}
+.sim-body{padding:1.5rem}
+
+/* controls */
+.ctrl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.25rem}
+.ctrl-item label{font-size:.78rem;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;display:block;margin-bottom:.35rem}
+.ctrl-item input[type=range]{width:100%;accent-color:var(--g);height:4px}
+.ctrl-item .val{font-family:var(--mono);font-size:.9rem;font-weight:600;color:var(--g);margin-top:.2rem;display:block}
+.ctrl-item select{width:100%;padding:.4rem .6rem;border:1px solid var(--border);border-radius:6px;font-size:.88rem;font-family:var(--sans);color:var(--text);background:var(--surf)}
+
+/* run button */
+.run-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1.4rem;
+  background:var(--g);color:#fff;border:none;border-radius:var(--r);font-size:.9rem;font-weight:500;
+  cursor:pointer;transition:background .15s,transform .1s;font-family:var(--sans)}
+.run-btn:hover{background:var(--gd)}.run-btn:active{transform:scale(.97)}
+.run-btn svg{width:16px;height:16px}
+
+/* metrics row */
+.metrics-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.75rem;margin:1rem 0}
+.metric{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:.7rem .9rem;text-align:center}
+.metric-val{font-family:var(--mono);font-size:1.1rem;font-weight:600;color:var(--g)}
+.metric-label{font-size:.75rem;color:var(--muted);margin-top:.15rem;line-height:1.4}
+.metric.highlight .metric-val{color:var(--green)}
+
+/* chart */
+.chart-wrap{position:relative;width:100%;margin:.75rem 0}
+
+/* steps */
+.steps{list-style:none;margin:.75rem 0}
+.steps li{display:flex;gap:.9rem;align-items:flex-start;padding:.6rem 0;border-bottom:1px dashed var(--border)}
+.steps li:last-child{border:none}
+.sn{min-width:28px;height:28px;border-radius:50%;background:var(--g);color:#fff;font-size:.75rem;font-weight:600;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.sb{font-size:.93rem;line-height:1.65}
+
+/* kv */
+.kv{display:flex;justify-content:space-between;align-items:center;font-size:.9rem;padding:5px 0;border-bottom:1px solid var(--border)}
+.kv:last-child{border:none}.kv-k{color:var(--muted)}.kv-v{font-family:var(--mono);font-weight:600;color:var(--text)}
+.kv-v.ok{color:var(--green)}.kv-v.hi{color:var(--g)}
+
+/* badge */
+.badge{display:inline-block;font-size:.73rem;font-weight:600;padding:2px 9px;border-radius:20px;letter-spacing:.04em}
+.bg{background:var(--gl);color:var(--gd)}.bb{background:var(--bl);color:var(--blue)}
+.bgr{background:var(--grn);color:var(--green)}.ba{background:var(--al);color:var(--amber)}
+
+/* numeric example */
+.num-table{width:100%;border-collapse:collapse;font-size:.88rem}
+.num-table th{background:var(--gl);color:var(--gd);font-weight:500;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;padding:6px 10px;text-align:right;border-bottom:2px solid var(--gm)}
+.num-table th:first-child{text-align:center}
+.num-table td{padding:6px 10px;border-bottom:1px solid var(--border);text-align:right;font-family:var(--mono);font-size:.85rem}
+.num-table td:first-child{text-align:center;font-family:var(--sans);font-weight:600;color:var(--g);font-size:.82rem}
+.num-table .total-row td{background:var(--gl);font-weight:600;border-top:2px solid var(--gm)}
+.num-table .xbar-row td{background:var(--bl);color:var(--blue);font-weight:600}
+
+/* progress animation */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.running{animation:pulse .8s infinite}
+
+/* nav */
+.nav-footer{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding:1.5rem 0;margin-top:3rem;flex-wrap:wrap;gap:.75rem}
+.nav-btn{display:flex;align-items:center;gap:.5rem;padding:.55rem 1.1rem;border-radius:var(--r);border:1px solid var(--border);text-decoration:none;font-size:.88rem;font-weight:500;color:var(--g);background:var(--surf);transition:background .1s,border-color .1s}
+.nav-btn:hover{background:var(--gl);border-color:var(--gm)}
+
+footer{border-top:1px solid var(--border);padding:1.5rem 2rem;text-align:center;font-size:.8rem;color:var(--faint);max-width:860px;margin:0 auto}
+@media(max-width:600px){.page{padding:1.5rem 1.1rem 4rem}.hero{padding:2rem 1.25rem 2.5rem}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html">Inicio</a><span class="topbar-sep">›</span>
+  <a href="s03_supuestos.html">S03 Supuestos</a><span class="topbar-sep">›</span>
+  <span class="topbar-curr">Teorema Central del Límite</span>
+  <span class="topbar-badge">Apéndice A</span>
+</div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">Apéndice A · Fundamentos de inferencia</div>
+    <h1 class="hero-title">Teorema Central<br>del <em>Límite</em></h1>
+    <p class="hero-lead">El resultado más importante de la estadística: sin importar qué tan rara sea la distribución de una variable, la media de muestras grandes siempre se comporta como una normal. Por eso podemos hacer inferencia en regresión lineal sin asumir nada sobre los datos.</p>
+  </div>
+</div>
+
+<div class="page">
+
+<!-- ═══ ENUNCIADO ═══ -->
+<h2 class="sec-title">El enunciado formal</h2>
+
+<p>Sean $X_1, X_2, \ldots, X_n$ variables aleatorias independientes e idénticamente distribuidas (i.i.d.) con media $\mu$ y varianza $\sigma^2 < \infty$. Define la media muestral:</p>
+
+$$\bar{X}_n = \frac{1}{n}\sum_{i=1}^n X_i$$
+
+<div class="callout">
+  <div class="callout-title">Teorema Central del Límite (TCL)</div>
+  <p style="margin:.3rem 0">Cuando $n \to \infty$, la media muestral estandarizada converge en distribución a una normal estándar:</p>
+  $$\frac{\bar{X}_n - \mu}{\sigma/\sqrt{n}} \xrightarrow{d} \mathcal{N}(0,\, 1)$$
+  <p style="margin:.4rem 0 0;font-size:.9rem">O equivalentemente: $\bar{X}_n \overset{a}{\sim} \mathcal{N}\!\left(\mu,\; \dfrac{\sigma^2}{n}\right)$</p>
+</div>
+
+<p>Tres cosas que el TCL <strong>no</strong> requiere:</p>
+<div class="grid3">
+  <div class="card"><span class="badge bg">No necesita</span><p style="font-size:.9rem;margin:.4rem 0 0">Que los datos sean normales</p></div>
+  <div class="card"><span class="badge bg">No necesita</span><p style="font-size:.9rem;margin:.4rem 0 0">Que la distribución sea simétrica</p></div>
+  <div class="card"><span class="badge bg">No necesita</span><p style="font-size:.9rem;margin:.4rem 0 0">Conocer la forma de $f(x)$</p></div>
+</div>
+
+<p>Lo único que exige es que la varianza sea finita y que las observaciones sean independientes.</p>
+
+
+<!-- ═══ INTUICIÓN ═══ -->
+<h2 class="sec-title">¿Por qué funciona? Intuición geométrica</h2>
+
+<p>Cuando promedias $n$ valores, estás sumando $n$ variables aleatorias. Cada una aporta su propia "forma" irregular a la suma. Al promediar, las colas gordas de unas observaciones se compensan con las colas gordas de otras en dirección opuesta. Con suficientes términos, esta cancelación mutua genera invariablemente la forma de campana gaussiana.</p>
+
+<ul class="steps">
+  <li><div class="sn">1</div><div class="sb">Con $n=1$: la distribución de $\bar{X}$ es idéntica a la distribución original de $X$ — puede ser asimétrica, multimodal, uniforme o cualquier forma.</div></li>
+  <li><div class="sn">2</div><div class="sb">Con $n=5$: la distribución comienza a suavizarse. Las colas extremas se vuelven menos probables porque requieren que <em>todas</em> las observaciones sean extremas al mismo tiempo.</div></li>
+  <li><div class="sn">3</div><div class="sb">Con $n=30$: la distribución de $\bar{X}$ ya es aproximadamente normal para la mayoría de distribuciones. El valor $n=30$ es la regla práctica habitual en estadística aplicada.</div></li>
+  <li><div class="sn">4</div><div class="sb">Con $n \to \infty$: convergencia exacta a la normal, independientemente de cuán irregular fuera la distribución original.</div></li>
+</ul>
+
+<div class="callout amber">
+  <div class="callout-title">La varianza de la media cae con n</div>
+  <p style="margin:0">$$\text{Var}(\bar{X}_n) = \frac{\sigma^2}{n}$$
+  Cada vez que cuadruplicamos el tamaño de muestra, el error estándar de la media se <em>reduce a la mitad</em>. Esta es la razón por la que más datos siempre mejoran la precisión de la estimación.</p>
+</div>
+
+
+<!-- ═══ EJEMPLO NUMÉRICO ═══ -->
+<h2 class="sec-title">Ejemplo numérico paso a paso</h2>
+
+<p>Usamos una distribución <strong>exponencial</strong> con parámetro $\lambda = 1$ — fuertemente asimétrica, nada parecida a una normal — para demostrar que el TCL funciona incluso en casos extremos.</p>
+
+<div class="grid2" style="margin-bottom:1.25rem">
+  <div class="card">
+    <div class="sub2">Distribución original</div>
+    <div class="kv"><span class="kv-k">Distribución</span><span class="kv-v">Exponencial($\lambda=1$)</span></div>
+    <div class="kv"><span class="kv-k">Media $\mu$</span><span class="kv-v hi">1.000</span></div>
+    <div class="kv"><span class="kv-k">Varianza $\sigma^2$</span><span class="kv-v">1.000</span></div>
+    <div class="kv"><span class="kv-k">Desv. estándar $\sigma$</span><span class="kv-v">1.000</span></div>
+    <div class="kv"><span class="kv-k">Sesgo</span><span class="kv-v" style="color:var(--red)">2.000 (muy asimétrica)</span></div>
+  </div>
+  <div class="card">
+    <div class="sub2">Distribución de $\bar{X}_n$ (TCL)</div>
+    <div class="kv"><span class="kv-k">Media de $\bar{X}_n$</span><span class="kv-v hi">$\mu = 1.000$</span></div>
+    <div class="kv"><span class="kv-k">Varianza de $\bar{X}_n$</span><span class="kv-v">$\sigma^2/n = 1/n$</span></div>
+    <div class="kv"><span class="kv-k">Error estándar ($n=30$)</span><span class="kv-v ok">$1/\sqrt{30} = 0.1826$</span></div>
+    <div class="kv"><span class="kv-k">Error estándar ($n=100$)</span><span class="kv-v ok">$1/\sqrt{100} = 0.1000$</span></div>
+  </div>
+</div>
+
+<h3 class="sub-title">Simulación manual: 3 muestras de tamaño $n = 5$</h3>
+<p>Generamos 3 muestras de una Exponencial(1) y calculamos su media:</p>
+
+<div class="tbl-wrap">
+  <table class="num-table">
+    <thead>
+      <tr>
+        <th>Muestra</th>
+        <th>$x_1$</th><th>$x_2$</th><th>$x_3$</th><th>$x_4$</th><th>$x_5$</th>
+        <th>$\bar{x}$</th><th>$\bar{x} - \mu$</th>
+        <th>$\frac{\bar{x}-\mu}{\sigma/\sqrt{n}}$</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>0.21</td><td>1.83</td><td>0.09</td><td>2.47</td><td>0.65</td>
+        <td>1.050</td><td>+0.050</td><td>+0.112</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>3.14</td><td>0.44</td><td>0.87</td><td>1.22</td><td>0.08</td>
+        <td>1.150</td><td>+0.150</td><td>+0.335</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>0.55</td><td>0.18</td><td>2.91</td><td>0.33</td><td>1.04</td>
+        <td>1.002</td><td>+0.002</td><td>+0.004</td>
+      </tr>
+      <tr class="total-row">
+        <td>Promedio</td>
+        <td colspan="5" style="text-align:center;font-family:var(--sans);font-size:.82rem;color:var(--muted)">—</td>
+        <td>1.067</td><td>+0.067</td><td>+0.150</td>
+      </tr>
+      <tr class="xbar-row">
+        <td>TCL predice</td>
+        <td colspan="5" style="text-align:center;font-family:var(--sans);font-size:.82rem">$\bar{X}_5 \overset{a}{\sim} \mathcal{N}(1,\ 1/5)$</td>
+        <td>1.000</td><td>0.000</td><td>0.000</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p style="font-size:.88rem;color:var(--muted)">Con solo 3 muestras la aproximación es ruidosa, pero el promedio de las medias ya se acerca a $\mu=1$. Con 10,000 muestras — como en la simulación interactiva — la distribución de $\bar{X}$ se vuelve prácticamente indistinguible de una normal.</p>
+
+<h3 class="sub-title">Error estándar para distintos $n$</h3>
+
+<div class="tbl-wrap">
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th>$n$</th>
+        <th>$\sigma/\sqrt{n}$</th>
+        <th>IC 95% aproximado</th>
+        <th>Reducción vs. $n=1$</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>1.0000</td><td>$[\,-0.96,\; 2.96\,]$</td><td>—</td></tr>
+      <tr><td>5</td><td>0.4472</td><td>$[\;0.12,\; 1.88\;]$</td><td>−55%</td></tr>
+      <tr><td>10</td><td>0.3162</td><td>$[\;0.38,\; 1.62\;]$</td><td>−68%</td></tr>
+      <tr><td>30</td><td>0.1826</td><td>$[\;0.64,\; 1.36\;]$</td><td>−82%</td></tr>
+      <tr><td>100</td><td>0.1000</td><td>$[\;0.80,\; 1.20\;]$</td><td>−90%</td></tr>
+      <tr><td>1000</td><td>0.0316</td><td>$[\;0.94,\; 1.06\;]$</td><td>−97%</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ═══ SIMULACIÓN INTERACTIVA ═══ -->
+<h2 class="sec-title">Simulación interactiva</h2>
+<p class="lead">Elige una distribución de partida y un tamaño de muestra. El simulador genera 5,000 muestras de tamaño $n$, calcula su media y construye el histograma — compara con la curva normal teórica que predice el TCL.</p>
+
+<div class="sim-panel">
+  <div class="sim-header">
+    <div class="sim-header-title">Simulador del TCL — 5,000 muestras</div>
+    <span class="sim-badge" id="sim-status">Listo</span>
+  </div>
+  <div class="sim-body">
+
+    <div class="ctrl-grid">
+      <div class="ctrl-item">
+        <label>Distribución de origen</label>
+        <select id="dist-sel" onchange="resetSim()">
+          <option value="uniform">Uniforme (0, 1) — simétrica, sin colas</option>
+          <option value="exponential" selected>Exponencial (λ=1) — fuerte sesgo derecho</option>
+          <option value="bernoulli">Bernoulli (p=0.3) — binaria, asimétrica</option>
+          <option value="bimodal">Bimodal — dos picos separados</option>
+          <option value="pareto">Pareto (α=2) — cola muy pesada</option>
+        </select>
+      </div>
+      <div class="ctrl-item">
+        <label>Tamaño de muestra $n$</label>
+        <input type="range" id="n-slider" min="1" max="100" step="1" value="5" oninput="updateN()">
+        <span class="val" id="n-val">n = 5</span>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;margin-bottom:1rem">
+      <button class="run-btn" onclick="runSim()">
+        <svg viewBox="0 0 16 16" fill="none"><polygon points="4,2 14,8 4,14" fill="white"/></svg>
+        Simular 5,000 muestras
+      </button>
+      <button class="run-btn" style="background:var(--muted)" onclick="resetSim()">Reiniciar</button>
+    </div>
+
+    <div class="metrics-row" id="metrics-row">
+      <div class="metric"><div class="metric-val" id="m-mu">—</div><div class="metric-label">$\mu$ teórica</div></div>
+      <div class="metric"><div class="metric-val" id="m-sigma">—</div><div class="metric-label">$\sigma$ teórica</div></div>
+      <div class="metric"><div class="metric-val" id="m-se">—</div><div class="metric-label">Error estándar $\sigma/\sqrt{n}$</div></div>
+      <div class="metric highlight"><div class="metric-val" id="m-xbar">—</div><div class="metric-label">$\bar{x}$ simulado</div></div>
+      <div class="metric highlight"><div class="metric-val" id="m-se-sim">—</div><div class="metric-label">Desv. est. simulada</div></div>
+      <div class="metric"><div class="metric-val" id="m-sw">—</div><div class="metric-label">p-valor normalidad</div></div>
+    </div>
+
+    <div class="grid2" style="gap:1rem">
+      <div>
+        <div class="sub2">Distribución original de X</div>
+        <div class="chart-wrap" style="height:220px">
+          <canvas id="orig-chart" role="img" aria-label="Histograma de la distribución de origen seleccionada.">Distribución de origen.</canvas>
+        </div>
+      </div>
+      <div>
+        <div class="sub2" id="xbar-label">Distribución de X̄ (n = 5)</div>
+        <div class="chart-wrap" style="height:220px">
+          <canvas id="xbar-chart" role="img" aria-label="Histograma de la distribución de la media muestral comparada con la normal teórica del TCL.">Distribución de la media muestral vs. normal TCL.</canvas>
+        </div>
+      </div>
+    </div>
+
+    <div id="convergence-wrap" style="margin-top:1rem">
+      <div class="sub2">Convergencia a la normal — cómo evoluciona con $n$</div>
+      <div class="chart-wrap" style="height:200px">
+        <canvas id="conv-chart" role="img" aria-label="Gráfico de la distancia entre la distribución simulada y la normal teórica en función del tamaño de muestra n.">Convergencia del TCL al aumentar n.</canvas>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══ TCL EN REGRESIÓN ═══ -->
+<h2 class="sec-title">¿Por qué importa el TCL en regresión lineal?</h2>
+
+<p>El estimador MCO es una función lineal de $\mathbf{y}$:</p>
+$$\hat{\boldsymbol{\beta}} = (\mathbf{X}^\top\mathbf{X})^{-1}\mathbf{X}^\top\mathbf{y} = \boldsymbol{\beta} + (\mathbf{X}^\top\mathbf{X})^{-1}\mathbf{X}^\top\boldsymbol{\varepsilon}$$
+
+<p>Es decir, $\hat{\beta}_j$ es una <strong>suma ponderada</strong> de los errores $\varepsilon_i$. Por el TCL, si $n$ es suficientemente grande, esta suma se distribuye aproximadamente normal <em>sin importar</em> la distribución de $\varepsilon_i$:</p>
+
+$$\hat{\beta}_j \overset{a}{\sim} \mathcal{N}\!\left(\beta_j,\; \sigma^2\,[({\mathbf{X}^\top\mathbf{X}})^{-1}]_{jj}\right)$$
+
+<div class="callout green">
+  <div class="callout-title">Consecuencia práctica fundamental</div>
+  <p style="margin:0">Con $n$ grande (típicamente $n > 100$ en la práctica), los estadísticos $t$ y $F$ son válidos <strong>aunque los errores no sean normales</strong>. El TCL nos libera del supuesto de normalidad para la inferencia asintótica. Por eso en el dataset de California Housing ($n = 20{,}640$) podemos hacer inferencia válida a pesar de que el Q-Q plot muestre desviaciones en las colas.</p>
+</div>
+
+<h3 class="sub-title">Regla práctica: ¿cuándo aplicar el TCL en regresión?</h3>
+
+<div class="grid3">
+  <div class="card" style="border-top:3px solid var(--green)">
+    <span class="badge bgr">$n > 100$</span>
+    <p style="font-size:.9rem;margin:.5rem 0 0">Inferencia asintótica confiable para la mayoría de distribuciones de errores. Los estadísticos $t$ y $F$ son válidos.</p>
+  </div>
+  <div class="card" style="border-top:3px solid var(--amber)">
+    <span class="badge ba">$30 < n < 100$</span>
+    <p style="font-size:.9rem;margin:.5rem 0 0">Zona gris. Verificar el Q-Q plot. Si los errores son muy asimétricos o tienen colas muy pesadas, la aproximación puede ser imprecisa.</p>
+  </div>
+  <div class="card" style="border-top:3px solid var(--red)">
+    <span class="badge" style="background:var(--rl);color:var(--red)">$n < 30$</span>
+    <p style="font-size:.9rem;margin:.5rem 0 0">No confiar en el TCL. Los estadísticos exactos requieren normalidad de los errores (supuesto 6). Usar bootstrap o transformaciones.</p>
+  </div>
+</div>
+
+<h3 class="sub-title">Resumen: TCL y los supuestos de Gauss-Markov</h3>
+<div class="tbl-wrap">
+  <table class="tbl">
+    <thead><tr><th style="text-align:left">Situación</th><th>Válida inferencia con $t$ y $F$</th><th>Motivo</th></tr></thead>
+    <tbody>
+      <tr>
+        <td style="text-align:left;font-family:var(--sans)">Errores normales, cualquier $n$</td>
+        <td style="text-align:center;color:var(--green);font-weight:600">✓ Exacta</td>
+        <td style="text-align:left;font-family:var(--sans)">Supuesto 6 cumplido</td>
+      </tr>
+      <tr>
+        <td style="text-align:left;font-family:var(--sans)">Errores no normales, $n > 100$</td>
+        <td style="text-align:center;color:var(--green);font-weight:600">✓ Asintótica</td>
+        <td style="text-align:left;font-family:var(--sans)">TCL garantiza aproximación normal</td>
+      </tr>
+      <tr>
+        <td style="text-align:left;font-family:var(--sans)">Errores no normales, $n < 30$</td>
+        <td style="text-align:center;color:var(--red);font-weight:600">✗ No confiable</td>
+        <td style="text-align:left;font-family:var(--sans)">TCL no converge suficientemente</td>
+      </tr>
+      <tr>
+        <td style="text-align:left;font-family:var(--sans)">Heterocedasticidad + $n$ grande</td>
+        <td style="text-align:center;color:var(--amber);font-weight:600">⚠ Con HC3</td>
+        <td style="text-align:left;font-family:var(--sans)">Usar errores estándar robustos</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- nav -->
+<div class="nav-footer">
+  <a href="s03_supuestos.html" class="nav-btn">← S03: Supuestos</a>
+  <a href="index.html" class="nav-btn">Inicio ↗</a>
+</div>
+
+</div><!-- end page -->
+<footer>EARF · SEPI ESE · Instituto Politécnico Nacional &nbsp;·&nbsp; Ana Lorena Jiménez Preciado</footer>
+
+<script>
+/* ── RNG ── */
+function randExp(lambda=1){ return -Math.log(1-Math.random())/lambda }
+function randUniform(a=0,b=1){ return a+(b-a)*Math.random() }
+function randBernoulli(p=0.3){ return Math.random()<p?1:0 }
+function randBimodal(){ return Math.random()<0.5 ? randNorm(-2,0.5) : randNorm(2,0.5) }
+function randPareto(alpha=2,xm=1){ return xm*Math.pow(Math.random(),-1/alpha) }
+function randNorm(mu=0,sigma=1){
+  const u1=Math.random(),u2=Math.random();
+  return mu+sigma*Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2);
+}
+
+const DISTS = {
+  uniform:     { gen:()=>randUniform(0,1),     mu:0.5,    sigma:Math.sqrt(1/12), label:'Uniforme(0,1)' },
+  exponential: { gen:()=>randExp(1),            mu:1,      sigma:1,               label:'Exponencial(λ=1)' },
+  bernoulli:   { gen:()=>randBernoulli(0.3),    mu:0.3,    sigma:Math.sqrt(0.21), label:'Bernoulli(p=0.3)' },
+  bimodal:     { gen:()=>randBimodal(),         mu:0,      sigma:Math.sqrt(4.25), label:'Bimodal' },
+  pareto:      { gen:()=>Math.min(randPareto(2,1),20), mu:2, sigma:2,             label:'Pareto(α=2)' }
+};
+
+let origChart=null, xbarChart=null, convChart=null;
+let currentN=5;
+
+function updateN(){
+  currentN=parseInt(document.getElementById('n-slider').value);
+  document.getElementById('n-val').textContent=`n = ${currentN}`;
+  document.getElementById('xbar-label').textContent=`Distribución de X̄ (n = ${currentN})`;
+}
+
+function resetSim(){
+  updateN();
+  document.getElementById('sim-status').textContent='Listo';
+  document.getElementById('sim-status').classList.remove('running');
+  ['m-mu','m-sigma','m-se','m-xbar','m-se-sim','m-sw'].forEach(id=>document.getElementById(id).textContent='—');
+  if(origChart){origChart.destroy();origChart=null;}
+  if(xbarChart){xbarChart.destroy();xbarChart.null;}
+  if(convChart){convChart.destroy();convChart=null;}
+  buildOrigChart();
+}
+
+function buildOrigChart(){
+  const key=document.getElementById('dist-sel').value;
+  const dist=DISTS[key];
+  const N=2000;
+  const samples=Array.from({length:N},dist.gen);
+  const clipped=samples.map(v=>Math.min(Math.max(v,-5),20));
+  const bins=40;
+  const mn=Math.min(...clipped), mx=Math.max(...clipped);
+  const w=(mx-mn)/bins;
+  const hist=Array(bins).fill(0);
+  clipped.forEach(v=>{const b=Math.min(Math.floor((v-mn)/w),bins-1);hist[b]++;});
+  const centers=Array.from({length:bins},(_,i)=>mn+(i+.5)*w);
+
+  if(origChart){origChart.destroy();}
+  const ctx=document.getElementById('orig-chart').getContext('2d');
+  origChart=new Chart(ctx,{type:'bar',
+    data:{labels:centers.map(v=>v.toFixed(2)),datasets:[{
+      label:dist.label,data:hist,
+      backgroundColor:'rgba(123,0,44,.55)',borderColor:'rgba(123,0,44,.8)',borderWidth:1
+    }]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{x:{ticks:{maxTicksLimit:8}},y:{title:{display:true,text:'Frecuencia'}}}
+    }
+  });
+}
+
+function runSim(){
+  const key=document.getElementById('dist-sel').value;
+  const dist=DISTS[key];
+  const n=currentN;
+  const SIMS=5000;
+  const statusEl=document.getElementById('sim-status');
+  statusEl.textContent='Simulando…';
+  statusEl.classList.add('running');
+
+  setTimeout(()=>{
+    // generate sample means
+    const means=Array.from({length:SIMS},()=>{
+      let s=0;for(let i=0;i<n;i++) s+=dist.gen();return s/n;
+    });
+
+    const mu_sim=means.reduce((a,b)=>a+b)/SIMS;
+    const se_sim=Math.sqrt(means.reduce((s,v)=>s+(v-mu_sim)**2,0)/(SIMS-1));
+    const se_theory=dist.sigma/Math.sqrt(n);
+
+    // simple normality approx via skewness
+    const m3=means.reduce((s,v)=>s+(v-mu_sim)**3,0)/SIMS;
+    const skew=m3/Math.pow(se_sim,3);
+    const jb=SIMS/6*(skew*skew);
+    const p_approx=Math.min(1,Math.exp(-jb/2)).toFixed(4);
+
+    document.getElementById('m-mu').textContent=dist.mu.toFixed(4);
+    document.getElementById('m-sigma').textContent=dist.sigma.toFixed(4);
+    document.getElementById('m-se').textContent=se_theory.toFixed(4);
+    document.getElementById('m-xbar').textContent=mu_sim.toFixed(4);
+    document.getElementById('m-se-sim').textContent=se_sim.toFixed(4);
+    document.getElementById('m-sw').textContent=p_approx;
+
+    // histogram of means
+    const bins=40;
+    const mn=Math.min(...means), mx=Math.max(...means);
+    const w=(mx-mn)/bins;
+    const hist=Array(bins).fill(0);
+    means.forEach(v=>{const b=Math.min(Math.floor((v-mn)/w),bins-1);hist[b]++;});
+    const centers=Array.from({length:bins},(_,i)=>mn+(i+.5)*w);
+
+    // normal curve
+    const norm=centers.map(x=>{
+      const z=(x-dist.mu)/se_theory;
+      return SIMS*w/(se_theory*Math.sqrt(2*Math.PI))*Math.exp(-z*z/2);
+    });
+
+    if(xbarChart){xbarChart.destroy();}
+    const ctx2=document.getElementById('xbar-chart').getContext('2d');
+    xbarChart=new Chart(ctx2,{type:'bar',
+      data:{labels:centers.map(v=>v.toFixed(3)),datasets:[
+        {label:'X̄ simulado',data:hist,backgroundColor:'rgba(25,95,165,.5)',borderColor:'#185FA5',borderWidth:1},
+        {label:'Normal TCL',data:norm,type:'line',borderColor:'#a32d2d',borderWidth:2.5,pointRadius:0,tension:0.4,fill:false}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:10,font:{size:11}}}},
+        scales:{x:{ticks:{maxTicksLimit:8}},y:{title:{display:true,text:'Frecuencia'}}}
+      }
+    });
+
+    buildConvergenceChart(key, dist);
+
+    statusEl.textContent=`✓ ${SIMS.toLocaleString()} muestras`;
+    statusEl.classList.remove('running');
+  },30);
+}
+
+function buildConvergenceChart(key, dist){
+  const ns=[1,2,3,5,8,10,15,20,30,50,100];
+  const REPS=2000;
+  const kldivs=ns.map(n=>{
+    const means=Array.from({length:REPS},()=>{let s=0;for(let i=0;i<n;i++)s+=dist.gen();return s/n;});
+    const mu=means.reduce((a,b)=>a+b)/REPS;
+    const se=Math.sqrt(means.reduce((s,v)=>s+(v-mu)**2,0)/REPS);
+    const m3=means.reduce((s,v)=>s+(v-mu)**3,0)/REPS;
+    const skew=Math.abs(m3/Math.pow(se,3));
+    return +skew.toFixed(4);
+  });
+
+  if(convChart){convChart.destroy();}
+  const ctx3=document.getElementById('conv-chart').getContext('2d');
+  convChart=new Chart(ctx3,{type:'line',
+    data:{labels:ns.map(String),datasets:[
+      {label:'|Sesgo| de X̄',data:kldivs,borderColor:'#185FA5',borderWidth:2,pointRadius:4,pointBackgroundColor:'#185FA5',tension:0.3,fill:false},
+      {label:'Objetivo (normal = 0)',data:ns.map(()=>0),borderColor:'#0F6E56',borderWidth:1.5,pointRadius:0,borderDash:[6,4]}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:10,font:{size:11}}}},
+      scales:{
+        x:{title:{display:true,text:'Tamaño de muestra n'}},
+        y:{title:{display:true,text:'|Sesgo de X̄|'},min:0}
+      }
+    }
+  });
+}
+
+// init
+buildOrigChart();
+document.getElementById('m-mu').textContent=DISTS['exponential'].mu.toFixed(4);
+document.getElementById('m-sigma').textContent=DISTS['exponential'].sigma.toFixed(4);
+document.getElementById('m-se').textContent=(DISTS['exponential'].sigma/Math.sqrt(5)).toFixed(4);
+</script>
+</body>
+</html>

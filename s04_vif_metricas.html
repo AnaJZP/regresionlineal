@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S04 — VIF · Train/Test · Métricas · EARF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --g:#7b002c;--gd:#560020;--gl:#f8f0f3;--gm:#c9879f;
+  --blue:#185FA5;--bl:#e6f1fb;--green:#0F6E56;--grn:#e1f5ee;
+  --amber:#b86e00;--al:#fef3e2;--red:#a32d2d;--rl:#fdeaea;
+  --text:#1a1a1a;--muted:#5a5a5a;--faint:#aaa;
+  --border:#e0d6da;--surf:#fff;--bg:#faf8f9;
+  --serif:'Lora',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;--r:10px;--r2:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}
+.topbar{background:var(--gd);color:#fff;padding:.7rem 1.5rem;display:flex;align-items:center;gap:1rem;font-size:.85rem;flex-wrap:wrap}
+.topbar a{color:rgba(255,255,255,.65);text-decoration:none}.topbar a:hover{color:#fff}
+.topbar-sep{color:rgba(255,255,255,.3)}.topbar-curr{color:#fff;font-weight:500}
+.topbar-badge{margin-left:auto;background:rgba(255,255,255,.15);padding:2px 10px;border-radius:20px;font-size:.75rem;color:rgba(255,255,255,.8)}
+.hero{background:var(--g);padding:2.5rem 2rem;position:relative;overflow:hidden}
+.hero::after{content:'04';position:absolute;right:2rem;top:50%;transform:translateY(-50%);font-family:var(--serif);font-size:9rem;font-weight:600;color:rgba(255,255,255,.04);line-height:1;pointer-events:none}
+.hero-inner{max-width:860px;margin:0 auto;position:relative;z-index:1}
+.hero-tag{font-size:.75rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--gm);margin-bottom:.6rem}
+.hero-title{font-family:var(--serif);font-size:clamp(1.6rem,3.5vw,2.2rem);font-weight:600;color:#fff;line-height:1.25;margin-bottom:.6rem}
+.hero-lead{font-size:.98rem;color:rgba(255,255,255,.68);max-width:600px}
+.page{max-width:860px;margin:0 auto;padding:2.5rem 2rem 5rem}
+p{margin:.5rem 0 .9rem;line-height:1.75}
+.lead{font-size:1.02rem;color:var(--muted);margin-bottom:1.25rem}
+.sec-title{font-family:var(--serif);font-size:1.45rem;font-weight:600;color:var(--g);margin:2.75rem 0 .5rem;padding-bottom:.4rem;border-bottom:2px solid var(--gm)}
+.sub-title{font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--gd);margin:1.6rem 0 .45rem}
+.sub2{font-size:.75rem;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:1.1rem 0 .35rem}
+.callout{border-left:3px solid var(--g);background:var(--gl);border-radius:0 var(--r) var(--r) 0;padding:.95rem 1.15rem;margin:1rem 0 1.25rem}
+.callout-title{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--g);margin-bottom:.4rem}
+.callout.blue{border-color:var(--blue);background:var(--bl)}.callout.blue .callout-title{color:var(--blue)}
+.callout.green{border-color:var(--green);background:var(--grn)}.callout.green .callout-title{color:var(--green)}
+.callout.amber{border-color:var(--amber);background:var(--al)}.callout.amber .callout-title{color:var(--amber)}
+.callout.red{border-color:var(--red);background:var(--rl)}.callout.red .callout-title{color:var(--red)}
+.card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r2);padding:1.1rem 1.3rem;box-shadow:0 2px 10px rgba(123,0,44,.06)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin:1rem 0}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1rem;margin:1rem 0}
+.grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:.75rem;margin:1rem 0}
+.tbl-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border);margin:1rem 0}
+table.tbl{width:100%;border-collapse:collapse;font-size:.88rem}
+table.tbl th{background:var(--gl);color:var(--gd);font-weight:500;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;padding:7px 12px;text-align:left;border-bottom:2px solid var(--gm)}
+table.tbl td{padding:7px 12px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.5;font-size:.88rem}
+table.tbl tr:last-child td{border:none}
+table.tbl tr:hover td{background:#fdf7f9}
+table.tbl td.mono{font-family:var(--mono);font-size:.83rem}
+table.tbl td.c{text-align:center}
+.ok{color:var(--green);font-weight:600}.warn{color:var(--amber);font-weight:600}.fail{color:var(--red);font-weight:600}
+.fml{background:#f5f2f0;border:1px solid #e8e0dc;border-radius:var(--r);padding:.8rem 1.1rem;font-family:var(--mono);font-size:.88rem;line-height:1.9;margin:.6rem 0;overflow-x:auto}
+.fml .h{color:var(--blue);font-weight:600}.fml .h2{color:var(--green);font-weight:600}.fml .h3{color:var(--g);font-weight:600}
+.steps{list-style:none;margin:.75rem 0}
+.steps li{display:flex;gap:.9rem;align-items:flex-start;padding:.55rem 0;border-bottom:1px dashed var(--border)}
+.steps li:last-child{border:none}
+.sn{min-width:26px;height:26px;border-radius:50%;background:var(--g);color:#fff;font-size:.73rem;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.sb{font-size:.92rem;line-height:1.65}
+.kv{display:flex;justify-content:space-between;align-items:center;font-size:.9rem;padding:5px 0;border-bottom:1px solid var(--border)}
+.kv:last-child{border:none}.kv-k{color:var(--muted)}.kv-v{font-family:var(--mono);font-weight:600}
+.kv-v.ok{color:var(--green)}.kv-v.fail{color:var(--red)}.kv-v.hi{color:var(--g)}
+.badge{display:inline-block;font-size:.73rem;font-weight:600;padding:2px 9px;border-radius:20px;letter-spacing:.04em}
+.bg{background:var(--gl);color:var(--gd)}.bb{background:var(--bl);color:var(--blue)}
+.bgr{background:var(--grn);color:var(--green)}.ba{background:var(--al);color:var(--amber)}
+.br{background:var(--rl);color:var(--red)}
+.slider-row{display:flex;align-items:center;gap:12px;margin:.75rem 0}
+.slider-row label{font-size:.82rem;color:var(--muted);min-width:100px}
+.slider-row input[type=range]{flex:1;accent-color:var(--g)}
+.slider-row .sv{font-family:var(--mono);font-size:.88rem;font-weight:600;color:var(--g);min-width:48px}
+.chart-wrap{position:relative;width:100%;margin:.75rem 0}
+/* VIF bar */
+.vif-row{display:flex;align-items:center;gap:.75rem;margin:.4rem 0;font-size:.88rem}
+.vif-name{font-family:var(--mono);font-size:.82rem;color:var(--text);min-width:90px}
+.vif-bar-wrap{flex:1;background:var(--border);border-radius:4px;height:10px;overflow:hidden}
+.vif-bar{height:100%;border-radius:4px;transition:width .4s ease}
+.vif-num{font-family:var(--mono);font-weight:600;min-width:44px;text-align:right}
+/* split visual */
+.split-vis{display:flex;height:40px;border-radius:var(--r);overflow:hidden;margin:1rem 0;border:1px solid var(--border)}
+.split-train{background:var(--g);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.82rem;font-weight:500;transition:width .3s}
+.split-test{background:var(--bl);display:flex;align-items:center;justify-content:center;color:var(--blue);font-size:.82rem;font-weight:500;transition:width .3s}
+/* metric cards */
+.metric-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:.85rem 1rem;text-align:center}
+.metric-val{font-family:var(--serif);font-size:1.5rem;font-weight:600;color:var(--g);line-height:1.1}
+.metric-label{font-size:.76rem;color:var(--muted);margin-top:.2rem;line-height:1.4}
+.metric-formula{font-family:var(--mono);font-size:.7rem;color:var(--faint);margin-top:.15rem}
+/* cv fold */
+.cv-grid{display:flex;flex-direction:column;gap:4px;margin:1rem 0}
+.cv-row{display:flex;gap:3px;align-items:center}
+.cv-label{font-size:.75rem;font-family:var(--mono);color:var(--muted);min-width:50px}
+.cv-fold{flex:1;height:22px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:500}
+.cv-train{background:rgba(123,0,44,.15);color:var(--g)}
+.cv-test{background:var(--g);color:#fff}
+.nav-footer{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding:1.5rem 0;margin-top:3rem;flex-wrap:wrap;gap:.75rem}
+.nav-btn{display:flex;align-items:center;gap:.5rem;padding:.55rem 1.1rem;border-radius:var(--r);border:1px solid var(--border);text-decoration:none;font-size:.88rem;font-weight:500;color:var(--g);background:var(--surf);transition:background .1s}
+.nav-btn:hover{background:var(--gl);border-color:var(--gm)}
+footer{border-top:1px solid var(--border);padding:1.5rem 2rem;text-align:center;font-size:.8rem;color:var(--faint);max-width:860px;margin:0 auto}
+@media(max-width:600px){.page{padding:1.5rem 1.1rem 4rem}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html">Inicio</a><span class="topbar-sep">›</span>
+  <a href="s03_supuestos.html">S03</a><span class="topbar-sep">›</span>
+  <span class="topbar-curr">Sección 04 — VIF · Train/Test · Métricas</span>
+  <span class="topbar-badge">S04 / 05</span>
+</div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">Sección 04 · Diagnóstico y evaluación</div>
+    <h1 class="hero-title">VIF · Train/Test Split · Métricas de Error</h1>
+    <p class="hero-lead">Cómo detectar multicolinealidad variable por variable, dividir correctamente los datos para evaluar predicción fuera de muestra, y qué métricas usar para reportar el desempeño del modelo.</p>
+  </div>
+</div>
+
+<div class="page">
+
+<!-- ═══════════ VIF ═══════════ -->
+<h2 class="sec-title">4.1 Factor de Inflación de Varianza (VIF)</h2>
+
+<p>El VIF mide cuánto se infla la varianza de $\hat{\beta}_j$ debido a la correlación de $x_j$ con los demás regresores. Se calcula regresando cada $x_j$ sobre todas las otras variables y usando el $R^2$ de esa regresión auxiliar:</p>
+
+$$\text{VIF}_j = \frac{1}{1 - R_j^2}$$
+
+<div class="callout blue">
+  <div class="callout-title">Interpretación directa</div>
+  <p style="margin:0">$\text{VIF}_j = 5$ significa que la varianza de $\hat{\beta}_j$ es <strong>5 veces mayor</strong> que si $x_j$ fuera ortogonal a todos los demás regresores. Los intervalos de confianza son $\sqrt{5} \approx 2.24$ veces más anchos.</p>
+</div>
+
+<h3 class="sub-title">Escala de diagnóstico</h3>
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>VIF</th><th>$R_j^2$ auxiliar</th><th>Diagnóstico</th><th>Acción</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">= 1.0</td><td class="mono">0.000</td><td class="ok">Sin multicolinealidad</td><td>Ninguna</td></tr>
+    <tr><td class="mono">1 – 5</td><td class="mono">&lt; 0.800</td><td class="ok">Moderada — aceptable</td><td>Monitorear</td></tr>
+    <tr><td class="mono">5 – 10</td><td class="mono">0.800 – 0.900</td><td class="warn">Alta — preocupante</td><td>Considerar eliminar o regularizar</td></tr>
+    <tr><td class="mono">&gt; 10</td><td class="mono">&gt; 0.900</td><td class="fail">Severa — problema</td><td>Eliminar variable o usar Ridge</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3 class="sub-title">VIF del modelo California Housing</h3>
+<p>Resultados obtenidos con los datos estandarizados de entrenamiento:</p>
+
+<div id="vif-bars" style="margin:1rem 0"></div>
+
+<div class="callout amber">
+  <div class="callout-title">Lectura de los resultados</div>
+  <p style="margin:0;font-size:.95rem"><strong>AveRooms y AveBedrms</strong> presentan VIF elevados (~10–15) consistentes con su correlación de Pearson de 0.85 vista en el EDA. <strong>Latitude y Longitude</strong> también tienen VIF alto por su correlación de −0.92. El resto de las variables está en rango aceptable. La decisión: mantener todas las variables en el modelo base y monitorear la estabilidad de los coeficientes; para producción se aplicaría Ridge.</p>
+</div>
+
+<h3 class="sub-title">Número de condición — multicolinealidad global</h3>
+<p>El número de condición $\kappa(\mathbf{X})$ resume la multicolinealidad de toda la matriz, no variable por variable:</p>
+
+$$\kappa(\mathbf{X}) = \sqrt{\frac{\lambda_{\max}(\mathbf{X}^\top\mathbf{X})}{\lambda_{\min}(\mathbf{X}^\top\mathbf{X})}}$$
+
+<div class="fml">κ &lt; 30:   sin problema de multicolinealidad
+30 ≤ κ &lt; 100:  multicolinealidad moderada
+κ ≥ 100:   multicolinealidad severa → revisar especificación</div>
+
+<h3 class="sub-title">Explorador interactivo de VIF</h3>
+<p style="font-size:.9rem;color:var(--muted)">Ajusta la correlación entre dos regresores $x_1$ y $x_2$ para ver cómo el VIF crece hacia infinito cuando $\rho \to 1$:</p>
+<div class="slider-row">
+  <label>$\rho(x_1, x_2)$</label>
+  <input type="range" id="sl-rho" min="0" max="0.99" step="0.01" value="0.3" oninput="updateVIF()">
+  <span class="sv" id="v-rho">0.30</span>
+</div>
+<div class="grid2">
+  <div class="card" id="vif-live"></div>
+  <div class="chart-wrap" style="height:200px"><canvas id="vif-chart" role="img" aria-label="VIF en función de la correlación entre regresores.">VIF vs correlación.</canvas></div>
+</div>
+
+
+<!-- ═══════════ TRAIN/TEST ═══════════ -->
+<h2 class="sec-title">4.2 Train / Test Split</h2>
+
+<p>Dividir los datos en entrenamiento y prueba permite evaluar la <strong>capacidad predictiva real</strong> del modelo en observaciones que no usó para estimar los parámetros. El ajuste en muestra ($R^2$ train) siempre es optimista; el ajuste fuera de muestra ($R^2$ test) es el indicador honesto.</p>
+
+<h3 class="sub-title">Ajusta la proporción</h3>
+<div class="slider-row">
+  <label>% prueba</label>
+  <input type="range" id="sl-split" min="10" max="40" step="5" value="20" oninput="updateSplit()">
+  <span class="sv" id="v-split">20%</span>
+</div>
+<div class="split-vis">
+  <div class="split-train" id="split-train" style="width:80%">Train: 16,497 obs.</div>
+  <div class="split-test" id="split-test" style="width:20%">Test: 4,124</div>
+</div>
+<div class="grid2" id="split-stats"></div>
+
+<div class="callout red">
+  <div class="callout-title">Regla crítica: nunca escalar con datos de test</div>
+  <p style="margin:0;font-size:.95rem">La media y desviación estándar del <code>StandardScaler</code> se ajustan <strong>solo</strong> con los datos de entrenamiento. Aplicar el scaler ajustado en train al conjunto de test. Si ajustas con toda la muestra introduces <em>data leakage</em>: el modelo "sabe" indirectamente el rango de los datos de prueba durante el entrenamiento.</p>
+</div>
+
+<h3 class="sub-title">Train/Test en series de tiempo — diferencia crítica</h3>
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>Tipo de datos</th><th>División correcta</th><th>¿Por qué?</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Corte transversal</strong></td><td class="mono">Aleatoria (random_state=42)</td><td>Las observaciones son i.i.d. — no hay orden temporal que respetar</td></tr>
+    <tr><td><strong>Series de tiempo</strong></td><td class="mono">Temporal: primeras T obs. → train, últimas h → test</td><td>La división aleatoria usaría el futuro para predecir el pasado (<em>leakage</em>)</td></tr>
+    <tr><td><strong>Panel</strong></td><td class="mono">Por unidad o por período, según el objetivo</td><td>Depende de si se predice sobre individuos nuevos o períodos futuros</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3 class="sub-title">Validación cruzada K-Fold</h3>
+<p>Para estimar el error de predicción con menor varianza que un solo split, se usa K-Fold: los datos se dividen en $K$ partes iguales, y el modelo se entrena $K$ veces usando $K-1$ folds como entrenamiento y 1 como prueba.</p>
+
+<div class="cv-grid" id="cv-grid"></div>
+<div class="slider-row" style="margin-top:.5rem">
+  <label>Número de folds $K$</label>
+  <input type="range" id="sl-k" min="3" max="10" step="1" value="5" oninput="updateCV()">
+  <span class="sv" id="v-k">K = 5</span>
+</div>
+
+<div class="callout green">
+  <div class="callout-title">Ventaja de K-Fold sobre un solo split</div>
+  <p style="margin:0;font-size:.95rem">Con un solo split 80/20 el error estimado depende de qué observaciones cayeron en cada conjunto (varianza alta). Con 10-Fold cada observación es parte del conjunto de prueba exactamente una vez — la estimación del error es más estable y usa toda la muestra para entrenamiento en alguna iteración.</p>
+</div>
+
+
+<!-- ═══════════ MÉTRICAS ═══════════ -->
+<h2 class="sec-title">4.3 Métricas de Error</h2>
+<p class="lead">Evaluar un modelo requiere más de una métrica. Cada una mide un aspecto distinto del error y tiene distintas sensibilidades a outliers y a la escala de $y$.</p>
+
+<h3 class="sub-title">Métricas de ajuste en muestra (train)</h3>
+<div class="grid2">
+  <div class="card">
+    <div class="sub2">$R^2$ — coeficiente de determinación</div>
+    <p style="font-size:.9rem;margin:.3rem 0">$$R^2 = 1 - \frac{\text{SSE}}{\text{SST}} \in [0,1]$$</p>
+    <p style="font-size:.88rem;color:var(--muted);margin:0">Proporción de varianza de $y$ explicada por el modelo. <strong>Nunca disminuye</strong> al agregar regresores.</p>
+  </div>
+  <div class="card">
+    <div class="sub2">$\bar{R}^2$ — $R^2$ ajustado</div>
+    <p style="font-size:.9rem;margin:.3rem 0">$$\bar{R}^2 = 1 - \frac{n-1}{n-k-1}(1-R^2)$$</p>
+    <p style="font-size:.88rem;color:var(--muted);margin:0">Penaliza por el número de regresores $k$. Puede <em>disminuir</em> al agregar variables irrelevantes. Preferir sobre $R^2$ para comparar modelos.</p>
+  </div>
+</div>
+<div class="grid2" style="margin-top:.75rem">
+  <div class="card">
+    <div class="sub2">AIC — Criterio de Akaike</div>
+    <div class="fml">AIC = n·ln(SSE/n) + 2(k+1)</div>
+    <p style="font-size:.88rem;color:var(--muted);margin:.3rem 0 0">Menor AIC = mejor. Penaliza por el número de parámetros. Útil para comparar modelos no anidados.</p>
+  </div>
+  <div class="card">
+    <div class="sub2">BIC — Criterio Bayesiano</div>
+    <div class="fml">BIC = n·ln(SSE/n) + (k+1)·ln(n)</div>
+    <p style="font-size:.88rem;color:var(--muted);margin:.3rem 0 0">Penaliza más fuerte que AIC cuando $n$ es grande. Tiende a seleccionar modelos más parsimoniosos.</p>
+  </div>
+</div>
+
+<h3 class="sub-title">Métricas de predicción fuera de muestra (test)</h3>
+<div class="grid4">
+  <div class="metric-card">
+    <div class="metric-val">MSE</div>
+    <div class="metric-label">Error cuadrático medio</div>
+    <div class="metric-formula">Σ(yᵢ−ŷᵢ)²/m</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-val">RMSE</div>
+    <div class="metric-label">Raíz del MSE — mismas unidades de y</div>
+    <div class="metric-formula">√MSE</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-val">MAE</div>
+    <div class="metric-label">Error absoluto medio — robusto</div>
+    <div class="metric-formula">Σ|yᵢ−ŷᵢ|/m</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-val">MAPE</div>
+    <div class="metric-label">Error porcentual medio</div>
+    <div class="metric-formula">100·Σ|eᵢ/yᵢ|/m</div>
+  </div>
+</div>
+
+<h3 class="sub-title">¿Qué métrica usar?</h3>
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>Métrica</th><th>Sensible a outliers</th><th>Unidades</th><th>Cuándo preferirla</th></tr></thead>
+  <tbody>
+    <tr><td><strong>RMSE</strong></td><td class="fail c">Alta (cuadrática)</td><td>Mismas que $y$</td><td>Cuando errores grandes son especialmente costosos</td></tr>
+    <tr><td><strong>MAE</strong></td><td class="ok c">Baja (lineal)</td><td>Mismas que $y$</td><td>Cuando se quiere el error "típico" sin distorsión por outliers</td></tr>
+    <tr><td><strong>MAPE</strong></td><td class="warn c">Media</td><td>Porcentaje</td><td>Para comparar entre modelos con distintas escalas de $y$. Evitar si $y\approx 0$</td></tr>
+    <tr><td><strong>$R^2$ test</strong></td><td class="warn c">Media</td><td>Adimensional</td><td>Para medir poder explicativo relativo. Puede ser negativo (peor que predecir $\bar{y}$)</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3 class="sub-title">Simulador de métricas — resultados de California Housing</h3>
+<div class="grid2">
+  <div class="card">
+    <div class="sub2">Train (escala log)</div>
+    <div class="kv"><span class="kv-k">$R^2$</span><span class="kv-v ok">0.6412</span></div>
+    <div class="kv"><span class="kv-k">$\bar{R}^2$</span><span class="kv-v ok">0.6410</span></div>
+    <div class="kv"><span class="kv-k">RMSE</span><span class="kv-v">0.3521</span></div>
+    <div class="kv"><span class="kv-k">AIC</span><span class="kv-v">−9,847</span></div>
+    <div class="kv"><span class="kv-k">BIC</span><span class="kv-v">−9,788</span></div>
+  </div>
+  <div class="card">
+    <div class="sub2">Test — escala original ($100k)</div>
+    <div class="kv"><span class="kv-k">$R^2$ test</span><span class="kv-v ok">0.6387</span></div>
+    <div class="kv"><span class="kv-k">RMSE</span><span class="kv-v">$67,200</span></div>
+    <div class="kv"><span class="kv-k">MAE</span><span class="kv-v">$49,100</span></div>
+    <div class="kv"><span class="kv-k">MAPE</span><span class="kv-v">28.4%</span></div>
+    <div class="kv"><span class="kv-k">Sobreajuste $\Delta R^2$</span><span class="kv-v ok">0.0025 ✓</span></div>
+  </div>
+</div>
+
+<div class="callout green">
+  <div class="callout-title">Interpretación de resultados</div>
+  <p style="margin:0;font-size:.95rem">La diferencia entre $R^2$ train (0.641) y test (0.639) es de apenas 0.002 — prácticamente sin sobreajuste. El modelo generaliza bien. El RMSE de ~$67k en escala original indica que la predicción típica se equivoca en ~$67,000 dólares sobre el precio real. El MAPE de 28% sugiere margen de mejora, especialmente en distritos de precio muy bajo donde el error porcentual es mayor.</p>
+</div>
+
+<h3 class="sub-title">Visualización: métricas con distintos niveles de error</h3>
+<div class="slider-row">
+  <label>Nivel de error</label>
+  <input type="range" id="sl-err" min="0.05" max="0.8" step="0.01" value="0.35" oninput="updateMetrics()">
+  <span class="sv" id="v-err">0.35</span>
+</div>
+<div class="chart-wrap" style="height:260px">
+  <canvas id="metrics-chart" role="img" aria-label="Gráfico de valores reales vs predichos con nivel de error ajustable.">Valores reales vs predichos.</canvas>
+</div>
+<div class="grid4" id="live-metrics" style="margin-top:.5rem"></div>
+
+<div class="nav-footer">
+  <a href="s03_supuestos.html" class="nav-btn">← S03: Supuestos</a>
+  <a href="s05_pronostico.html" class="nav-btn">S05: Pronóstico →</a>
+</div>
+
+</div>
+<footer>EARF · SEPI ESE · Instituto Politécnico Nacional &nbsp;·&nbsp; Ana Lorena Jiménez Preciado</footer>
+
+<script>
+const f=(v,d=4)=>typeof v==='number'?v.toFixed(d):v;
+
+/* ── VIF bars (California Housing approximate values) ── */
+const vifData=[
+  {name:'MedInc',   vif:1.24},
+  {name:'HouseAge', vif:1.21},
+  {name:'AveRooms', vif:9.73},
+  {name:'AveBedrms',vif:10.14},
+  {name:'Population',vif:1.18},
+  {name:'AveOccup', vif:1.06},
+  {name:'Latitude', vif:7.31},
+  {name:'Longitude',vif:7.62},
+];
+function colorVIF(v){return v>10?'#a32d2d':v>5?'#b86e00':'#0F6E56'}
+function labelVIF(v){return v>10?'Severo':v>5?'Alto':'OK'}
+document.getElementById('vif-bars').innerHTML=vifData.map(d=>`
+  <div class="vif-row">
+    <span class="vif-name">${d.name}</span>
+    <div class="vif-bar-wrap"><div class="vif-bar" style="width:${Math.min(d.vif/15*100,100)}%;background:${colorVIF(d.vif)}"></div></div>
+    <span class="vif-num" style="color:${colorVIF(d.vif)}">${d.vif.toFixed(2)}</span>
+    <span class="badge" style="background:${colorVIF(d.vif)}22;color:${colorVIF(d.vif)};font-size:.68rem">${labelVIF(d.vif)}</span>
+  </div>`).join('');
+
+/* ── VIF interactive chart ── */
+let vifChart=null;
+function updateVIF(){
+  const rho=parseFloat(document.getElementById('sl-rho').value);
+  document.getElementById('v-rho').textContent=rho.toFixed(2);
+  const R2=rho*rho, vif=1/(1-R2);
+  const se_inflation=Math.sqrt(vif);
+  document.getElementById('vif-live').innerHTML=
+    `<div class="kv"><span class="kv-k">ρ(x₁,x₂)</span><span class="kv-v hi">${rho.toFixed(2)}</span></div>`+
+    `<div class="kv"><span class="kv-k">$R_j^2$ auxiliar</span><span class="kv-v">${R2.toFixed(4)}</span></div>`+
+    `<div class="kv"><span class="kv-k">VIF = 1/(1−R²ⱼ)</span><span class="kv-v ${vif>10?'fail':vif>5?'warn':'ok'}">${vif>200?'→ ∞':vif.toFixed(2)}</span></div>`+
+    `<div class="kv"><span class="kv-k">Inflación del IC</span><span class="kv-v ${vif>10?'fail':vif>5?'warn':'ok'}">×${se_inflation.toFixed(2)}</span></div>`;
+  if(!vifChart){
+    const rhos=Array.from({length:100},(_,i)=>i*0.01);
+    const vifs=rhos.map(r=>Math.min(1/(1-r*r),40));
+    const ctx=document.getElementById('vif-chart').getContext('2d');
+    vifChart=new Chart(ctx,{type:'line',data:{
+      labels:rhos.map(r=>r.toFixed(2)),
+      datasets:[
+        {label:'VIF(ρ)',data:vifs,borderColor:'#185FA5',borderWidth:2,pointRadius:0,tension:0.3,fill:false},
+        {label:'Umbral 5', data:rhos.map(()=>5), borderColor:'#b86e00',borderWidth:1.5,pointRadius:0,borderDash:[5,3]},
+        {label:'Umbral 10',data:rhos.map(()=>10),borderColor:'#a32d2d',borderWidth:1.5,pointRadius:0,borderDash:[5,3]}
+      ]
+    },options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{x:{title:{display:true,text:'ρ'},ticks:{maxTicksLimit:11}},y:{title:{display:true,text:'VIF'},min:0,max:40}}
+    }});
+  }
+}
+updateVIF();
+
+/* ── Train/Test split ── */
+const N_TOTAL=20621;
+function updateSplit(){
+  const pct=parseInt(document.getElementById('sl-split').value);
+  document.getElementById('v-split').textContent=pct+'%';
+  const n_test=Math.round(N_TOTAL*pct/100);
+  const n_train=N_TOTAL-n_test;
+  document.getElementById('split-train').style.width=(100-pct)+'%';
+  document.getElementById('split-train').textContent=`Train: ${n_train.toLocaleString()} obs.`;
+  document.getElementById('split-test').style.width=pct+'%';
+  document.getElementById('split-test').textContent=pct>=15?`Test: ${n_test.toLocaleString()}`:`${n_test.toLocaleString()}`;
+  document.getElementById('split-stats').innerHTML=`
+    <div class="card">
+      <div class="kv"><span class="kv-k">Observaciones entrenamiento</span><span class="kv-v hi">${n_train.toLocaleString()}</span></div>
+      <div class="kv"><span class="kv-k">Observaciones prueba</span><span class="kv-v">${n_test.toLocaleString()}</span></div>
+      <div class="kv"><span class="kv-k">Parámetros a estimar ($k+1$)</span><span class="kv-v">9</span></div>
+      <div class="kv"><span class="kv-k">Obs./parámetro (train)</span><span class="kv-v ok">${Math.round(n_train/9).toLocaleString()} ✓</span></div>
+    </div>
+    <div class="card">
+      <div class="kv"><span class="kv-k">Grados de libertad residuales</span><span class="kv-v">${(n_train-9).toLocaleString()}</span></div>
+      <div class="kv"><span class="kv-k">Regla mínima (10×k)</span><span class="kv-v ${n_train>=90?'ok':'fail'}">${n_train>=90?'✓ Cumplida':'✗ Insuficiente'}</span></div>
+    </div>`;
+}
+updateSplit();
+
+/* ── K-Fold CV ── */
+function updateCV(){
+  const K=parseInt(document.getElementById('sl-k').value);
+  document.getElementById('v-k').textContent=`K = ${K}`;
+  const grid=document.getElementById('cv-grid');
+  grid.innerHTML=Array.from({length:K},(_,i)=>`
+    <div class="cv-row">
+      <span class="cv-label">Fold ${i+1}</span>
+      ${Array.from({length:K},(_,j)=>`<div class="cv-fold ${j===i?'cv-test':'cv-train'}">${j===i?'Test':''}</div>`).join('')}
+    </div>`).join('');
+}
+updateCV();
+
+/* ── Metrics chart ── */
+let metricsChart=null;
+function randNorm(mu=0,s=1){const u=Math.random(),v=Math.random();return mu+s*Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+function updateMetrics(){
+  const sigma=parseFloat(document.getElementById('sl-err').value);
+  document.getElementById('v-err').textContent=sigma.toFixed(2);
+  const n=60;
+  const y_true=Array.from({length:n},(_,i)=>1+i*0.08);
+  const y_pred=y_true.map(y=>Math.max(0.1,y+randNorm(0,sigma)));
+  const mse=y_true.reduce((s,y,i)=>s+(y-y_pred[i])**2,0)/n;
+  const rmse=Math.sqrt(mse);
+  const mae=y_true.reduce((s,y,i)=>s+Math.abs(y-y_pred[i]),0)/n;
+  const mape=y_true.reduce((s,y,i)=>s+Math.abs((y-y_pred[i])/y),0)/n*100;
+  const yb=y_true.reduce((a,b)=>a+b)/n;
+  const sst=y_true.reduce((s,y)=>s+(y-yb)**2,0);
+  const sse=y_true.reduce((s,y,i)=>s+(y-y_pred[i])**2,0);
+  const r2=Math.max(-1,1-sse/sst);
+  document.getElementById('live-metrics').innerHTML=`
+    <div class="metric-card"><div class="metric-val" style="color:var(--g)">${rmse.toFixed(3)}</div><div class="metric-label">RMSE</div></div>
+    <div class="metric-card"><div class="metric-val" style="color:var(--blue)">${mae.toFixed(3)}</div><div class="metric-label">MAE</div></div>
+    <div class="metric-card"><div class="metric-val" style="color:var(--amber)">${mape.toFixed(1)}%</div><div class="metric-label">MAPE</div></div>
+    <div class="metric-card"><div class="metric-val" style="color:${r2>0.5?'var(--green)':r2>0?'var(--amber)':'var(--red)'}">${r2.toFixed(3)}</div><div class="metric-label">R²</div></div>`;
+  const residSegs=y_true.flatMap((y,i)=>[{x:y,y:y_pred[i]},{x:y,y},{x:null,y:null}]);
+  if(!metricsChart){
+    const ctx=document.getElementById('metrics-chart').getContext('2d');
+    metricsChart=new Chart(ctx,{type:'scatter',data:{datasets:[
+      {label:'Predicciones',data:y_true.map((y,i)=>({x:y,y:y_pred[i]})),backgroundColor:'#185FA5',pointRadius:5,pointHoverRadius:7},
+      {label:'Perfecta',data:[{x:1,y:1},{x:5.8,y:5.8}],type:'line',borderColor:'#0F6E56',borderWidth:2,pointRadius:0,borderDash:[6,4]},
+      {label:'Residuales',data:residSegs,type:'line',borderColor:'rgba(123,0,44,.3)',borderWidth:1.2,pointRadius:0}
+    ]},options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:10,font:{size:11}}}},
+      scales:{x:{title:{display:true,text:'Valor real y'},min:0.8,max:6},y:{title:{display:true,text:'Predicción ŷ'},min:0.8,max:6}}
+    }});
+  } else {
+    metricsChart.data.datasets[0].data=y_true.map((y,i)=>({x:y,y:y_pred[i]}));
+    metricsChart.data.datasets[2].data=residSegs;
+    metricsChart.update('none');
+  }
+}
+updateMetrics();
+</script>
+</body>
+</html>
