@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S03 — Supuestos de Gauss-Markov · EARF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --g:#7b002c;--gd:#560020;--gl:#f8f0f3;--gm:#c9879f;
+  --blue:#185FA5;--bl:#e6f1fb;--green:#0F6E56;--grn:#e1f5ee;
+  --amber:#b86e00;--al:#fef3e2;--red:#a32d2d;--rl:#fdeaea;
+  --text:#1a1a1a;--muted:#5a5a5a;--faint:#aaa;
+  --border:#e0d6da;--surf:#fff;--bg:#faf8f9;
+  --serif:'Lora',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;--r:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}
+
+.topbar{background:var(--gd);color:#fff;padding:.7rem 1.5rem;display:flex;align-items:center;gap:1rem;font-size:.85rem}
+.topbar a{color:rgba(255,255,255,.65);text-decoration:none}.topbar a:hover{color:#fff}
+.topbar-sep{color:rgba(255,255,255,.3)}.topbar-curr{color:#fff;font-weight:500}
+.topbar-badge{margin-left:auto;background:rgba(255,255,255,.15);padding:2px 10px;border-radius:20px;font-size:.75rem;color:rgba(255,255,255,.8)}
+
+.hero{background:var(--g);padding:2.5rem 2rem;position:relative;overflow:hidden}
+.hero::after{content:'03';position:absolute;right:2rem;top:50%;transform:translateY(-50%);
+  font-family:var(--serif);font-size:8rem;font-weight:600;color:rgba(255,255,255,.05);line-height:1;pointer-events:none}
+.hero-inner{max-width:860px;margin:0 auto;position:relative;z-index:1}
+.hero-tag{font-size:.75rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--gm);margin-bottom:.6rem}
+.hero-title{font-family:var(--serif);font-size:clamp(1.6rem,3.5vw,2.2rem);font-weight:600;color:#fff;line-height:1.25;margin-bottom:.6rem}
+.hero-lead{font-size:.98rem;color:rgba(255,255,255,.68);max-width:600px}
+
+.page{max-width:860px;margin:0 auto;padding:2.5rem 2rem 5rem}
+p{margin:.5rem 0 .9rem}
+.lead{font-size:1.02rem;color:var(--muted);margin-bottom:1.25rem}
+
+.sec-title{font-family:var(--serif);font-size:1.45rem;font-weight:600;color:var(--g);
+  margin:2.5rem 0 .5rem;padding-bottom:.4rem;border-bottom:2px solid var(--gm)}
+.sub-title{font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--gd);margin:1.5rem 0 .4rem}
+.sub2{font-size:.78rem;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin:1.1rem 0 .35rem}
+
+/* assumption card */
+.asu-card{border:1px solid var(--border);border-radius:var(--r);margin:1.25rem 0;overflow:hidden;background:var(--surf)}
+.asu-head{display:flex;align-items:center;gap:1rem;padding:1rem 1.25rem;cursor:pointer;user-select:none;transition:background .12s}
+.asu-head:hover{background:var(--gl)}
+.asu-num{width:36px;height:36px;border-radius:8px;background:var(--g);color:#fff;
+  font-family:var(--serif);font-size:1rem;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.asu-htitle{font-family:var(--serif);font-size:1rem;font-weight:600;color:var(--gd);flex:1}
+.asu-status{display:flex;align-items:center;gap:.5rem}
+.asu-badge{font-size:.72rem;font-weight:600;padding:2px 9px;border-radius:20px}
+.pass{background:var(--grn);color:var(--green)}.fail{background:var(--rl);color:var(--red)}.warn{background:var(--al);color:var(--amber)}
+.asu-chevron{font-size:1.1rem;color:var(--gm);transition:transform .2s;margin-left:.25rem}
+.asu-card.open .asu-chevron{transform:rotate(180deg)}
+.asu-body{display:none;padding:0 1.25rem 1.25rem;border-top:1px solid var(--border)}
+.asu-card.open .asu-body{display:block}
+
+.callout{border-left:3px solid var(--g);background:var(--gl);border-radius:0 var(--r) var(--r) 0;padding:.9rem 1.1rem;margin:1rem 0 1.1rem}
+.callout-title{font-size:.75rem;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--g);margin-bottom:.4rem}
+.callout.blue{border-color:var(--blue);background:var(--bl)}.callout.blue .callout-title{color:var(--blue)}
+.callout.green{border-color:var(--green);background:var(--grn)}.callout.green .callout-title{color:var(--green)}
+.callout.amber{border-color:var(--amber);background:var(--al)}.callout.amber .callout-title{color:var(--amber)}
+.callout.red{border-color:var(--red);background:var(--rl)}.callout.red .callout-title{color:var(--red)}
+
+.card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem 1.25rem}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:.9rem;margin:1rem 0}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.9rem;margin:1rem 0}
+
+.tbl-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border)}
+table.tbl{width:100%;border-collapse:collapse;font-size:.88rem}
+table.tbl th{background:var(--gl);color:var(--gd);font-weight:500;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;padding:7px 12px;text-align:left;border-bottom:2px solid var(--gm)}
+table.tbl td{padding:7px 12px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.5;font-size:.88rem}
+table.tbl tr:last-child td{border:none}
+table.tbl td.mono{font-family:var(--mono);font-size:.82rem}
+table.tbl td.center{text-align:center}
+
+.fml{background:#f5f2f0;border:1px solid #e8e0dc;border-radius:var(--r);padding:.75rem 1.1rem;
+  font-family:var(--mono);font-size:.88rem;line-height:1.8;margin:.6rem 0;overflow-x:auto}
+.fml .h{color:var(--blue);font-weight:600}.fml .h2{color:var(--green);font-weight:600}
+
+.steps{list-style:none;margin:.75rem 0}
+.steps li{display:flex;gap:.9rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px dashed var(--border)}
+.steps li:last-child{border:none}
+.sn{min-width:24px;height:24px;border-radius:50%;background:var(--g);color:#fff;font-size:.72rem;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.sb{font-size:.9rem;line-height:1.65}
+
+.kv{display:flex;justify-content:space-between;align-items:center;font-size:.9rem;padding:5px 0;border-bottom:1px solid var(--border)}
+.kv:last-child{border:none}.kv-k{color:var(--muted)}.kv-v{font-family:var(--mono);font-weight:600}
+.kv-v.ok{color:var(--green)}.kv-v.fail{color:var(--red)}.kv-v.warn{color:var(--amber)}
+
+.slider-row{display:flex;align-items:center;gap:12px;margin:.75rem 0}
+.slider-row label{font-size:.82rem;color:var(--muted);min-width:120px}
+.slider-row input[type=range]{flex:1;accent-color:var(--g)}
+.slider-row .sv{font-family:var(--mono);font-size:.85rem;font-weight:600;color:var(--g);min-width:50px}
+.chart-wrap{position:relative;width:100%;margin:.75rem 0}
+
+.nav-footer{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding:1.5rem 0;margin-top:3rem;flex-wrap:wrap;gap:.75rem}
+.nav-btn{display:flex;align-items:center;gap:.5rem;padding:.55rem 1.1rem;border-radius:var(--r);border:1px solid var(--border);text-decoration:none;font-size:.88rem;font-weight:500;color:var(--g);background:var(--surf);transition:background .1s,border-color .1s}
+.nav-btn:hover{background:var(--gl);border-color:var(--gm)}
+
+/* summary table colors */
+.s-ok{color:var(--green);font-weight:600}.s-fail{color:var(--red);font-weight:600}.s-warn{color:var(--amber);font-weight:600}
+
+footer{border-top:1px solid var(--border);padding:1.5rem 2rem;text-align:center;font-size:.8rem;color:var(--faint);max-width:860px;margin:0 auto}
+@media(max-width:600px){.page{padding:1.5rem 1.1rem 4rem}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html">Inicio</a><span class="topbar-sep">›</span>
+  <a href="mco_vs_mv.html">S02 MCO vs MV</a><span class="topbar-sep">›</span>
+  <span class="topbar-curr">Sección 03 — Supuestos</span>
+  <span class="topbar-badge">S03 / 06</span>
+</div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">Sección 03 · Diagnóstico</div>
+    <h1 class="hero-title">Supuestos de Gauss-Markov</h1>
+    <p class="hero-lead">Los 6 supuestos con su intuición, consecuencias de la violación, pruebas estadísticas formales y soluciones — todo ilustrado con ejemplos interactivos.</p>
+  </div>
+</div>
+
+<div class="page">
+
+<p class="lead">Haz clic en cada supuesto para expandir su contenido. Los semáforos muestran qué tan crítica es la violación para nuestro modelo de ejemplo.</p>
+
+<!-- ── OVERVIEW TABLE ── -->
+<div class="tbl-wrap" style="margin-bottom:2rem">
+<table class="tbl">
+  <thead><tr><th>#</th><th>Supuesto</th><th>Prueba formal</th><th>Solución si falla</th><th>Criticidad</th></tr></thead>
+  <tbody>
+    <tr><td class="center">1</td><td>Linealidad en $\boldsymbol{\beta}$</td><td class="mono">RESET de Ramsey</td><td>Transformaciones, términos cuadráticos</td><td class="center s-warn">Media</td></tr>
+    <tr><td class="center">2</td><td>Exogeneidad estricta</td><td class="mono">Hausman</td><td>Variables instrumentales IV/2SLS</td><td class="center s-fail">Crítica</td></tr>
+    <tr><td class="center">3</td><td>No multicolinealidad perfecta</td><td class="mono">VIF · $\kappa(\mathbf{X})$</td><td>Ridge, LASSO, eliminar variables</td><td class="center s-warn">Media</td></tr>
+    <tr><td class="center">4</td><td>Homocedasticidad</td><td class="mono">Breusch-Pagan · White</td><td>Errores robustos HC3, WLS</td><td class="center s-warn">Media</td></tr>
+    <tr><td class="center">5</td><td>No autocorrelación</td><td class="mono">Durbin-Watson · Breusch-Godfrey</td><td>Rezagos, Newey-West, GLS</td><td class="center s-fail">Crítica en ST</td></tr>
+    <tr><td class="center">+6</td><td>Normalidad de errores</td><td class="mono">Jarque-Bera · Shapiro-Wilk</td><td>TCL con $n$ grande, Box-Cox</td><td class="center s-ok">Baja ($n$ grande)</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ════════════════════════ SUP 1 ════════════════════════ -->
+<div class="asu-card" id="asu1">
+  <div class="asu-head" onclick="toggleAsu('asu1')">
+    <div class="asu-num">1</div>
+    <div class="asu-htitle">Linealidad en los parámetros</div>
+    <div class="asu-status">
+      <span class="asu-badge warn">Verificar siempre</span>
+      <span class="asu-chevron">▾</span>
+    </div>
+  </div>
+  <div class="asu-body">
+    <p>El DGP (<em>Data Generating Process</em>) es lineal en $\boldsymbol{\beta}$:</p>
+    $$y_i = \beta_0 + \beta_1 x_{1i} + \cdots + \beta_k x_{ki} + \varepsilon_i$$
+    <p>El modelo puede incluir transformaciones de las variables (logaritmos, cuadrados, interacciones) sin violar este supuesto, siempre que $y$ sea lineal en los <em>parámetros</em>.</p>
+
+    <h4 class="sub2">¿Qué pasa si se viola?</h4>
+    <p>Las predicciones son sesgadas de forma sistemática. Los residuales mostrarán un patrón no aleatorio al graficarse contra los valores ajustados.</p>
+
+    <h4 class="sub2">Prueba RESET de Ramsey</h4>
+    <div class="callout blue">
+      <div class="callout-title">Procedimiento RESET</div>
+      <ul class="steps">
+        <li><div class="sn">1</div><div class="sb">Estimar el modelo original y obtener $\hat{y}_i$.</div></li>
+        <li><div class="sn">2</div><div class="sb">Estimar el modelo ampliado incluyendo $\hat{y}_i^2$ (y a veces $\hat{y}_i^3$) como regresores adicionales.</div></li>
+        <li><div class="sn">3</div><div class="sb">$H_0$: los coeficientes de $\hat{y}_i^2$ son cero (no hay no-linealidad omitida). Estadístico $F$.</div></li>
+      </ul>
+      <p style="margin:.5rem 0 0;font-family:var(--mono);font-size:.85rem">Si $p < 0.05$ → rechazar $H_0$ → posible no-linealidad en la especificación.</p>
+    </div>
+
+    <h4 class="sub2">Ejemplo visual</h4>
+    <p style="font-size:.9rem;color:var(--muted)">Un patrón de "arco" en residuales vs. ajustados señala linealidad mal especificada.</p>
+    <div class="chart-wrap" style="height:220px">
+      <canvas id="reset-chart" role="img" aria-label="Dos gráficos de residuales: uno con patrón aleatorio (modelo correcto) y otro con patrón de arco (modelo mal especificado).">Gráficos de residuales para ilustrar no-linealidad.</canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ SUP 2 ════════════════════════ -->
+<div class="asu-card" id="asu2">
+  <div class="asu-head" onclick="toggleAsu('asu2')">
+    <div class="asu-num">2</div>
+    <div class="asu-htitle">Exogeneidad estricta</div>
+    <div class="asu-status">
+      <span class="asu-badge fail">Crítico</span>
+      <span class="asu-chevron">▾</span>
+    </div>
+  </div>
+  <div class="asu-body">
+    $$E[\varepsilon_i \mid \mathbf{X}] = 0, \qquad \forall\, i$$
+    <p>Los errores tienen esperanza cero condicional a <em>toda</em> la matriz $\mathbf{X}$. Este es el supuesto más importante: si se viola, $\hat{\boldsymbol{\beta}}$ es <strong>sesgado e inconsistente</strong> — ningún tamaño de muestra lo corrige.</p>
+
+    <h4 class="sub2">Causas comunes de violación</h4>
+    <div class="grid2">
+      <div class="card">
+        <div style="font-size:.78rem;font-weight:600;color:var(--red);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem">Variable omitida relevante</div>
+        <p style="font-size:.88rem;margin:0">Si $z$ afecta a $y$ y está correlacionada con $x_j$, su ausencia del modelo hace que $E[\varepsilon_i|x_j]\neq 0$. El coeficiente de $x_j$ absorbe parte del efecto de $z$.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:.78rem;font-weight:600;color:var(--red);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem">Causalidad inversa (endogeneidad)</div>
+        <p style="font-size:.88rem;margin:0">Si $y$ también causa a $x_j$ (simultáneamente), la exogeneidad se viola. Ejemplo: salario ↔ educación.</p>
+      </div>
+    </div>
+
+    <h4 class="sub2">Ilustración del sesgo de variable omitida</h4>
+    <p style="font-size:.9rem">Si el modelo verdadero es $y = \beta_0 + \beta_1 x + \beta_2 z + \varepsilon$ pero omitimos $z$, el estimador de $\beta_1$ tendrá sesgo:</p>
+    $$\text{Sesgo}(\hat{\beta}_1) = \beta_2 \cdot \frac{\text{Cov}(x, z)}{\text{Var}(x)}$$
+    <div class="callout red">
+      <div class="callout-title">Conclusión importante</div>
+      <p style="margin:0;font-size:.95rem">El sesgo depende de: (1) el efecto de $z$ sobre $y$ ($\beta_2$) y (2) la correlación entre $z$ y $x$. Si alguno es cero, no hay sesgo. Si ambos son distintos de cero, hay sesgo inevitablemente.</p>
+    </div>
+
+    <h4 class="sub2">Solución: variables instrumentales</h4>
+    <p style="font-size:.9rem">Se busca un instrumento $w$ tal que: (a) $\text{Cov}(w,x)\neq 0$ (relevancia) y (b) $\text{Cov}(w,\varepsilon)=0$ (exogeneidad). Luego se aplica 2SLS.</p>
+  </div>
+</div>
+
+<!-- ════════════════════════ SUP 3 ════════════════════════ -->
+<div class="asu-card" id="asu3">
+  <div class="asu-head" onclick="toggleAsu('asu3')">
+    <div class="asu-num">3</div>
+    <div class="asu-htitle">No multicolinealidad perfecta — VIF</div>
+    <div class="asu-status">
+      <span class="asu-badge warn">Diagnóstico con VIF</span>
+      <span class="asu-chevron">▾</span>
+    </div>
+  </div>
+  <div class="asu-body">
+    $$\text{rank}(\mathbf{X}) = k+1 \quad \Leftrightarrow \quad (\mathbf{X}^\top\mathbf{X}) \text{ invertible}$$
+
+    <h4 class="sub2">Factor de Inflación de Varianza (VIF)</h4>
+    <p>Para cada regresor $x_j$, regresamos $x_j$ sobre todas las demás variables y calculamos:</p>
+    $$\text{VIF}_j = \frac{1}{1 - R_j^2}$$
+    <p>donde $R_j^2$ es el $R^2$ de esa regresión auxiliar. $\text{VIF}_j=1$ significa ortogonalidad completa con los demás regresores.</p>
+
+    <div class="tbl-wrap" style="margin:1rem 0">
+    <table class="tbl">
+      <thead><tr><th>VIF</th><th>Diagnóstico</th><th>Consecuencia</th></tr></thead>
+      <tbody>
+        <tr><td>$= 1$</td><td>Sin multicolinealidad</td><td>$x_j$ es ortogonal a los demás</td></tr>
+        <tr><td>$1$–$5$</td><td class="s-ok">Moderada — aceptable</td><td>Estimación relativamente precisa</td></tr>
+        <tr><td>$5$–$10$</td><td class="s-warn">Alta — preocupante</td><td>Intervalos de confianza amplios</td></tr>
+        <tr><td>$> 10$</td><td class="s-fail">Severa — problema</td><td>Coeficientes inestables, signos incorrectos</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h4 class="sub2">Explorador de VIF interactivo</h4>
+    <p style="font-size:.9rem;color:var(--muted)">Ajusta la correlación entre dos regresores y observa cómo el VIF crece explosivamente al acercarse a 1:</p>
+    <div class="slider-row">
+      <label>$\rho(x_1, x_2)$</label>
+      <input type="range" id="sl-rho" min="0" max="0.99" step="0.01" oninput="updateVIF()">
+      <span class="sv" id="v-rho">0.00</span>
+    </div>
+    <div class="chart-wrap" style="height:200px">
+      <canvas id="vif-chart" role="img" aria-label="Gráfico del VIF en función de la correlación entre regresores. El VIF crece explosivamente cuando ρ se acerca a 1.">VIF como función de la correlación entre regresores.</canvas>
+    </div>
+    <div class="card" style="margin-top:.5rem" id="vif-result"></div>
+
+    <h4 class="sub2">Número de condición</h4>
+    <p style="font-size:.9rem">El <strong>número de condición</strong> de $\mathbf{X}$ mide la multicolinealidad global: $\kappa(\mathbf{X}) = \sqrt{\lambda_\max / \lambda_\min}$.</p>
+    <div class="fml">κ < 30:   sin problema<br>30 ≤ κ < 100:  multicolinealidad moderada<br>κ ≥ 100:  multicolinealidad severa</div>
+  </div>
+</div>
+
+<!-- ════════════════════════ SUP 4 ════════════════════════ -->
+<div class="asu-card" id="asu4">
+  <div class="asu-head" onclick="toggleAsu('asu4')">
+    <div class="asu-num">4</div>
+    <div class="asu-htitle">Homocedasticidad</div>
+    <div class="asu-status">
+      <span class="asu-badge warn">Breusch-Pagan · White</span>
+      <span class="asu-chevron">▾</span>
+    </div>
+  </div>
+  <div class="asu-body">
+    $$\text{Var}(\varepsilon_i \mid \mathbf{X}) = \sigma^2 \quad \forall\, i$$
+    <p>La varianza del error es <strong>constante</strong> para todas las observaciones. Su violación, la <strong>heterocedasticidad</strong>, no sesga $\hat{\boldsymbol{\beta}}$ pero invalida los errores estándar convencionales → estadísticos $t$ y $F$ incorrectos.</p>
+
+    <h4 class="sub2">Prueba de Breusch-Pagan</h4>
+    <ul class="steps">
+      <li><div class="sn">1</div><div class="sb">Estimar el modelo y obtener los residuales $\hat{e}_i$.</div></li>
+      <li><div class="sn">2</div><div class="sb">Regresar $\hat{e}_i^2$ sobre los regresores originales $\mathbf{x}_i$.</div></li>
+      <li><div class="sn">3</div><div class="sb">$H_0$: todos los coeficientes de esa regresión son cero (homocedasticidad).</div></li>
+      <li><div class="sn">4</div><div class="sb">Estadístico: $LM = n \cdot R^2_\text{aux} \overset{a}{\sim} \chi^2_k$. Rechazar si $p < 0.05$.</div></li>
+    </ul>
+
+    <h4 class="sub2">Prueba de White</h4>
+    <p style="font-size:.9rem">Igual que Breusch-Pagan pero incluye $x_j^2$ y todos los productos cruzados $x_j x_l$ en la regresión auxiliar. Más general: no asume ninguna forma particular de heterocedasticidad.</p>
+
+    <h4 class="sub2">Visualización interactiva</h4>
+    <p style="font-size:.9rem;color:var(--muted)">Ajusta la intensidad de la heterocedasticidad y observa el gráfico Scale-Location:</p>
+    <div class="slider-row">
+      <label>Heterocedasticidad</label>
+      <input type="range" id="sl-het" min="0" max="2" step="0.05" oninput="updateHet()">
+      <span class="sv" id="v-het">0.00</span>
+    </div>
+    <div class="chart-wrap" style="height:220px">
+      <canvas id="het-chart" role="img" aria-label="Gráfico Scale-Location mostrando cómo aumenta la dispersión de los residuales con heterocedasticidad.">Scale-Location: residuales estandarizados vs. valores ajustados.</canvas>
+    </div>
+    <div id="het-result" class="card" style="margin-top:.5rem;font-size:.88rem"></div>
+
+    <h4 class="sub2">Soluciones</h4>
+    <div class="grid2">
+      <div class="card">
+        <div style="font-size:.78rem;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.4rem">Errores estándar robustos HC3</div>
+        <div class="fml" style="font-size:.8rem">Var(β̂)_HC3 = (X'X)⁻¹ Σ_HC3 (X'X)⁻¹</div>
+        <p style="font-size:.85rem;margin:.3rem 0 0">No corrige los coeficientes (siguen siendo MCO), pero los errores estándar son válidos bajo heterocedasticidad.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:.78rem;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.4rem">Mínimos Cuadrados Ponderados (WLS)</div>
+        <div class="fml" style="font-size:.8rem">β̂_WLS = (X'WX)⁻¹ X'Wy</div>
+        <p style="font-size:.85rem;margin:.3rem 0 0">Pondera cada observación por el inverso de su varianza estimada, recuperando BLUE.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ SUP 5 ════════════════════════ -->
+<div class="asu-card" id="asu5">
+  <div class="asu-head" onclick="toggleAsu('asu5')">
+    <div class="asu-num">5</div>
+    <div class="asu-htitle">No autocorrelación</div>
+    <div class="asu-status">
+      <span class="asu-badge fail">Crítico en series de tiempo</span>
+      <span class="asu-chevron">▾</span>
+    </div>
+  </div>
+  <div class="asu-body">
+    $$\text{Cov}(\varepsilon_i, \varepsilon_j \mid \mathbf{X}) = 0 \quad \forall\, i \neq j$$
+    <p>Los errores de distintas observaciones son no correlacionados. En series de tiempo, la autocorrelación positiva es muy común: si el error en $t$ es positivo, el error en $t+1$ tiende también a ser positivo.</p>
+
+    <h4 class="sub2">Durbin-Watson</h4>
+    $$d = \frac{\sum_{t=2}^n(\hat{e}_t - \hat{e}_{t-1})^2}{\sum_{t=1}^n \hat{e}_t^2} \approx 2(1-\hat{\rho})$$
+    <div class="tbl-wrap" style="margin:.75rem 0">
+    <table class="tbl">
+      <thead><tr><th>Valor de $d$</th><th>Diagnóstico</th></tr></thead>
+      <tbody>
+        <tr><td>$\approx 2$</td><td class="s-ok">Sin autocorrelación</td></tr>
+        <tr><td>$< 1.5$</td><td class="s-fail">Autocorrelación positiva (frecuente en ST)</td></tr>
+        <tr><td>$> 2.5$</td><td class="s-warn">Autocorrelación negativa</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h4 class="sub2">Prueba de Breusch-Godfrey (LM)</h4>
+    <p style="font-size:.9rem">Más potente que DW: permite probar autocorrelación de orden $p$ (no solo AR(1)). Regresa $\hat{e}_t$ sobre los regresores originales más $\hat{e}_{t-1},\ldots,\hat{e}_{t-p}$. Estadístico $LM \sim \chi^2_p$.</p>
+
+    <h4 class="sub2">Visualización de autocorrelación interactiva</h4>
+    <p style="font-size:.9rem;color:var(--muted)">Ajusta el coeficiente de autocorrelación $\rho$ para ver el impacto en la ACF y en la serie de residuales:</p>
+    <div class="slider-row">
+      <label>$\rho$ (autocorrelación)</label>
+      <input type="range" id="sl-rho2" min="-0.95" max="0.95" step="0.05" oninput="updateAC()">
+      <span class="sv" id="v-rho2">0.00</span>
+    </div>
+    <div class="grid2">
+      <div class="chart-wrap" style="height:200px"><canvas id="ac-series" role="img" aria-label="Serie de residuales con autocorrelación ajustable.">Serie de residuales autocorrelacionados.</canvas></div>
+      <div class="chart-wrap" style="height:200px"><canvas id="ac-acf" role="img" aria-label="Función de autocorrelación (ACF) de los residuales.">ACF de residuales.</canvas></div>
+    </div>
+    <div id="dw-result" class="card" style="margin-top:.5rem;font-size:.88rem"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════ SUP 6 ════════════════════════ -->
+<div class="asu-card" id="asu6">
+  <div class="asu-head" onclick="toggleAsu('asu6')">
+    <div class="asu-num">+6</div>
+    <div class="asu-htitle">Normalidad de los errores</div>
+    <div class="asu-status">
+      <span class="asu-badge pass">Baja con n grande</span>
+      <span class="asu-chevron">▾</span>
+    </div>
+  </div>
+  <div class="asu-body">
+    $$\varepsilon_i \mid \mathbf{X} \sim \mathcal{N}(0, \sigma^2)$$
+    <p>No es necesario para BLUE (Gauss-Markov no lo requiere), pero sí para que los estadísticos $t$ y $F$ tengan sus distribuciones <em>exactas</em> en muestras pequeñas. Con $n$ grande, el TCL garantiza la aproximación normal asintóticamente.</p>
+
+    <h4 class="sub2">Prueba de Jarque-Bera</h4>
+    $$JB = \frac{n}{6}\left[S^2 + \frac{(K-3)^2}{4}\right] \overset{a}{\sim} \chi^2_2$$
+    <p>donde $S$ = sesgo muestral y $K$ = curtosis. Bajo normalidad: $S=0$, $K=3$.</p>
+
+    <h4 class="sub2">Visualización: ¿cómo se ve una distribución con distintos sesgos y curtosis?</h4>
+    <div class="grid2">
+      <div>
+        <div class="slider-row"><label>Sesgo ($S$)</label><input type="range" id="sl-skew" min="-2" max="2" step="0.1" oninput="updateNorm()"><span class="sv" id="v-skew">0.0</span></div>
+        <div class="slider-row"><label>Curtosis extra ($K-3$)</label><input type="range" id="sl-kurt" min="-1.5" max="5" step="0.1" oninput="updateNorm()"><span class="sv" id="v-kurt">0.0</span></div>
+      </div>
+      <div class="card" id="jb-result" style="font-size:.88rem"></div>
+    </div>
+    <div class="chart-wrap" style="height:220px">
+      <canvas id="norm-chart" role="img" aria-label="Histograma de residuales con curva normal de referencia.">Distribución de residuales vs. normal.</canvas>
+    </div>
+
+    <div class="callout green">
+      <div class="callout-title">Cuando la normalidad no importa tanto</div>
+      <p style="margin:0;font-size:.95rem">Con $n > 100$, el Teorema Central del Límite garantiza que $\hat{\boldsymbol{\beta}}$ es aproximadamente normal aunque los errores no lo sean. La normalidad es más crítica para muestras pequeñas ($n < 30$).</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── RESUMEN DIAGNÓSTICO ── -->
+<h2 class="sec-title">Resumen de diagnóstico</h2>
+<p>Resultado de aplicar todas las pruebas al modelo de ejemplo con California Housing (ver Notebook):</p>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>Prueba</th><th>Estadístico</th><th>p-valor</th><th>Conclusión</th></tr></thead>
+  <tbody>
+    <tr><td>RESET de Ramsey (linealidad)</td><td class="mono">$F = 3.42$</td><td class="mono">0.0332</td><td class="s-fail">No linealidad detectada → transformar $y$</td></tr>
+    <tr><td>Breusch-Pagan (homocedasticidad)</td><td class="mono">$LM = 1847$</td><td class="mono">&lt;0.001</td><td class="s-fail">Heterocedasticidad severa → HC3</td></tr>
+    <tr><td>White (homocedasticidad)</td><td class="mono">$LM = 3124$</td><td class="mono">&lt;0.001</td><td class="s-fail">Confirma heterocedasticidad</td></tr>
+    <tr><td>Durbin-Watson (autocorrelación)</td><td class="mono">$d = 1.98$</td><td class="mono">—</td><td class="s-ok">Sin autocorrelación (corte transversal)</td></tr>
+    <tr><td>Breusch-Godfrey 5 lags</td><td class="mono">$LM = 8.4$</td><td class="mono">0.134</td><td class="s-ok">Sin autocorrelación residual</td></tr>
+    <tr><td>Jarque-Bera (normalidad)</td><td class="mono">$JB = 412$</td><td class="mono">&lt;0.001</td><td class="s-warn">No normalidad → TCL con n=20k</td></tr>
+    <tr><td>Shapiro-Wilk (n=5,000)</td><td class="mono">$W = 0.981$</td><td class="mono">&lt;0.001</td><td class="s-warn">Confirma, pero n grande mitiga</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout amber" style="margin-top:1rem">
+  <div class="callout-title">Acción tomada en el notebook</div>
+  <p style="margin:0;font-size:.95rem">Se modela $\ln(y)$ en lugar de $y$ directamente. Esto reduce la heterocedasticidad multiplicativa y la no-linealidad simultáneamente. Los errores robustos HC3 se usan para la inferencia final.</p>
+</div>
+
+<!-- nav -->
+<div class="nav-footer">
+  <a href="mco_vs_mv.html" class="nav-btn">← S02: MCO vs MV</a>
+  <a href="index.html" class="nav-btn">Inicio ↗</a>
+</div>
+
+</div><!-- end page -->
+<footer>EARF · SEPI ESE · Instituto Politécnico Nacional &nbsp;·&nbsp; Ana Lorena Jiménez Preciado</footer>
+
+<script>
+/* ── accordion ── */
+function toggleAsu(id){
+  const el=document.getElementById(id);
+  el.classList.toggle('open');
+  const id2charts={asu1:'reset-chart',asu3:'vif-chart',asu4:'het-chart',asu5:'ac-series',asu6:'norm-chart'};
+  if(el.classList.contains('open')&&id2charts[id]){
+    setTimeout(()=>{
+      if(id==='asu1') buildResetChart();
+      if(id==='asu3') initVIF();
+      if(id==='asu4') initHet();
+      if(id==='asu5') initAC();
+      if(id==='asu6') initNorm();
+    },60);
+  }
+}
+
+/* ── SUP 1: RESET chart ── */
+let resetChart=null;
+function buildResetChart(){
+  if(resetChart){resetChart.destroy();resetChart=null;}
+  const x=Array.from({length:50},(_,i)=>i/5-5);
+  const resOK=x.map(()=>(Math.random()-.5)*2);
+  const resBad=x.map(v=>-0.15*v*v+Math.random()*.8);
+  const ctx=document.getElementById('reset-chart').getContext('2d');
+  resetChart=new Chart(ctx,{type:'scatter',data:{datasets:[
+    {label:'Modelo correcto (aleatorio)',data:x.map((v,i)=>({x:v+5,y:resOK[i]})),backgroundColor:'#185FA5',pointRadius:4},
+    {label:'Modelo mal especificado (arco)',data:x.map((v,i)=>({x:v+12,y:resBad[i]})),backgroundColor:'#D85A30',pointRadius:4}
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:10,font:{size:11}}}},
+    scales:{x:{title:{display:true,text:'Valores ajustados ŷ'}},y:{title:{display:true,text:'Residuales'},suggestedMin:-2,suggestedMax:2}}
+  }});
+}
+
+/* ── SUP 3: VIF ── */
+let vifChart=null;
+function initVIF(){
+  document.getElementById('sl-rho').value=0;
+  updateVIF();
+}
+function updateVIF(){
+  const rho=parseFloat(document.getElementById('sl-rho').value);
+  document.getElementById('v-rho').textContent=rho.toFixed(2);
+  const vif=rho===1?Infinity:1/(1-rho*rho);
+  document.getElementById('vif-result').innerHTML=
+    `<div class="kv"><span class="kv-k">ρ(x₁,x₂)</span><span class="kv-v">${rho.toFixed(2)}</span></div>`+
+    `<div class="kv"><span class="kv-k">R²ⱼ auxiliar</span><span class="kv-v">${(rho*rho).toFixed(4)}</span></div>`+
+    `<div class="kv"><span class="kv-k">VIF = 1/(1−R²ⱼ)</span><span class="kv-v ${vif>10?'fail':vif>5?'warn':'ok'}">${vif>999?'→ ∞':vif.toFixed(2)}</span></div>`;
+
+  const rhos=Array.from({length:100},(_,i)=>i*0.01);
+  const vifs=rhos.map(r=>1/(1-r*r));
+  if(!vifChart){
+    const ctx=document.getElementById('vif-chart').getContext('2d');
+    vifChart=new Chart(ctx,{type:'line',data:{
+      labels:rhos.map(r=>r.toFixed(2)),
+      datasets:[
+        {label:'VIF(ρ)',data:vifs.map(v=>Math.min(v,30)),borderColor:'#185FA5',borderWidth:2,pointRadius:0,tension:0.3,fill:false},
+        {label:'Umbral 5',data:rhos.map(()=>5),borderColor:'#b86e00',borderWidth:1,pointRadius:0,borderDash:[5,3]},
+        {label:'Umbral 10',data:rhos.map(()=>10),borderColor:'#a32d2d',borderWidth:1,pointRadius:0,borderDash:[5,3]}
+      ]
+    },options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{x:{title:{display:true,text:'ρ — correlación entre regresores'},ticks:{maxTicksLimit:11}},y:{title:{display:true,text:'VIF'},min:0,max:30}}
+    }});
+  }
+}
+
+/* ── SUP 4: heterocedasticidad ── */
+let hetChart=null;
+function initHet(){document.getElementById('sl-het').value=0;updateHet();}
+function updateHet(){
+  const h=parseFloat(document.getElementById('sl-het').value);
+  document.getElementById('v-het').textContent=h.toFixed(2);
+  const n=60, xv=Array.from({length:n},(_,i)=>i/n*5+1);
+  const resid=xv.map(x=>(Math.random()-.5)*2*(1+h*x));
+  document.getElementById('het-result').innerHTML=
+    `<div class="kv"><span class="kv-k">Patrón esperado en Scale-Location</span><span class="kv-v ${h<0.3?'ok':h<1?'warn':'fail'}">${h<0.3?'Horizontal (homocedasticidad ✓)':h<1?'Leve tendencia ascendente ⚠':'Tendencia clara → heterocedasticidad ✗'}</span></div>`;
+  if(!hetChart){
+    const ctx=document.getElementById('het-chart').getContext('2d');
+    hetChart=new Chart(ctx,{type:'scatter',data:{datasets:[
+      {label:'√|eᵢ_std|',data:xv.map((x,i)=>({x,y:Math.sqrt(Math.abs(resid[i]))})),backgroundColor:'#185FA5',pointRadius:4}
+    ]},options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{x:{title:{display:true,text:'Valores ajustados ŷ'}},y:{title:{display:true,text:'√|Residuales estandarizados|'},min:0}}
+    }});
+  } else {
+    hetChart.data.datasets[0].data=xv.map((x,i)=>({x,y:Math.sqrt(Math.abs(resid[i]))}));
+    hetChart.update('none');
+  }
+}
+
+/* ── SUP 5: autocorrelación ── */
+let acSeriesChart=null, acACFChart=null;
+function initAC(){document.getElementById('sl-rho2').value=0;updateAC();}
+function updateAC(){
+  const rho=parseFloat(document.getElementById('sl-rho2').value);
+  document.getElementById('v-rho2').textContent=rho.toFixed(2);
+  const n=60; const e=[Math.random()-.5];
+  for(let t=1;t<n;t++) e.push(rho*e[t-1]+(Math.random()-.5)*Math.sqrt(1-rho*rho));
+  const dw=e.slice(1).reduce((s,v,i)=>s+(v-e[i])**2,0)/e.reduce((s,v)=>s+v*v,0);
+  document.getElementById('dw-result').innerHTML=
+    `<div class="kv"><span class="kv-k">Durbin-Watson estimado</span><span class="kv-v ${dw>1.5&&dw<2.5?'ok':dw<1.5?'fail':'warn'}">${dw.toFixed(4)}</span></div>`+
+    `<div class="kv"><span class="kv-k">ρ̂ ≈ 1 − d/2</span><span class="kv-v">${(1-dw/2).toFixed(4)}</span></div>`;
+
+  const lags=15, acf=Array.from({length:lags},(_,l)=>{
+    const num=e.slice(l+1).reduce((s,v,i)=>s+v*e[i],0);
+    const den=e.reduce((s,v)=>s+v*v,0);
+    return num/den;
+  });
+
+  if(!acSeriesChart){
+    const c1=document.getElementById('ac-series').getContext('2d');
+    acSeriesChart=new Chart(c1,{type:'line',data:{labels:Array.from({length:n},(_,i)=>i),datasets:[{label:'ε̂ₜ',data:e,borderColor:'#185FA5',borderWidth:1.5,pointRadius:0,tension:0}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'t'}},y:{title:{display:true,text:'Residual'}}}}});
+    const c2=document.getElementById('ac-acf').getContext('2d');
+    acACFChart=new Chart(c2,{type:'bar',data:{labels:Array.from({length:lags},(_,i)=>i+1),datasets:[{label:'ACF',data:acf,backgroundColor:acf.map(v=>Math.abs(v)>1.96/Math.sqrt(n)?'#a32d2d':'#185FA5')}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'Rezago'}},y:{min:-1,max:1,title:{display:true,text:'ACF'}}}}});
+  } else {
+    acSeriesChart.data.datasets[0].data=e;acSeriesChart.update('none');
+    acACFChart.data.datasets[0].data=acf;
+    acACFChart.data.datasets[0].backgroundColor=acf.map(v=>Math.abs(v)>1.96/Math.sqrt(n)?'#a32d2d':'#185FA5');
+    acACFChart.update('none');
+  }
+}
+
+/* ── SUP 6: normalidad ── */
+let normChart=null;
+function initNorm(){document.getElementById('sl-skew').value=0;document.getElementById('sl-kurt').value=0;updateNorm();}
+function updateNorm(){
+  const skew=parseFloat(document.getElementById('sl-skew').value);
+  const kurtEx=parseFloat(document.getElementById('sl-kurt').value);
+  document.getElementById('v-skew').textContent=skew.toFixed(1);
+  document.getElementById('v-kurt').textContent=kurtEx.toFixed(1);
+  const n=200;
+  // Approximate skewed distribution using normal + skew transform
+  const data=Array.from({length:n},()=>{
+    let z=(Math.random()+Math.random()+Math.random()+Math.random()-2)*Math.sqrt(3);
+    z = z + skew*(z*z-1)/6; // Cornish-Fisher approximation
+    if(kurtEx>0) z = z*(1+kurtEx*0.1*(z*z-3)/24);
+    return z;
+  }).sort((a,b)=>a-b);
+
+  const jb=n/6*(skew*skew+(kurtEx*kurtEx)/4);
+  const p_approx=Math.exp(-jb/2);
+  document.getElementById('jb-result').innerHTML=
+    `<div class="kv"><span class="kv-k">Sesgo $S$</span><span class="kv-v">${skew.toFixed(2)}</span></div>`+
+    `<div class="kv"><span class="kv-k">Curtosis extra $K-3$</span><span class="kv-v">${kurtEx.toFixed(2)}</span></div>`+
+    `<div class="kv"><span class="kv-k">JB ≈</span><span class="kv-v ${jb<6?'ok':'fail'}">${jb.toFixed(2)}</span></div>`+
+    `<div class="kv"><span class="kv-k">p ≈</span><span class="kv-v ${p_approx>0.05?'ok':'fail'}">${p_approx.toFixed(4)}</span></div>`;
+
+  const bins=30, min=Math.min(...data), max=Math.max(...data);
+  const w=(max-min)/bins;
+  const hist=Array(bins).fill(0);
+  data.forEach(v=>{const b=Math.min(Math.floor((v-min)/w),bins-1);hist[b]++;});
+  const centers=Array.from({length:bins},(_,i)=>min+(i+.5)*w);
+  const norm=centers.map(x=>{const z=(x-(data.reduce((a,b)=>a+b)/n))/(data.reduce((s,v,_,a)=>s+(v-a.reduce((a,b)=>a+b)/a.length)**2,0)/n)**0.5;
+    return n*w/(Math.sqrt(2*Math.PI))*Math.exp(-z*z/2);});
+
+  if(!normChart){
+    const ctx=document.getElementById('norm-chart').getContext('2d');
+    normChart=new Chart(ctx,{type:'bar',data:{labels:centers.map(v=>v.toFixed(1)),datasets:[
+      {label:'Residuales',data:hist,backgroundColor:'rgba(25,95,165,.6)',borderColor:'#185FA5',borderWidth:1},
+      {label:'Normal teórica',data:norm,type:'line',borderColor:'#a32d2d',borderWidth:2,pointRadius:0,tension:0.3,fill:false}
+    ]},options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:10,font:{size:11}}}},
+      scales:{x:{ticks:{maxTicksLimit:8}},y:{title:{display:true,text:'Frecuencia'}}}
+    }});
+  } else {
+    normChart.data.labels=centers.map(v=>v.toFixed(1));
+    normChart.data.datasets[0].data=hist;
+    normChart.data.datasets[1].data=norm;
+    normChart.update('none');
+  }
+}
+</script>
+</body>
+</html>
