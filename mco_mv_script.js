@@ -112,7 +112,13 @@ function showTab(id,btn){
       `  β̂₁ = Cov/Var = ${f(sumCov,4)} / ${f(sumVar,4)} = <span class="h">${f(b1_vc,6)}</span>\n\n` +
       `<span class="h">Paso 4 — Intercepto:</span>\n` +
       `  β̂₀ = ȳ − β̂₁·${varLabel.includes('1')?'x̄₁':'x̄₂'} = ${f(ybar2,2)} − ${f(b1_vc,6)}×${f(xbar,2)} = <span class="h">${f(b0_vc,6)}</span>\n\n` +
-      `<span class="h2">Modelo simple:</span>  Pérdida = ${f(b0_vc,4)} + ${f(b1_vc,4)}·${varLabel}`;
+      `<span class="h2">Modelo simple:</span>  Pérdida = ${f(b0_vc,4)} + ${f(b1_vc,4)}·${varLabel}\n\n` +
+      `<span class="h">Interpretación:</span>\n` +
+      `  β̂₁ = ${f(b1_vc,4)}: por cada unidad adicional de ${varLabel.includes('1')?'apalancamiento':'volatilidad (%)'},\n` +
+      `  la pérdida por incumplimiento aumenta en promedio <span class="h">${f(b1_vc,4)} puntos porcentuales</span>,\n` +
+      `  manteniendo todo lo demás constante.\n\n` +
+      `  β̂₀ = ${f(b0_vc,4)}: cuando ${varLabel.includes('1')?'el apalancamiento':'la volatilidad'} = 0,\n` +
+      `  la pérdida estimada sería <span class="h">${f(b0_vc,4)}%</span>.${b0_vc<0?' (Valor negativo indica extrapolación fuera del rango de datos.)':''}`;
   }
 
   buildVarCovTable(X1, x1bar, 'x₁', 'x₁ᵢ', 'varcov-table-x1', 'varcov-result-x1');

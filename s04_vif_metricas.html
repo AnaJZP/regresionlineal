@@ -251,17 +251,68 @@ $$\kappa(\mathbf{X}) = \sqrt{\frac{\lambda_{\max}(\mathbf{X}^\top\mathbf{X})}{\l
     <p style="font-size:.88rem;color:var(--muted);margin:0">Penaliza por el número de regresores $k$. Puede <em>disminuir</em> al agregar variables irrelevantes. Preferir sobre $R^2$ para comparar modelos.</p>
   </div>
 </div>
-<div class="grid2" style="margin-top:.75rem">
+<h3 class="sub-title">Criterios de información — AIC y BIC</h3>
+<p>Los criterios de información permiten comparar modelos con distinto número de parámetros, penalizando la complejidad. A diferencia del $R^2$, que siempre mejora al agregar variables, AIC y BIC pueden <em>empeorar</em> si la variable agregada no aporta suficiente poder explicativo.</p>
+
+<div class="grid2">
   <div class="card">
     <div class="sub2">AIC — Criterio de Akaike</div>
-    <div class="fml">AIC = n·ln(SSE/n) + 2(k+1)</div>
-    <p style="font-size:.88rem;color:var(--muted);margin:.3rem 0 0">Menor AIC = mejor. Penaliza por el número de parámetros. Útil para comparar modelos no anidados.</p>
+    <p style="font-size:.9rem;margin:.3rem 0">$$\text{AIC} = n \cdot \ln\!\left(\frac{\text{SSE}}{n}\right) + 2(k+1)$$</p>
+    <p style="font-size:.88rem;color:var(--muted);margin:0">Menor AIC = mejor. Penaliza por el número de parámetros. Útil para comparar modelos no anidados.</p>
   </div>
   <div class="card">
-    <div class="sub2">BIC — Criterio Bayesiano</div>
-    <div class="fml">BIC = n·ln(SSE/n) + (k+1)·ln(n)</div>
-    <p style="font-size:.88rem;color:var(--muted);margin:.3rem 0 0">Penaliza más fuerte que AIC cuando $n$ es grande. Tiende a seleccionar modelos más parsimoniosos.</p>
+    <div class="sub2">BIC — Criterio Bayesiano (Schwarz)</div>
+    <p style="font-size:.9rem;margin:.3rem 0">$$\text{BIC} = n \cdot \ln\!\left(\frac{\text{SSE}}{n}\right) + (k+1) \cdot \ln(n)$$</p>
+    <p style="font-size:.88rem;color:var(--muted);margin:0">Penaliza más fuerte que AIC cuando $n$ es grande. Tiende a seleccionar modelos más parsimoniosos.</p>
   </div>
+</div>
+
+<div class="tbl-wrap" style="margin:1rem 0">
+<table class="tbl">
+  <thead><tr><th>Aspecto</th><th>AIC</th><th>BIC</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Penalización</strong></td><td class="mono">2(k+1) — fija</td><td class="mono">(k+1)·ln(n) — crece con n</td></tr>
+    <tr><td><strong>Ventaja</strong></td><td>Mejor para predicción; más flexible</td><td>Más consistente; elige el modelo verdadero</td></tr>
+    <tr><td><strong>Desventaja</strong></td><td>Puede seleccionar modelos sobreajustados</td><td>Puede ser demasiado conservador</td></tr>
+    <tr><td><strong>Cuándo BIC > AIC</strong></td><td colspan="2">Cuando $\ln(n) > 2$, es decir $n > 7.39$ (casi siempre)</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout blue">
+  <div class="callout-title">Ejemplo numérico — California Housing</div>
+  <p style="margin:0;font-size:.92rem">Con $n = 16{,}497$, $k = 8$ regresores, $\text{SSE}_{\text{train}} = 2{,}043.1$ (en log-escala):</p>
+  <div class="fml" style="margin-top:.5rem">AIC = 16,497 · ln(2043.1/16497) + 2·(8+1)
+    = 16,497 · (−2.0886) + 18 = <span class="h">−34,437</span>
+
+BIC = 16,497 · ln(0.1238) + 9 · ln(16,497)
+    = −34,455 + 87.4 = <span class="h">−34,368</span></div>
+  <p style="font-size:.88rem;margin:.5rem 0 0;color:var(--muted)">AIC < BIC porque BIC penaliza más. Si agregamos un regresor irrelevante, AIC subiría ~2 y BIC ~9.7.</p>
+</div>
+
+<h3 class="sub-title">Conceptos clave: Grados de libertad, Nivel de confianza y p-value</h3>
+
+<div class="grid3">
+  <div class="card">
+    <div class="sub2" style="color:var(--g)">Grados de libertad (gl)</div>
+    <p style="font-size:.88rem;margin:.3rem 0">$$\text{gl} = n - k - 1$$</p>
+    <p style="font-size:.85rem;color:var(--muted);margin:0">Observaciones "libres" tras estimar $k+1$ parámetros. Con $n=16{,}497$ y $k=8$: gl $= 16{,}488$. Cuantos más parámetros, menos gl para estimar $\sigma^2$.</p>
+  </div>
+  <div class="card">
+    <div class="sub2" style="color:var(--blue)">Nivel de confianza ($1-\alpha$)</div>
+    <p style="font-size:.88rem;margin:.3rem 0">Típicamente 95% ($\alpha = 0.05$)</p>
+    <p style="font-size:.85rem;color:var(--muted);margin:0">Si repetimos el muestreo infinitas veces, el <strong>95% de los IC</strong> contendrán el verdadero $\beta$. No significa que haya 95% de probabilidad de que $\beta$ esté en <em>nuestro</em> IC.</p>
+  </div>
+  <div class="card">
+    <div class="sub2" style="color:var(--green)">p-value</div>
+    <p style="font-size:.88rem;margin:.3rem 0">$$p = P(|t| \geq |t_{\text{obs}}| \mid H_0)$$</p>
+    <p style="font-size:.85rem;color:var(--muted);margin:0">Si $p < \alpha$: rechazamos $H_0: \beta_j=0$ → variable <strong>significativa</strong>. Si $p \geq \alpha$: no hay evidencia de que $\beta_j \neq 0$.</p>
+  </div>
+</div>
+
+<div class="callout amber">
+  <div class="callout-title">Significancia estadística ≠ importancia práctica</div>
+  <p style="margin:0;font-size:.95rem">Con $n$ grande, coeficientes diminutos pueden tener $p < 0.001$. Un $p$-value pequeño dice que el efecto es <strong>distinto de cero</strong>, no que es <strong>grande</strong>. Siempre reporta el tamaño del efecto junto con el $p$-value.</p>
 </div>
 
 <h3 class="sub-title">Métricas de predicción fuera de muestra (test)</h3>
@@ -381,6 +432,7 @@ function updateVIF(){
     `<div class="kv"><span class="kv-k">$R_j^2$ auxiliar</span><span class="kv-v">${R2.toFixed(4)}</span></div>`+
     `<div class="kv"><span class="kv-k">VIF = 1/(1−R²ⱼ)</span><span class="kv-v ${vif>10?'fail':vif>5?'warn':'ok'}">${vif>200?'→ ∞':vif.toFixed(2)}</span></div>`+
     `<div class="kv"><span class="kv-k">Inflación del IC</span><span class="kv-v ${vif>10?'fail':vif>5?'warn':'ok'}">×${se_inflation.toFixed(2)}</span></div>`;
+  const currentVIF = Math.min(vif, 40);
   if(!vifChart){
     const rhos=Array.from({length:100},(_,i)=>i*0.01);
     const vifs=rhos.map(r=>Math.min(1/(1-r*r),40));
@@ -390,12 +442,16 @@ function updateVIF(){
       datasets:[
         {label:'VIF(ρ)',data:vifs,borderColor:'#185FA5',borderWidth:2,pointRadius:0,tension:0.3,fill:false},
         {label:'Umbral 5', data:rhos.map(()=>5), borderColor:'#b86e00',borderWidth:1.5,pointRadius:0,borderDash:[5,3]},
-        {label:'Umbral 10',data:rhos.map(()=>10),borderColor:'#a32d2d',borderWidth:1.5,pointRadius:0,borderDash:[5,3]}
+        {label:'Umbral 10',data:rhos.map(()=>10),borderColor:'#a32d2d',borderWidth:1.5,pointRadius:0,borderDash:[5,3]},
+        {label:'Punto actual',data:[{x:rho.toFixed(2),y:currentVIF}],type:'scatter',backgroundColor:'#7b002c',pointRadius:8,pointHoverRadius:10,borderColor:'#fff',borderWidth:2}
       ]
     },options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false}},
       scales:{x:{title:{display:true,text:'ρ'},ticks:{maxTicksLimit:11}},y:{title:{display:true,text:'VIF'},min:0,max:40}}
     }});
+  } else {
+    vifChart.data.datasets[3].data=[{x:rho.toFixed(2),y:currentVIF}];
+    vifChart.update('none');
   }
 }
 updateVIF();
