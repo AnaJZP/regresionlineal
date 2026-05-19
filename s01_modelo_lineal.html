@@ -122,7 +122,7 @@ $$\text{Pérdida}_i = \beta_0 + \beta_1 \cdot \text{Apalancamiento}_i + \beta_2 
 <!-- ═══ 1.4 ═══ -->
 <h2 class="sec-title">1.4 ¿Qué mide la regresión? — Descomposición de la varianza</h2>
 
-<p>Una vez estimado el modelo, obtenemos valores ajustados $\hat{y}_i$ (la pérdida que el modelo predice) y residuales $\hat{e}_i = y_i - \hat{y}_i$ (lo que el modelo no logra explicar). La variabilidad total de la pérdida se descompone en dos partes <strong>ortogonales</strong>:</p>
+<p>Una vez estimado el modelo, obtenemos valores ajustados $\hat{y}_i$ (la pérdida que el modelo predice) y residuales $\hat{e}_i = y_i - \hat{y}_i$ (lo que el modelo no logra explicar). La variabilidad total de la pérdida se descompone en dos partes <strong>ortogonales</strong>, es decir, la variación total de la pérdida observada puede separarse en dos componentes que <strong>no se mezclan entre sí</strong>: uno captura lo que el modelo explica y el otro lo que queda sin explicar, sin que exista traslape entre ambos:</p>
 
 $$\underbrace{\sum_{i=1}^n(y_i-\bar{y})^2}_{\text{SST}} = \underbrace{\sum_{i=1}^n(\hat{y}_i-\bar{y})^2}_{\text{SSR}} + \underbrace{\sum_{i=1}^n\hat{e}_i^2}_{\text{SSE}}$$
 
@@ -144,6 +144,25 @@ $$\underbrace{\sum_{i=1}^n(y_i-\bar{y})^2}_{\text{SST}} = \underbrace{\sum_{i=1}
   </div>
 </div>
 
+<h3 class="sub-title">Cálculo numérico con nuestro ejemplo</h3>
+<p>Con los coeficientes estimados por MCO del modelo múltiple ($\hat{\beta}_0 = -0.6689$, $\hat{\beta}_1 = 0.9964$, $\hat{\beta}_2 = 0.1345$) y la media $\bar{y} = 3.76$, calculamos los valores ajustados y los componentes de la descomposición:</p>
+
+<div class="tbl-wrap" style="margin:1rem 0">
+<table class="tbl" style="font-size:.85rem">
+  <thead><tr><th>Empresa</th><th>$y_i$</th><th>$\hat{y}_i$</th><th>$\hat{e}_i$</th><th>$(y_i - \bar{y})^2$</th><th>$(\hat{y}_i - \bar{y})^2$</th><th>$\hat{e}_i^2$</th></tr></thead>
+  <tbody>
+    <tr><td class="center">A</td><td class="mono">2.50</td><td class="mono">2.5444</td><td class="mono">−0.0444</td><td class="mono">1.5876</td><td class="mono">1.4777</td><td class="mono">0.0020</td></tr>
+    <tr><td class="center">B</td><td class="mono">4.80</td><td class="mono">4.7813</td><td class="mono">0.0187</td><td class="mono">1.0816</td><td class="mono">1.0431</td><td class="mono">0.0003</td></tr>
+    <tr><td class="center">C</td><td class="mono">1.80</td><td class="mono">1.7423</td><td class="mono">0.0577</td><td class="mono">3.8416</td><td class="mono">4.0710</td><td class="mono">0.0033</td></tr>
+    <tr><td class="center">D</td><td class="mono">6.20</td><td class="mono">6.1862</td><td class="mono">0.0138</td><td class="mono">5.9536</td><td class="mono">5.8864</td><td class="mono">0.0002</td></tr>
+    <tr><td class="center">E</td><td class="mono">3.50</td><td class="mono">3.5458</td><td class="mono">−0.0458</td><td class="mono">0.0676</td><td class="mono">0.0459</td><td class="mono">0.0021</td></tr>
+    <tr style="font-weight:600;border-top:2px solid var(--border)"><td class="center">Σ</td><td></td><td></td><td></td><td class="mono">12.5320</td><td class="mono">12.5241</td><td class="mono">0.0079</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p style="font-size:.92rem">Verificación: $\text{SSR} + \text{SSE} = 12.5241 + 0.0079 = 12.5320 = \text{SST}$ ✓</p>
+
 <h3 class="sub-title">Coeficiente de determinación $R^2$</h3>
 <p>El $R^2$ resume esta descomposición en un solo número:</p>
 
@@ -154,28 +173,39 @@ $$R^2 = \frac{\text{SSR}}{\text{SST}} = 1 - \frac{\text{SSE}}{\text{SST}} \in [0
   <p style="margin:0;font-size:.95rem">$R^2 = 0.85$ significaría que el apalancamiento y la volatilidad <strong>explican el 85% de la variabilidad en las pérdidas</strong>. El 15% restante es riesgo idiosincrático — factores no incluidos en el modelo.</p>
 </div>
 
+<h3 class="sub-title">$R^2$ de nuestro ejemplo</h3>
+
+$$R^2 = \frac{12.5241}{12.5320} = 0.9994$$
+
+<p style="font-size:.92rem">El apalancamiento y la volatilidad explican el <strong>99.94%</strong> de la variabilidad en las pérdidas de estas 5 empresas. Solo el 0.06% queda como riesgo idiosincrático.</p>
+
 <div class="grid3" style="margin:1rem 0">
-  <div class="stat-card"><div class="stat-val" id="sst-val">—</div><div class="stat-label">SST</div></div>
-  <div class="stat-card"><div class="stat-val" id="ssr-val">—</div><div class="stat-label">SSR</div></div>
-  <div class="stat-card"><div class="stat-val" id="sse-val">—</div><div class="stat-label">SSE</div></div>
+  <div class="stat-card"><div class="stat-val" id="sst-val">12.532</div><div class="stat-label">SST</div></div>
+  <div class="stat-card"><div class="stat-val" id="ssr-val">12.524</div><div class="stat-label">SSR</div></div>
+  <div class="stat-card"><div class="stat-val" id="sse-val">0.008</div><div class="stat-label">SSE</div></div>
 </div>
-<div class="stat-card" style="margin:.5rem 0"><div class="stat-val" id="r2-val" style="color:var(--blue)">—</div><div class="stat-label">R² — proporción del riesgo explicado</div></div>
+<div class="stat-card" style="margin:.5rem 0"><div class="stat-val" id="r2-val" style="color:var(--blue)">0.9994</div><div class="stat-label">R² — proporción del riesgo explicado</div></div>
 
 <!-- ═══ 1.5 ═══ -->
 <h2 class="sec-title">1.5 Explorador interactivo</h2>
-<p class="lead">Ajusta la pendiente $\beta_1$ y el intercepto $\beta_0$ para ver cómo cambian SST, SSR, SSE y $R^2$. La línea verde punteada es la recta MCO (mínima SSE).</p>
+<p class="lead">Ajusta $\beta_0$, $\beta_1$ (apalancamiento) y $\beta_2$ (volatilidad) para ver cómo cambian SST, SSR, SSE y $R^2$. La línea verde punteada es la recta MCO (mínima SSE).</p>
 
 <div class="grid2">
   <div>
     <div class="slider-row">
       <label>$\beta_0$</label>
-      <input type="range" id="sl-b0" min="-2" max="4" step="0.05" oninput="updatePlot()">
+      <input type="range" id="sl-b0" min="-3" max="3" step="0.05" oninput="updatePlot()">
       <span class="sv" id="vb0">—</span>
     </div>
     <div class="slider-row">
       <label>$\beta_1$</label>
-      <input type="range" id="sl-b1" min="0" max="3" step="0.02" oninput="updatePlot()">
+      <input type="range" id="sl-b1" min="-1" max="3" step="0.02" oninput="updatePlot()">
       <span class="sv" id="vb1">—</span>
+    </div>
+    <div class="slider-row">
+      <label>$\beta_2$</label>
+      <input type="range" id="sl-b2" min="-0.5" max="0.5" step="0.005" oninput="updatePlot()">
+      <span class="sv" id="vb2">—</span>
     </div>
   </div>
   <div class="card" id="metrics-card" style="font-size:.88rem"></div>
@@ -216,14 +246,19 @@ $$R^2 = \frac{\text{SSR}}{\text{SST}} = 1 - \frac{\text{SSE}}{\text{SST}} \in [0
 <footer>EARF · SEPI ESE · Instituto Politécnico Nacional &nbsp;·&nbsp; Ana Lorena Jiménez Preciado</footer>
 
 <script>
-/* datos de ejemplo — riesgo crediticio */
-const Xd=[1.2,2.5,0.8,3.1,1.8], Yd=[2.5,4.8,1.8,6.2,3.5];
-const n=Xd.length;
-const xb=Xd.reduce((a,b)=>a+b)/n, yb=Yd.reduce((a,b)=>a+b)/n;
-const Sxx=Xd.reduce((s,x)=>s+(x-xb)**2,0);
-const Sxy=Xd.reduce((s,x,i)=>s+(x-xb)*(Yd[i]-yb),0);
-const b1_ols=Sxy/Sxx, b0_ols=yb-b1_ols*xb;
+/* datos de ejemplo — riesgo crediticio (modelo múltiple) */
+const X1d=[1.2,2.5,0.8,3.1,1.8], X2d=[15,22,12,28,18], Yd=[2.5,4.8,1.8,6.2,3.5];
+const n=Yd.length;
+const yb=Yd.reduce((a,b)=>a+b)/n;
 const f=(v,d=3)=>typeof v==='number'?v.toFixed(d):v;
+
+/* OLS múltiple: β = (X'X)^{-1} X'y */
+const b0_ols=-0.6689, b1_ols=0.9964, b2_ols=0.1345;
+const yhat_ols=Yd.map((_,i)=>b0_ols+b1_ols*X1d[i]+b2_ols*X2d[i]);
+const SST=Yd.reduce((s,y)=>s+(y-yb)**2,0);
+const SSE_ols=Yd.reduce((s,y,i)=>s+(y-yhat_ols[i])**2,0);
+const SSR_ols=SST-SSE_ols;
+const R2_ols=SSR_ols/SST;
 
 /* matrices display */
 const Yvec=[2.5,4.8,1.8,6.2,3.5];
@@ -242,29 +277,19 @@ document.getElementById('mat-example').innerHTML=`
   <table class="mat">${['ε₁','ε₂','ε₃','ε₄','ε₅'].map(v=>`<tr><td>${v}</td></tr>`).join('')}</table>
   <span class="mat-br">]</span></div>`;
 
-/* SST SSR SSE con OLS (simple: y ~ x1 para el interactivo) */
-const yhat_ols=Xd.map(x=>b0_ols+b1_ols*x);
-const SST=Yd.reduce((s,y)=>s+(y-yb)**2,0);
-const SSE_ols=Yd.reduce((s,y,i)=>s+(y-yhat_ols[i])**2,0);
-const SSR_ols=SST-SSE_ols;
-const R2_ols=SSR_ols/SST;
-document.getElementById('sst-val').textContent=f(SST);
-document.getElementById('ssr-val').textContent=f(SSR_ols);
-document.getElementById('sse-val').textContent=f(SSE_ols);
-document.getElementById('r2-val').textContent=f(R2_ols,4);
-
-/* scatter interactivo */
+/* scatter interactivo con β₂ */
 let chart=null;
-const sl0=document.getElementById('sl-b0'),sl1=document.getElementById('sl-b1');
-sl0.value=f(b0_ols,2);sl1.value=f(b1_ols,2);
+const sl0=document.getElementById('sl-b0'),sl1=document.getElementById('sl-b1'),sl2=document.getElementById('sl-b2');
+sl0.value=f(b0_ols,2); sl1.value=f(b1_ols,2); sl2.value=f(b2_ols,3);
 
 function updatePlot(){
-  const b0=parseFloat(sl0.value),b1=parseFloat(sl1.value);
+  const b0=parseFloat(sl0.value),b1=parseFloat(sl1.value),b2=parseFloat(sl2.value);
   document.getElementById('vb0').textContent=f(b0,2);
   document.getElementById('vb1').textContent=f(b1,2);
-  const yh=Xd.map(x=>b0+b1*x);
+  document.getElementById('vb2').textContent=f(b2,3);
+  const yh=Yd.map((_,i)=>b0+b1*X1d[i]+b2*X2d[i]);
   const sse=Yd.reduce((s,y,i)=>s+(y-yh[i])**2,0);
-  const ssr=SST-sse;const r2=Math.max(0,ssr/SST);
+  const ssr=SST-sse; const r2=Math.max(0,ssr/SST);
   document.getElementById('metrics-card').innerHTML=
     `<div class="kv"><span class="kv-k">SST (fija)</span><span class="kv-v">${f(SST)}</span></div>`+
     `<div class="kv"><span class="kv-k">SSE (minimizar)</span><span class="kv-v" style="color:${sse<SSE_ols*1.01?'var(--green)':'var(--red)'}">${f(sse)}</span></div>`+
@@ -272,22 +297,26 @@ function updatePlot(){
     `<div class="kv"><span class="kv-k">R²</span><span class="kv-v">${f(r2,4)}</span></div>`+
     `<div class="kv"><span class="kv-k">R² MCO (máx)</span><span class="kv-v" style="color:var(--green)">${f(R2_ols,4)}</span></div>`;
 
-  const xline=[0.5,3.5],yols=xline.map(x=>b0_ols+b1_ols*x),ycur=xline.map(x=>b0+b1*x);
-  const residSegs=Xd.flatMap((x,i)=>[{x,y:Yd[i]},{x,y:yh[i]},{x:null,y:null}]);
+  /* gráfica: eje x = apalancamiento, recta condicional a volatilidad media */
+  const x2m=X2d.reduce((a,b)=>a+b)/n;
+  const xline=[0.5,3.5];
+  const yols_line=xline.map(x=>b0_ols+b1_ols*x+b2_ols*x2m);
+  const ycur_line=xline.map(x=>b0+b1*x+b2*x2m);
+  const residSegs=X1d.flatMap((x,i)=>[{x,y:Yd[i]},{x,y:yh[i]},{x:null,y:null}]);
 
   if(!chart){
     const ctx=document.getElementById('scatter-chart').getContext('2d');
     chart=new Chart(ctx,{type:'scatter',data:{datasets:[
-      {label:'Empresas',data:Xd.map((x,i)=>({x,y:Yd[i]})),backgroundColor:'#185FA5',pointRadius:7},
-      {label:'Recta actual',data:ycur.map((y,i)=>({x:xline[i],y})),type:'line',borderColor:'#7b002c',borderWidth:2.5,pointRadius:0,tension:0},
-      {label:'Recta MCO',data:yols.map((y,i)=>({x:xline[i],y})),type:'line',borderColor:'#0F6E56',borderWidth:1.5,pointRadius:0,tension:0,borderDash:[6,4]},
+      {label:'Empresas',data:X1d.map((x,i)=>({x,y:Yd[i]})),backgroundColor:'#185FA5',pointRadius:7},
+      {label:'Recta actual (vol. media)',data:ycur_line.map((y,i)=>({x:xline[i],y})),type:'line',borderColor:'#7b002c',borderWidth:2.5,pointRadius:0,tension:0},
+      {label:'Recta MCO (vol. media)',data:yols_line.map((y,i)=>({x:xline[i],y})),type:'line',borderColor:'#0F6E56',borderWidth:1.5,pointRadius:0,tension:0,borderDash:[6,4]},
       {label:'Residuales',data:residSegs,type:'line',borderColor:'rgba(123,0,44,.35)',borderWidth:1.5,pointRadius:0,borderDash:[4,3]}
     ]},options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:12,font:{size:12}}}},
       scales:{x:{title:{display:true,text:'Apalancamiento (x₁)'},min:0.3,max:3.8},y:{title:{display:true,text:'Pérdida (%)'},min:0,max:8}}
     }});
   } else {
-    chart.data.datasets[1].data=ycur.map((y,i)=>({x:xline[i],y}));
+    chart.data.datasets[1].data=ycur_line.map((y,i)=>({x:xline[i],y}));
     chart.data.datasets[3].data=residSegs;
     chart.update('none');
   }
