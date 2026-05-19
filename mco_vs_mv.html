@@ -44,7 +44,7 @@
   <a href="index.html">Inicio</a><span class="topbar-sep">›</span>
   <a href="s01_modelo_lineal.html">S01</a><span class="topbar-sep">›</span>
   <span class="topbar-curr">Sección 02 — MCO vs MV</span>
-  <span class="topbar-badge">S02 / 06</span>
+  <span class="topbar-badge">S02 / 07</span>
 </div>
 
 <div class="hero">
@@ -65,11 +65,12 @@
 
 <div class="tabs">
   <button class="tab active" onclick="showTab('datos',this)">① Datos</button>
-  <button class="tab" onclick="showTab('mco',this)">② MCO</button>
-  <button class="tab" onclick="showTab('mv',this)">③ Máxima Verosimilitud</button>
-  <button class="tab" onclick="showTab('equiv',this)">④ Equivalencia</button>
-  <button class="tab" onclick="showTab('sigma',this)">⑤ Estimación σ²</button>
-  <button class="tab" onclick="showTab('resumen',this)">⑥ Resumen</button>
+  <button class="tab" onclick="showTab('varcov',this)">② Reg. Lineal (Var/Cov)</button>
+  <button class="tab" onclick="showTab('mco',this)">③ MCO</button>
+  <button class="tab" onclick="showTab('mv',this)">④ Máxima Verosimilitud</button>
+  <button class="tab" onclick="showTab('equiv',this)">⑤ Equivalencia</button>
+  <button class="tab" onclick="showTab('sigma',this)">⑥ Estimación σ²</button>
+  <button class="tab" onclick="showTab('resumen',this)">⑦ Resumen</button>
 </div>
 
 <!-- ══ PANEL 1: DATOS ══ -->
@@ -94,9 +95,40 @@
 <div id="matrix-display" class="mat-row"></div>
 </div>
 
-<!-- ══ PANEL 2: MCO ══ -->
+<!-- ══ PANEL 2: VAR/COV ══ -->
+<div id="tab-varcov" class="panel">
+<h2 class="sub-title">2.1 Estimación por Varianza y Covarianza — Regresión Lineal Simple</h2>
+<p>Antes de abordar la formulación matricial, veamos cómo estimar los coeficientes de una regresión simple usando las fórmulas clásicas de <strong>varianza</strong> y <strong>covarianza</strong>. Este método es la base intuitiva sobre la que se construye MCO.</p>
+
+<h3 class="sub2">Fórmulas fundamentales</h3>
+<p>Para un modelo de regresión simple $y_i = \beta_0 + \beta_1 x_i + \varepsilon_i$, los estimadores son:</p>
+
+$$\hat{\beta}_1 = \frac{\text{Cov}(x, y)}{\text{Var}(x)} = \frac{\sum_{i=1}^{n}(x_i - \bar{x})(y_i - \bar{y})}{\sum_{i=1}^{n}(x_i - \bar{x})^2}$$
+
+$$\hat{\beta}_0 = \bar{y} - \hat{\beta}_1 \bar{x}$$
+
+<div class="callout blue">
+  <div class="callout-title">Intuición</div>
+  <p style="margin:0;font-size:.95rem">$\hat{\beta}_1$ mide cuánto <strong>co-varía</strong> $y$ con $x$ relativo a cuánto varía $x$ por sí sola. Si cuando $x$ sube, $y$ también sube proporcionalmente, la covarianza será grande y positiva. La varianza de $x$ en el denominador normaliza este efecto.</p>
+</div>
+
+<h3 class="sub2">Regresión simple: Pérdida vs Apalancamiento ($x_1$)</h3>
+<div id="varcov-table-x1"></div>
+<div class="fml" id="varcov-result-x1" style="margin-top:.75rem"></div>
+
+<h3 class="sub2">Regresión simple: Pérdida vs Volatilidad ($x_2$)</h3>
+<div id="varcov-table-x2"></div>
+<div class="fml" id="varcov-result-x2" style="margin-top:.75rem"></div>
+
+<div class="callout amber">
+  <div class="callout-title">Limitación — ¿Por qué necesitamos MCO matricial?</div>
+  <p style="margin:0;font-size:.95rem">Las fórmulas de varianza y covarianza funcionan para regresión <strong>simple</strong> (una sola $x$). Cuando tenemos múltiples regresores ($x_1, x_2, \ldots$), los efectos se confunden entre sí. La formulación matricial MCO $(\mathbf{X}^\top\mathbf{X})^{-1}\mathbf{X}^\top\mathbf{y}$ resuelve <strong>simultáneamente</strong> todos los coeficientes, controlando por la correlación entre regresores. Es la generalización natural de estas fórmulas.</p>
+</div>
+</div>
+
+<!-- ══ PANEL 3: MCO ══ -->
 <div id="tab-mco" class="panel">
-<h2 class="sub-title">2.1 Mínimos Cuadrados Ordinarios — Derivación completa</h2>
+<h2 class="sub-title">2.2 Mínimos Cuadrados Ordinarios — Derivación completa</h2>
 <p>MCO busca el vector $\hat{\boldsymbol{\beta}}$ que minimiza la suma de cuadrados de los errores:</p>
 $$\hat{\boldsymbol{\beta}}_{\text{MCO}} = \arg\min_{\boldsymbol{\beta}} \text{SSE}(\boldsymbol{\beta}) = \arg\min_{\boldsymbol{\beta}} (\mathbf{y} - \mathbf{X}\boldsymbol{\beta})^\top(\mathbf{y} - \mathbf{X}\boldsymbol{\beta})$$
 
@@ -104,16 +136,41 @@ $$\hat{\boldsymbol{\beta}}_{\text{MCO}} = \arg\min_{\boldsymbol{\beta}} \text{SS
 <p>Desarrollamos el producto:</p>
 $$\text{SSE}(\boldsymbol{\beta}) = \mathbf{y}^\top\mathbf{y} - 2\boldsymbol{\beta}^\top\mathbf{X}^\top\mathbf{y} + \boldsymbol{\beta}^\top\mathbf{X}^\top\mathbf{X}\boldsymbol{\beta}$$
 
+<div class="callout blue">
+  <div class="callout-title">Sustitución numérica — Paso 1</div>
+  <p style="margin:0;font-size:.9rem">Con nuestros datos, la función objetivo evalúa cada error al cuadrado:</p>
+  <p style="font-family:var(--mono);font-size:.85rem;margin:.5rem 0 0">$\text{SSE} = (2.5 - \hat{y}_1)^2 + (4.8 - \hat{y}_2)^2 + (1.8 - \hat{y}_3)^2 + (6.2 - \hat{y}_4)^2 + (3.5 - \hat{y}_5)^2$</p>
+  <p style="font-size:.85rem;margin:.3rem 0 0;color:var(--muted)">donde $\hat{y}_i = \beta_0 + \beta_1 x_{1i} + \beta_2 x_{2i}$. MCO encuentra los $\beta$ que hacen esta suma lo más pequeña posible.</p>
+</div>
+
 <h3 class="sub2">Paso 2 — Derivar respecto a $\boldsymbol{\beta}$ (condición de primer orden)</h3>
 <p>Usamos las reglas de derivación matricial: $\frac{\partial(\mathbf{a}^\top\boldsymbol{\beta})}{\partial\boldsymbol{\beta}}=\mathbf{a}$ y $\frac{\partial(\boldsymbol{\beta}^\top\mathbf{A}\boldsymbol{\beta})}{\partial\boldsymbol{\beta}}=2\mathbf{A}\boldsymbol{\beta}$:</p>
 $$\frac{\partial\,\text{SSE}}{\partial\boldsymbol{\beta}} = -2\mathbf{X}^\top\mathbf{y} + 2\mathbf{X}^\top\mathbf{X}\boldsymbol{\beta} = \mathbf{0}$$
 
+<div class="callout blue">
+  <div class="callout-title">Sustitución numérica — Paso 2</div>
+  <p style="margin:0;font-size:.85rem">La derivada iguala a cero. Sustituyendo nuestras matrices:</p>
+  <div id="paso2-numeric" class="fml" style="margin-top:.5rem"></div>
+</div>
+
 <h3 class="sub2">Paso 3 — Ecuaciones normales</h3>
 $$\mathbf{X}^\top\mathbf{X}\,\hat{\boldsymbol{\beta}} = \mathbf{X}^\top\mathbf{y}$$
+
+<div class="callout blue">
+  <div class="callout-title">Sustitución numérica — Paso 3</div>
+  <p style="margin:0;font-size:.85rem">Las ecuaciones normales con nuestros valores:</p>
+  <div id="paso3-numeric" class="fml" style="margin-top:.5rem"></div>
+</div>
 
 <h3 class="sub2">Paso 4 — Solución analítica</h3>
 <p>Si $\mathbf{X}^\top\mathbf{X}$ es invertible (rango completo):</p>
 $$\boxed{\hat{\boldsymbol{\beta}}_{\text{MCO}} = (\mathbf{X}^\top\mathbf{X})^{-1}\mathbf{X}^\top\mathbf{y}}$$
+
+<div class="callout blue">
+  <div class="callout-title">Sustitución numérica — Paso 4</div>
+  <p style="margin:0;font-size:.85rem">Aplicando la inversa:</p>
+  <div id="paso4-numeric" class="fml" style="margin-top:.5rem"></div>
+</div>
 
 <h3 class="sub2">Paso 5 — Verificación: segunda derivada (condición suficiente)</h3>
 $$\frac{\partial^2\text{SSE}}{\partial\boldsymbol{\beta}\,\partial\boldsymbol{\beta}^\top} = 2\mathbf{X}^\top\mathbf{X} \quad \text{(semidefinida positiva } \Rightarrow \text{mínimo)}$$
@@ -131,11 +188,14 @@ $$\frac{\partial^2\text{SSE}}{\partial\boldsymbol{\beta}\,\partial\boldsymbol{\b
 </table>
 </div>
 <div class="fml" id="sse-show" style="margin-top:.75rem"></div>
+
+<h3 class="sub2">Interpretación de SSE, SST y R²</h3>
+<div id="mco-interpretation"></div>
 </div>
 
-<!-- ══ PANEL 3: MV ══ -->
+<!-- ══ PANEL 4: MV ══ -->
 <div id="tab-mv" class="panel">
-<h2 class="sub-title">2.2 Máxima Verosimilitud — Derivación completa</h2>
+<h2 class="sub-title">2.3 Máxima Verosimilitud — Derivación completa</h2>
 <p>Bajo el supuesto $\varepsilon_i \sim \mathcal{N}(0,\sigma^2)$ i.i.d., cada observación tiene densidad:</p>
 $$f(y_i\mid\mathbf{x}_i,\boldsymbol{\beta},\sigma^2) = \frac{1}{\sqrt{2\pi\sigma^2}}\exp\!\left(-\frac{(y_i-\mathbf{x}_i^\top\boldsymbol{\beta})^2}{2\sigma^2}\right)$$
 
@@ -151,17 +211,42 @@ $$\frac{\partial\ell}{\partial\boldsymbol{\beta}} = \frac{1}{\sigma^2}\left(\mat
 <p>Esto da exactamente las <strong>mismas ecuaciones normales</strong> que MCO.</p>
 
 <h3 class="sub2">Paso 4 — Derivar respecto a $\sigma^2$</h3>
-$$\frac{\partial\ell}{\partial\sigma^2} = -\frac{n}{2\sigma^2} + \frac{\text{SSE}}{2\sigma^4} = 0 \quad\implies\quad \boxed{\hat{\sigma}^2_{\text{MV}} = \frac{\text{SSE}}{n}}$$
+<p>Ahora buscamos el valor de $\sigma^2$ que <strong>maximiza la verosimilitud</strong> de haber observado estos datos. Intuitivamente: ¿cuál es la dispersión del error que hace <em>más probable</em> nuestra muestra?</p>
 
-<div class="callout blue">
-  <div class="callout-title">Evaluación numérica</div>
-  <p style="font-family:var(--mono);font-size:.9rem;margin:0" id="mv-numeric"></p>
-</div>
+$$\frac{\partial\ell}{\partial\sigma^2} = -\frac{n}{2\sigma^2} + \frac{\text{SSE}}{2(\sigma^2)^2} = 0$$
+
+<div class="callout">
+  <div class="callout-title">¿Qué significa cada término de la derivada?</div>
+  <p style="margin:0;font-size:.92rem"><strong>Término $-\frac{n}{2\sigma^2}$</strong> — Penaliza varianzas grandes. Cuanto mayor sea $\sigma^2$, la distribución normal se "aplana" y cada observación se vuelve menos probable. Este término empuja $\sigma^2$ hacia abajo.</p>
+  <p style="margin:.4rem 0 0;font-size:.92rem"><strong>Término $+\frac{\text{SSE}}{2(\sigma^2)^2}$</strong> — Penaliza varianzas demasiado pequeñas. Si $\sigma^2$ es muy chica, los errores observados (SSE) quedan lejos de cero y la probabilidad cae. Este término empuja $\sigma^2$ hacia arriba.</p>
+  <p style="margin:.4rem 0 0;font-size:.92rem"><strong>Equilibrio:</strong> El óptimo ocurre donde ambas fuerzas se compensan exactamente.</p>
 </div>
 
-<!-- ══ PANEL 4: EQUIVALENCIA ══ -->
+<h3 class="sub2">Resolución paso a paso</h3>
+<p>Igualamos a cero y despejamos $\sigma^2$:</p>
+
+$$-\frac{n}{2\sigma^2} + \frac{\text{SSE}}{2(\sigma^2)^2} = 0$$
+
+<p>Multiplicamos ambos lados por $2(\sigma^2)^2$:</p>
+
+$$-n\sigma^2 + \text{SSE} = 0$$
+
+<p>Despejamos:</p>
+
+$$\boxed{\hat{\sigma}^2_{\text{MV}} = \frac{\text{SSE}}{n}}$$
+
+<p>Es decir, el estimador MV de la varianza es simplemente el <strong>promedio de los errores al cuadrado</strong>.</p>
+
+<h3 class="sub2">Evaluación numérica</h3>
+<div id="mv-numeric-beta"></div>
+<div id="mv-numeric-sigma" class="fml" style="margin-top:.75rem"></div>
+<div id="mv-numeric-loglik" class="fml" style="margin-top:.75rem"></div>
+<div id="mv-interpretation"></div>
+</div>
+
+<!-- ══ PANEL 5: EQUIVALENCIA ══ -->
 <div id="tab-equiv" class="panel">
-<h2 class="sub-title">2.3 ¿Por qué MCO y MV llegan al mismo $\hat{\boldsymbol{\beta}}$?</h2>
+<h2 class="sub-title">2.4 ¿Por qué MCO y MV llegan al mismo $\hat{\boldsymbol{\beta}}$?</h2>
 
 <div class="callout green">
   <div class="callout-title">Teorema de equivalencia</div>
@@ -206,9 +291,9 @@ $$\frac{\partial\ell}{\partial\sigma^2} = -\frac{n}{2\sigma^2} + \frac{\text{SSE
 </div>
 </div>
 
-<!-- ══ PANEL 5: SIGMA ══ -->
+<!-- ══ PANEL 6: SIGMA ══ -->
 <div id="tab-sigma" class="panel">
-<h2 class="sub-title">2.4 Estimación de $\sigma^2$ — la diferencia real</h2>
+<h2 class="sub-title">2.5 Estimación de $\sigma^2$ — la diferencia real</h2>
 
 <div class="grid2">
   <div class="card">
@@ -232,7 +317,7 @@ $$\frac{\partial\ell}{\partial\sigma^2} = -\frac{n}{2\sigma^2} + \frac{\text{SSE
 </div>
 </div>
 
-<!-- ══ PANEL 6: RESUMEN ══ -->
+<!-- ══ PANEL 7: RESUMEN ══ -->
 <div id="tab-resumen" class="panel">
 <h2 class="sub-title">Tabla comparativa</h2>
 <div class="tbl-wrap" style="margin:1rem 0">

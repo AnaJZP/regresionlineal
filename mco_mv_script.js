@@ -64,7 +64,62 @@ function showTab(id,btn){
     `<div class="mat-block"><span class="mat-lbl">β =</span><span class="mat-br">[</span><table class="mat">${['β₀','β₁','β₂'].map(v=>`<tr><td>${v}</td></tr>`).join('')}</table><span class="mat-br">]</span></div>`;
 })();
 
-/* ── Panel 2: MCO numérico ── */
+/* ── Panel 2: Var/Cov ── */
+(function(){
+  const x1bar = X1.reduce((a,b)=>a+b)/n;
+  const ybar2 = Y.reduce((a,b)=>a+b)/n;
+  const x2bar = X2.reduce((a,b)=>a+b)/n;
+
+  function buildVarCovTable(Xvar, xbar, varLabel, varSymbol, containerId, resultId){
+    let rows = '';
+    let sumCov = 0, sumVar = 0;
+    Xvar.forEach((xi, i) => {
+      const dx = xi - xbar;
+      const dy = Y[i] - ybar2;
+      const cov_i = dx * dy;
+      const var_i = dx * dx;
+      sumCov += cov_i;
+      sumVar += var_i;
+      rows += `<tr><td>${i+1}</td><td>${f(xi,1)}</td><td>${f(Y[i],1)}</td>` +
+        `<td>${f(dx,4)}</td><td>${f(dy,4)}</td>` +
+        `<td>${f(cov_i,4)}</td><td>${f(var_i,4)}</td></tr>`;
+    });
+    rows += `<tr style="font-weight:600;background:var(--gl)"><td>Σ</td><td></td><td></td>` +
+      `<td></td><td></td><td>${f(sumCov,4)}</td><td>${f(sumVar,4)}</td></tr>`;
+
+    document.getElementById(containerId).innerHTML = 
+      `<div class="tbl-wrap" style="margin:1rem 0"><table class="data-table">` +
+      `<thead><tr>` +
+      `<th style="text-align:center">i</th>` +
+      `<th>${varSymbol}</th>` +
+      `<th>yᵢ</th>` +
+      `<th>${varSymbol}−${varLabel.includes('1')?'x̄₁':'x̄₂'}</th>` +
+      `<th>yᵢ−ȳ</th>` +
+      `<th>(${varSymbol}−${varLabel.includes('1')?'x̄₁':'x̄₂'})(yᵢ−ȳ)</th>` +
+      `<th>(${varSymbol}−${varLabel.includes('1')?'x̄₁':'x̄₂'})²</th>` +
+      `</tr></thead><tbody>${rows}</tbody></table></div>`;
+
+    const b1_vc = sumCov / sumVar;
+    const b0_vc = ybar2 - b1_vc * xbar;
+
+    document.getElementById(resultId).innerHTML =
+      `<span class="h">Paso 1 — Medias:</span>\n` +
+      `  ${varLabel.includes('1')?'x̄₁':'x̄₂'} = ${f(xbar,2)}    ȳ = ${f(ybar2,2)}\n\n` +
+      `<span class="h">Paso 2 — Covarianza y Varianza:</span>\n` +
+      `  Cov(${varLabel}, y) = Σ(${varSymbol}−${varLabel.includes('1')?'x̄₁':'x̄₂'})(yᵢ−ȳ) = ${f(sumCov,4)}\n` +
+      `  Var(${varLabel})     = Σ(${varSymbol}−${varLabel.includes('1')?'x̄₁':'x̄₂'})²     = ${f(sumVar,4)}\n\n` +
+      `<span class="h">Paso 3 — Pendiente:</span>\n` +
+      `  β̂₁ = Cov/Var = ${f(sumCov,4)} / ${f(sumVar,4)} = <span class="h">${f(b1_vc,6)}</span>\n\n` +
+      `<span class="h">Paso 4 — Intercepto:</span>\n` +
+      `  β̂₀ = ȳ − β̂₁·${varLabel.includes('1')?'x̄₁':'x̄₂'} = ${f(ybar2,2)} − ${f(b1_vc,6)}×${f(xbar,2)} = <span class="h">${f(b0_vc,6)}</span>\n\n` +
+      `<span class="h2">Modelo simple:</span>  Pérdida = ${f(b0_vc,4)} + ${f(b1_vc,4)}·${varLabel}`;
+  }
+
+  buildVarCovTable(X1, x1bar, 'x₁', 'x₁ᵢ', 'varcov-table-x1', 'varcov-result-x1');
+  buildVarCovTable(X2, x2bar, 'x₂', 'x₂ᵢ', 'varcov-table-x2', 'varcov-result-x2');
+})();
+
+/* ── Panel 3: MCO numérico ── */
 (function(){
   document.getElementById('xtx-show').innerHTML=
     `<span class="h">X'X</span> (3×3):\n`+
@@ -95,16 +150,90 @@ function showTab(id,btn){
     `SST = ${f(SST,6)}    R² = 1 − SSE/SST = <span class="h">${f(R2,4)}</span>`;
 })();
 
-/* ── Panel 3: MV numérico ── */
+/* ── Panel 3: MCO sustituciones numéricas e interpretación ── */
 (function(){
-  const ll_max=-(n/2)*Math.log(2*Math.PI)-(n/2)*Math.log(s2_mv)-(SSE/(2*s2_mv));
-  document.getElementById('mv-numeric').textContent=
-    `β̂₀_MV = ${f(beta[0],6)}  β̂₁_MV = ${f(beta[1],6)}  β̂₂_MV = ${f(beta[2],6)}\n`+
-    `σ̂²_MV = SSE/n = ${f(SSE,6)}/${n} = ${f(s2_mv,6)}\n`+
-    `ℓ_max = ${f(ll_max,4)}`;
+  // Paso 2: show X'y and X'X·β
+  document.getElementById('paso2-numeric').innerHTML =
+    `<span class="h">−2X'y + 2X'Xβ = 0</span>\n\n` +
+    `X'y = [${XtY.map(v=>f(v,2)).join(', ')}]\n` +
+    `X'X = \n` + XtX.map(r=>'  ['+r.map(v=>f(v,2)).join(', ')+']').join('\n') +
+    `\n\nIgualando la derivada a cero, obtenemos las ecuaciones normales →`;
+
+  // Paso 3: show normal equations
+  document.getElementById('paso3-numeric').innerHTML =
+    `<span class="h">X'X · β̂ = X'y</span>\n\n` +
+    `  ${f(XtX[0][0],1)}·β̂₀ + ${f(XtX[0][1],1)}·β̂₁ + ${f(XtX[0][2],1)}·β̂₂ = ${f(XtY[0],2)}\n` +
+    `  ${f(XtX[1][0],1)}·β̂₀ + ${f(XtX[1][1],1)}·β̂₁ + ${f(XtX[1][2],1)}·β̂₂ = ${f(XtY[1],2)}\n` +
+    `  ${f(XtX[2][0],1)}·β̂₀ + ${f(XtX[2][1],1)}·β̂₁ + ${f(XtX[2][2],1)}·β̂₂ = ${f(XtY[2],2)}\n\n` +
+    `Son 3 ecuaciones con 3 incógnitas → sistema determinado.`;
+
+  // Paso 4: show inverse application
+  document.getElementById('paso4-numeric').innerHTML =
+    `<span class="h">β̂ = (X'X)⁻¹ · X'y</span>\n\n` +
+    `(X'X)⁻¹ =\n` + XtXinv.map(r=>'  ['+r.map(v=>f(v,6)).join(', ')+']').join('\n') +
+    `\n\n<span class="h">Resultado:</span>\n` +
+    `  β̂₀ = <span class="h">${f(beta[0],6)}</span>  (intercepto)\n` +
+    `  β̂₁ = <span class="h">${f(beta[1],6)}</span>  (por unidad de apalancamiento)\n` +
+    `  β̂₂ = <span class="h">${f(beta[2],6)}</span>  (por punto de volatilidad)`;
+
+  // Interpretation
+  const sseRatio = SSE/SST;
+  document.getElementById('mco-interpretation').innerHTML =
+    `<div class="grid3" style="margin:.75rem 0">` +
+    `<div class="stat-card"><div class="stat-val" style="font-size:1.3rem">${f(SST,4)}</div><div class="stat-label">SST</div></div>` +
+    `<div class="stat-card"><div class="stat-val" style="font-size:1.3rem;color:var(--red)">${f(SSE,6)}</div><div class="stat-label">SSE</div></div>` +
+    `<div class="stat-card"><div class="stat-val" style="font-size:1.3rem;color:var(--blue)">${f(R2,4)}</div><div class="stat-label">R²</div></div>` +
+    `</div>` +
+    `<div class="callout green">` +
+    `<div class="callout-title">Interpretación en riesgo crediticio</div>` +
+    `<p style="margin:0;font-size:.92rem"><strong>SST = ${f(SST,4)}</strong> — La variabilidad total de las pérdidas respecto a su media (ȳ = ${f(ybar,2)}%). Esto es todo el "riesgo" que queremos explicar.</p>` +
+    `<p style="margin:.4rem 0 0;font-size:.92rem"><strong>SSE = ${f(SSE,6)}</strong> — Los errores al cuadrado que MCO minimizó. Este es el riesgo residual: lo que el modelo <em>no</em> puede predecir con apalancamiento y volatilidad.</p>` +
+    `<p style="margin:.4rem 0 0;font-size:.92rem"><strong>SSE/SST = ${f(sseRatio,6)}</strong> — Solo el <strong>${f(sseRatio*100,4)}%</strong> de la variabilidad queda sin explicar.</p>` +
+    `<p style="margin:.4rem 0 0;font-size:.92rem"><strong>R² = 1 − SSE/SST = ${f(R2,4)}</strong> — El modelo explica el <strong>${f(R2*100,2)}%</strong> de la variabilidad en las pérdidas. El apalancamiento y la volatilidad son predictores excelentes del riesgo crediticio en esta muestra.</p>` +
+    `</div>`;
 })();
 
-/* ── Panel 5: sigma ── */
+/* ── Panel 4: MV evaluación numérica expandida ── */
+(function(){
+  const ll_max=-(n/2)*Math.log(2*Math.PI)-(n/2)*Math.log(s2_mv)-(SSE/(2*s2_mv));
+  
+  // Beta interpretation
+  document.getElementById('mv-numeric-beta').innerHTML =
+    `<div class="grid3" style="margin:.5rem 0">` +
+    `<div class="stat-card"><div class="stat-val" style="font-size:1.1rem">${f(beta[0],4)}</div><div class="stat-label">β̂₀ (intercepto)</div></div>` +
+    `<div class="stat-card"><div class="stat-val" style="font-size:1.1rem">${f(beta[1],4)}</div><div class="stat-label">β̂₁ (apalancamiento)</div></div>` +
+    `<div class="stat-card"><div class="stat-val" style="font-size:1.1rem">${f(beta[2],4)}</div><div class="stat-label">β̂₂ (volatilidad)</div></div>` +
+    `</div>`;
+
+  // Sigma calculation step by step
+  document.getElementById('mv-numeric-sigma').innerHTML =
+    `<span class="h">Estimación de σ² — sustituyendo valores:</span>\n\n` +
+    `  SSE = ${f(SSE,6)}\n` +
+    `  n   = ${n}\n\n` +
+    `  σ̂²_MV = SSE/n = ${f(SSE,6)} / ${n} = <span class="h">${f(s2_mv,6)}</span>\n` +
+    `  σ̂_MV  = √(${f(s2_mv,6)}) = <span class="h">${f(Math.sqrt(s2_mv),6)}</span>  (desviación estándar del error)`;
+
+  // Log-likelihood step by step  
+  document.getElementById('mv-numeric-loglik').innerHTML =
+    `<span class="h">Log-verosimilitud máxima:</span>\n\n` +
+    `  ℓ = −(n/2)·ln(2π) − (n/2)·ln(σ̂²) − SSE/(2σ̂²)\n` +
+    `  ℓ = −(${n}/2)·ln(2π) − (${n}/2)·ln(${f(s2_mv,6)}) − ${f(SSE,6)}/(2·${f(s2_mv,6)})\n` +
+    `  ℓ = ${f(-(n/2)*Math.log(2*Math.PI),4)} − ${f((n/2)*Math.log(s2_mv),4)} − ${f(SSE/(2*s2_mv),4)}\n` +
+    `  ℓ_max = <span class="h">${f(ll_max,4)}</span>`;
+
+  // Interpretation
+  document.getElementById('mv-interpretation').innerHTML =
+    `<div class="callout green" style="margin-top:1rem">` +
+    `<div class="callout-title">Interpretación de los resultados MV</div>` +
+    `<p style="margin:0;font-size:.92rem"><strong>β̂₀ = ${f(beta[0],4)}</strong> — Pérdida base estimada cuando apalancamiento = 0 y volatilidad = 0%. El valor negativo es una extrapolación fuera del rango de datos (ninguna empresa tiene apalancamiento cero).</p>` +
+    `<p style="margin:.4rem 0 0;font-size:.92rem"><strong>β̂₁ = ${f(beta[1],4)}</strong> — Por cada unidad adicional de apalancamiento, la pérdida aumenta en ${f(beta[1],2)} puntos porcentuales, <em>controlando</em> por volatilidad.</p>` +
+    `<p style="margin:.4rem 0 0;font-size:.92rem"><strong>β̂₂ = ${f(beta[2],4)}</strong> — Por cada punto porcentual adicional de volatilidad, la pérdida aumenta en ${f(beta[2],4)} puntos porcentuales, <em>controlando</em> por apalancamiento.</p>` +
+    `<p style="margin:.4rem 0 0;font-size:.92rem"><strong>σ̂²_MV = ${f(s2_mv,6)}</strong> — La varianza estimada del error es extremadamente pequeña, indicando que el modelo captura casi toda la variabilidad.</p>` +
+    `<p style="margin:.4rem 0 0;font-size:.92rem"><strong>ℓ_max = ${f(ll_max,4)}</strong> — La log-verosimilitud máxima. Este valor se usa para comparar modelos: un modelo con mayor ℓ describe mejor los datos. Se emplea en el <em>Likelihood Ratio Test</em> y en criterios como AIC y BIC.</p>` +
+    `</div>`;
+})();
+
+/* ── Panel 6: sigma ── */
 (function(){
   document.getElementById('s2-mco-detail').innerHTML=
     `<div class="kv"><span class="kv-k">SSE</span><span class="kv-v" style="color:var(--blue)">${f(SSE,6)}</span></div>`+
@@ -116,7 +245,7 @@ function showTab(id,btn){
     `<div class="kv"><span class="kv-k">σ̂²</span><span class="kv-v" style="color:var(--green)">${f(s2_mv,6)}</span></div>`;
 })();
 
-/* ── Panel 6: resumen ── */
+/* ── Panel 7: resumen ── */
 function buildResumen(){
   const rows=[
     ['Criterio','min SSE = Σêᵢ²','max ℓ(β,σ²|y)'],

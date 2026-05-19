@@ -188,7 +188,7 @@ $$R^2 = \frac{12.5241}{12.5320} = 0.9994$$
 
 <!-- ═══ 1.5 ═══ -->
 <h2 class="sec-title">1.5 Explorador interactivo</h2>
-<p class="lead">Ajusta $\beta_0$, $\beta_1$ (apalancamiento) y $\beta_2$ (volatilidad) para ver cómo cambian SST, SSR, SSE y $R^2$. La línea verde punteada es la recta MCO (mínima SSE).</p>
+<p class="lead">Ajusta $\beta_0$, $\beta_1$ (apalancamiento) y $\beta_2$ (volatilidad) para ver cómo cambian SST, SSR, SSE y $R^2$. Se muestran dos gráficos parciales: uno para cada pendiente, fijando la otra variable en su media. La línea verde punteada es la recta MCO.</p>
 
 <div class="grid2">
   <div>
@@ -211,8 +211,13 @@ $$R^2 = \frac{12.5241}{12.5320} = 0.9994$$
   <div class="card" id="metrics-card" style="font-size:.88rem"></div>
 </div>
 
-<div class="chart-wrap" style="height:300px">
-  <canvas id="scatter-chart"></canvas>
+<div class="grid2">
+  <div class="chart-wrap" style="height:300px">
+    <canvas id="scatter-chart-1"></canvas>
+  </div>
+  <div class="chart-wrap" style="height:300px">
+    <canvas id="scatter-chart-2"></canvas>
+  </div>
 </div>
 
 <!-- ═══ 1.6 ═══ -->
@@ -277,10 +282,13 @@ document.getElementById('mat-example').innerHTML=`
   <table class="mat">${['ε₁','ε₂','ε₃','ε₄','ε₅'].map(v=>`<tr><td>${v}</td></tr>`).join('')}</table>
   <span class="mat-br">]</span></div>`;
 
-/* scatter interactivo con β₂ */
-let chart=null;
+/* scatter interactivo — DOS gráficos parciales */
+let chart1=null, chart2=null;
 const sl0=document.getElementById('sl-b0'),sl1=document.getElementById('sl-b1'),sl2=document.getElementById('sl-b2');
 sl0.value=f(b0_ols,2); sl1.value=f(b1_ols,2); sl2.value=f(b2_ols,3);
+
+const x1m=X1d.reduce((a,b)=>a+b)/n;
+const x2m=X2d.reduce((a,b)=>a+b)/n;
 
 function updatePlot(){
   const b0=parseFloat(sl0.value),b1=parseFloat(sl1.value),b2=parseFloat(sl2.value);
@@ -297,28 +305,58 @@ function updatePlot(){
     `<div class="kv"><span class="kv-k">R²</span><span class="kv-v">${f(r2,4)}</span></div>`+
     `<div class="kv"><span class="kv-k">R² MCO (máx)</span><span class="kv-v" style="color:var(--green)">${f(R2_ols,4)}</span></div>`;
 
-  /* gráfica: eje x = apalancamiento, recta condicional a volatilidad media */
-  const x2m=X2d.reduce((a,b)=>a+b)/n;
-  const xline=[0.5,3.5];
-  const yols_line=xline.map(x=>b0_ols+b1_ols*x+b2_ols*x2m);
-  const ycur_line=xline.map(x=>b0+b1*x+b2*x2m);
-  const residSegs=X1d.flatMap((x,i)=>[{x,y:Yd[i]},{x,y:yh[i]},{x:null,y:null}]);
+  /* --- Gráfico 1: Pérdida vs Apalancamiento --- */
+  const xline1=[0.5,3.5];
+  const yols1=xline1.map(x=>b0_ols+b1_ols*x+b2_ols*x2m);
+  const ycur1=xline1.map(x=>b0+b1*x+b2*x2m);
+  const resid1=X1d.flatMap((x,i)=>[{x,y:Yd[i]},{x,y:yh[i]},{x:null,y:null}]);
 
-  if(!chart){
-    const ctx=document.getElementById('scatter-chart').getContext('2d');
-    chart=new Chart(ctx,{type:'scatter',data:{datasets:[
-      {label:'Empresas',data:X1d.map((x,i)=>({x,y:Yd[i]})),backgroundColor:'#185FA5',pointRadius:7},
-      {label:'Recta actual (vol. media)',data:ycur_line.map((y,i)=>({x:xline[i],y})),type:'line',borderColor:'#7b002c',borderWidth:2.5,pointRadius:0,tension:0},
-      {label:'Recta MCO (vol. media)',data:yols_line.map((y,i)=>({x:xline[i],y})),type:'line',borderColor:'#0F6E56',borderWidth:1.5,pointRadius:0,tension:0,borderDash:[6,4]},
-      {label:'Residuales',data:residSegs,type:'line',borderColor:'rgba(123,0,44,.35)',borderWidth:1.5,pointRadius:0,borderDash:[4,3]}
-    ]},options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:12,font:{size:12}}}},
-      scales:{x:{title:{display:true,text:'Apalancamiento (x₁)'},min:0.3,max:3.8},y:{title:{display:true,text:'Pérdida (%)'},min:0,max:8}}
-    }});
+  /* --- Gráfico 2: Pérdida vs Volatilidad --- */
+  const xline2=[8,32];
+  const yols2=xline2.map(x=>b0_ols+b1_ols*x1m+b2_ols*x);
+  const ycur2=xline2.map(x=>b0+b1*x1m+b2*x);
+  const resid2=X2d.flatMap((x,i)=>[{x,y:Yd[i]},{x,y:yh[i]},{x:null,y:null}]);
+
+  const mkDatasets=(pts,curLine,olsLine,residSegs,xline)=>[{
+    label:'Empresas',data:pts,backgroundColor:'#185FA5',pointRadius:7,type:'scatter'
+  },{
+    label:'Recta actual',data:curLine.map((y,i)=>({x:xline[i],y})),type:'line',
+    borderColor:'#7b002c',borderWidth:2.5,pointRadius:0,tension:0
+  },{
+    label:'Recta MCO',data:olsLine.map((y,i)=>({x:xline[i],y})),type:'line',
+    borderColor:'#0F6E56',borderWidth:1.5,pointRadius:0,tension:0,borderDash:[6,4]
+  },{
+    label:'Residuales',data:residSegs,type:'line',
+    borderColor:'rgba(123,0,44,.35)',borderWidth:1.5,pointRadius:0,borderDash:[4,3]
+  }];
+
+  const opts=(xlabel,xmin,xmax,title)=>({
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      title:{display:true,text:title,font:{size:13,weight:'600'},padding:{bottom:8}},
+      legend:{display:true,position:'bottom',labels:{boxWidth:12,font:{size:11}}}
+    },
+    scales:{x:{title:{display:true,text:xlabel},min:xmin,max:xmax},y:{title:{display:true,text:'Pérdida (%)'},min:0,max:8}}
+  });
+
+  if(!chart1){
+    chart1=new Chart(document.getElementById('scatter-chart-1').getContext('2d'),{
+      type:'scatter',
+      data:{datasets:mkDatasets(X1d.map((x,i)=>({x,y:Yd[i]})),ycur1,yols1,resid1,xline1)},
+      options:opts('Apalancamiento (x₁)',0.3,3.8,'Efecto del Apalancamiento (β₁)')
+    });
+    chart2=new Chart(document.getElementById('scatter-chart-2').getContext('2d'),{
+      type:'scatter',
+      data:{datasets:mkDatasets(X2d.map((x,i)=>({x,y:Yd[i]})),ycur2,yols2,resid2,xline2)},
+      options:opts('Volatilidad (x₂)',8,32,'Efecto de la Volatilidad (β₂)')
+    });
   } else {
-    chart.data.datasets[1].data=ycur_line.map((y,i)=>({x:xline[i],y}));
-    chart.data.datasets[3].data=residSegs;
-    chart.update('none');
+    chart1.data.datasets[1].data=ycur1.map((y,i)=>({x:xline1[i],y}));
+    chart1.data.datasets[3].data=resid1;
+    chart1.update('none');
+    chart2.data.datasets[1].data=ycur2.map((y,i)=>({x:xline2[i],y}));
+    chart2.data.datasets[3].data=resid2;
+    chart2.update('none');
   }
 }
 updatePlot();
