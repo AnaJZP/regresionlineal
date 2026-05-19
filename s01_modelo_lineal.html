@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>S01 — El Modelo de Regresión Lineal · EARF</title>
+<title>S01 — Introducción a la Regresión Lineal · EARF</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
@@ -12,250 +12,169 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
   onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<style>
-:root{
-  --g:#7b002c;--gd:#560020;--gl:#f8f0f3;--gm:#c9879f;
-  --blue:#185FA5;--bl:#e6f1fb;--green:#0F6E56;--grn:#e1f5ee;
-  --amber:#b86e00;--al:#fef3e2;--red:#a32d2d;
-  --text:#1a1a1a;--muted:#5a5a5a;--faint:#aaa;
-  --border:#e0d6da;--surf:#fff;--bg:#faf8f9;
-  --serif:'Lora',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif;
-  --mono:'JetBrains Mono',monospace;--r:10px;
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}
-
-/* topbar */
-.topbar{background:var(--gd);color:#fff;padding:.7rem 1.5rem;display:flex;align-items:center;gap:1rem;font-size:.85rem}
-.topbar a{color:rgba(255,255,255,.65);text-decoration:none;transition:color .1s}.topbar a:hover{color:#fff}
-.topbar-sep{color:rgba(255,255,255,.3)}
-.topbar-curr{color:#fff;font-weight:500}
-.topbar-badge{margin-left:auto;background:rgba(255,255,255,.15);padding:2px 10px;border-radius:20px;font-size:.75rem;color:rgba(255,255,255,.8)}
-
-/* hero */
-.hero{background:var(--g);padding:2.5rem 2rem 2.5rem;position:relative;overflow:hidden}
-.hero::after{content:'01';position:absolute;right:2rem;top:50%;transform:translateY(-50%);
-  font-family:var(--serif);font-size:8rem;font-weight:600;color:rgba(255,255,255,.05);line-height:1;pointer-events:none}
-.hero-inner{max-width:860px;margin:0 auto;position:relative;z-index:1}
-.hero-tag{font-size:.75rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--gm);margin-bottom:.6rem}
-.hero-title{font-family:var(--serif);font-size:clamp(1.6rem,3.5vw,2.2rem);font-weight:600;color:#fff;line-height:1.25;margin-bottom:.6rem}
-.hero-lead{font-size:.98rem;color:rgba(255,255,255,.68);max-width:560px}
-
-/* layout */
-.page{max-width:860px;margin:0 auto;padding:2.5rem 2rem 5rem}
-
-/* section titles */
-.sec-title{font-family:var(--serif);font-size:1.45rem;font-weight:600;color:var(--g);
-  margin:2.5rem 0 .5rem;padding-bottom:.4rem;border-bottom:2px solid var(--gm)}
-.sub-title{font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--gd);margin:1.5rem 0 .4rem}
-.sub2{font-size:.78rem;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin:1.25rem 0 .35rem}
-
-/* prose */
-p{margin:.5rem 0 .9rem;color:var(--text)}
-.lead{font-size:1.02rem;color:var(--muted);margin-bottom:1.25rem}
-
-/* callout */
-.callout{border-left:3px solid var(--g);background:var(--gl);border-radius:0 var(--r) var(--r) 0;padding:.9rem 1.1rem;margin:1rem 0 1.25rem}
-.callout-title{font-size:.75rem;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--g);margin-bottom:.4rem}
-.callout.blue{border-color:var(--blue);background:var(--bl)}.callout.blue .callout-title{color:var(--blue)}
-.callout.green{border-color:var(--green);background:var(--grn)}.callout.green .callout-title{color:var(--green)}
-.callout.amber{border-color:var(--amber);background:var(--al)}.callout.amber .callout-title{color:var(--amber)}
-
-/* card */
-.card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem 1.25rem;box-shadow:0 2px 10px rgba(123,0,44,.06)}
-
-/* grid */
-.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:.9rem;margin:1rem 0}
-.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.9rem;margin:1rem 0}
-.grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.9rem;margin:1rem 0}
-
-/* stat card */
-.stat-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:.9rem 1rem;text-align:center}
-.stat-val{font-family:var(--serif);font-size:1.6rem;font-weight:600;color:var(--g);line-height:1.2}
-.stat-label{font-size:.8rem;color:var(--muted);margin-top:.2rem}
-
-/* table */
-.tbl-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border);box-shadow:0 2px 10px rgba(123,0,44,.06)}
-table.tbl{width:100%;border-collapse:collapse;font-size:.88rem}
-table.tbl th{background:var(--gl);color:var(--gd);font-weight:500;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;padding:7px 12px;text-align:left;border-bottom:2px solid var(--gm)}
-table.tbl td{padding:7px 12px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.55}
-table.tbl tr:last-child td{border:none}
-table.tbl tr:hover td{background:#fdf7f9}
-table.tbl td.mono{font-family:var(--mono);font-size:.82rem}
-table.tbl td.center{text-align:center}
-table.tbl td.blue{color:var(--blue);font-family:var(--mono)}
-table.tbl td.green{color:var(--green);font-family:var(--mono)}
-
-/* formula */
-.fml{background:#f5f2f0;border:1px solid #e8e0dc;border-radius:var(--r);padding:.75rem 1.1rem;
-  font-family:var(--mono);font-size:.88rem;color:var(--text);margin:.6rem 0;overflow-x:auto;line-height:1.8}
-.fml .h{color:var(--blue);font-weight:600}
-.fml .h2{color:var(--green);font-weight:600}
-.fml .h3{color:var(--g);font-weight:600}
-
-/* matrix */
-.mat-row{display:flex;align-items:flex-start;gap:2rem;flex-wrap:wrap;margin:.75rem 0}
-.mat-block{display:flex;align-items:center;gap:3px}
-.mat-lbl{font-size:.88rem;font-family:var(--mono);color:var(--muted);margin-right:4px}
-.mat-br{font-size:2.4rem;line-height:1;color:var(--muted);font-weight:200}
-table.mat td{padding:3px 10px;text-align:right;font-family:var(--mono);font-size:.88rem}
-
-/* steps */
-.steps{list-style:none;margin:.75rem 0}
-.steps li{display:flex;gap:.9rem;align-items:flex-start;padding:.55rem 0;border-bottom:1px dashed var(--border)}
-.steps li:last-child{border:none}
-.sn{min-width:26px;height:26px;border-radius:50%;background:var(--g);color:#fff;font-size:.75rem;font-weight:600;
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
-.sb{font-size:.95rem;line-height:1.65}
-
-/* kv */
-.kv{display:flex;justify-content:space-between;align-items:center;font-size:.9rem;padding:5px 0;border-bottom:1px solid var(--border)}
-.kv:last-child{border:none}
-.kv-k{color:var(--muted)}.kv-v{font-family:var(--mono);font-weight:600}
-
-/* badge */
-.badge{display:inline-block;font-size:.75rem;font-weight:600;padding:2px 9px;border-radius:20px;letter-spacing:.04em}
-.bg{background:var(--gl);color:var(--gd)}
-.bb{background:var(--bl);color:var(--blue)}
-.bgr{background:var(--grn);color:var(--green)}
-
-/* interactive */
-.slider-row{display:flex;align-items:center;gap:12px;margin:.75rem 0}
-.slider-row label{font-size:.85rem;color:var(--muted);min-width:100px}
-.slider-row input[type=range]{flex:1;accent-color:var(--g)}
-.slider-row .sv{font-family:var(--mono);font-size:.88rem;font-weight:600;color:var(--g);min-width:50px}
-.chart-wrap{position:relative;width:100%;margin:.75rem 0}
-
-/* nav footer */
-.nav-footer{display:flex;justify-content:space-between;align-items:center;
-  border-top:1px solid var(--border);padding:1.5rem 0;margin-top:3rem;flex-wrap:wrap;gap:.75rem}
-.nav-btn{display:flex;align-items:center;gap:.5rem;padding:.55rem 1.1rem;
-  border-radius:var(--r);border:1px solid var(--border);text-decoration:none;
-  font-size:.88rem;font-weight:500;color:var(--g);background:var(--surf);transition:background .1s,border-color .1s}
-.nav-btn:hover{background:var(--gl);border-color:var(--gm)}
-
-/* footer */
-footer{border-top:1px solid var(--border);padding:1.5rem 2rem;text-align:center;font-size:.8rem;color:var(--faint);max-width:860px;margin:0 auto}
-
-@media(max-width:600px){.page{padding:1.5rem 1.1rem 4rem}}
-</style>
+<link rel="stylesheet" href="styles.css">
+<style>.hero::after{content:'01'}</style>
 </head>
 <body>
 
 <div class="topbar">
   <a href="index.html">Inicio</a>
   <span class="topbar-sep">›</span>
-  <span class="topbar-curr">Sección 01 — El Modelo Lineal</span>
+  <span class="topbar-curr">Sección 01 — Introducción</span>
   <span class="topbar-badge">S01 / 06</span>
 </div>
 
 <div class="hero">
   <div class="hero-inner">
     <div class="hero-tag">Sección 01 · Fundamentos</div>
-    <h1 class="hero-title">El Modelo de Regresión Lineal</h1>
-    <p class="hero-lead">Especificación en notación escalar y matricial, interpretación de coeficientes, descomposición de la varianza y el Teorema de Gauss-Markov.</p>
+    <h1 class="hero-title">Introducción a la Regresión Lineal</h1>
+    <p class="hero-lead">¿Qué es, por qué importa y qué mide? — motivado desde la administración de riesgos con un ejemplo de riesgo crediticio.</p>
   </div>
 </div>
 
 <div class="page">
 
-<!-- ═══ 1. ESPECIFICACIÓN ═══ -->
-<h2 class="sec-title">1.1 Especificación del modelo</h2>
-<p>La regresión lineal modela la relación entre una variable dependiente $y$ y $k$ variables independientes $x_1, \ldots, x_k$. El supuesto central es la <strong>linealidad en los parámetros</strong> $\boldsymbol{\beta}$:</p>
+<!-- ═══ 1.1 ═══ -->
+<h2 class="sec-title">1.1 ¿Qué es la regresión lineal?</h2>
+
+<p>Imagina que eres el responsable de riesgo crediticio de un banco. Tienes un portafolio de créditos a empresas y necesitas responder una pregunta central:</p>
+
+<div class="callout">
+  <div class="callout-title">Pregunta clave en administración de riesgos</div>
+  <p style="margin:0;font-size:1.05rem;font-weight:500">¿Podemos predecir la <strong>pérdida por incumplimiento</strong> de un crédito en función de indicadores financieros observables de la empresa?</p>
+</div>
+
+<p>La <strong>regresión lineal</strong> es la herramienta estadística que nos permite modelar la relación entre una variable que queremos explicar — la <em>pérdida</em> — y un conjunto de variables que creemos la determinan — como el <em>apalancamiento</em> y la <em>volatilidad</em> del activo.</p>
+
+<p>En su forma más simple, el modelo establece que:</p>
 
 $$y_i = \beta_0 + \beta_1 x_{1i} + \beta_2 x_{2i} + \cdots + \beta_k x_{ki} + \varepsilon_i, \qquad i = 1, \ldots, n$$
 
-<div class="callout">
-  <div class="callout-title">Notación matricial compacta</div>
-  <p style="margin:0">$$\mathbf{y} = \mathbf{X}\boldsymbol{\beta} + \boldsymbol{\varepsilon}$$</p>
+<p>donde $y_i$ es la variable que buscamos explicar (la <strong>pérdida</strong>), las $x_{ji}$ son las variables explicativas (indicadores financieros), los $\beta_j$ son los <strong>parámetros desconocidos</strong> que debemos estimar, y $\varepsilon_i$ es el <strong>error</strong> — todo aquello que el modelo no logra capturar.</p>
+
+<!-- ═══ 1.2 ═══ -->
+<h2 class="sec-title">1.2 ¿Por qué es importante?</h2>
+
+<p>La regresión lineal es la piedra angular del análisis cuantitativo en finanzas y riesgos. Se usa extensamente en:</p>
+
+<div class="grid2">
+  <div class="card">
+    <span class="badge bg">Riesgo crediticio</span>
+    <p style="font-size:.9rem;margin:.5rem 0 0">Modelar la <strong>pérdida esperada</strong> (EL) como función del apalancamiento, la calificación crediticia y variables macroeconómicas. Fundamento de los modelos IRB de Basilea.</p>
+  </div>
+  <div class="card">
+    <span class="badge bg">Stress testing</span>
+    <p style="font-size:.9rem;margin:.5rem 0 0">Estimar cómo cambian las pérdidas del portafolio bajo escenarios adversos: ¿qué pasa si la tasa de interés sube 300 pb?</p>
+  </div>
+  <div class="card">
+    <span class="badge bb">VaR paramétrico</span>
+    <p style="font-size:.9rem;margin:.5rem 0 0">El Valor en Riesgo paramétrico asume relaciones lineales entre los factores de riesgo y los retornos del portafolio.</p>
+  </div>
+  <div class="card">
+    <span class="badge bgr">Pricing y cobertura</span>
+    <p style="font-size:.9rem;margin:.5rem 0 0">Los modelos de factores (CAPM, Fama-French) son regresiones lineales que estiman primas de riesgo y sensibilidades.</p>
+  </div>
 </div>
-
-<h3 class="sub-title">Componentes del modelo</h3>
-<div class="tbl-wrap">
-<table class="tbl">
-  <thead><tr><th>Símbolo</th><th>Dimensión</th><th>Descripción</th></tr></thead>
-  <tbody>
-    <tr><td class="mono">$\mathbf{y}$</td><td class="mono center">$n \times 1$</td><td>Vector de la variable dependiente (observada)</td></tr>
-    <tr><td class="mono">$\mathbf{X}$</td><td class="mono center">$n \times (k+1)$</td><td>Matriz de diseño. La primera columna es un vector de unos para el intercepto $\beta_0$</td></tr>
-    <tr><td class="mono">$\boldsymbol{\beta}$</td><td class="mono center">$(k+1) \times 1$</td><td>Vector de parámetros desconocidos a estimar</td></tr>
-    <tr><td class="mono">$\boldsymbol{\varepsilon}$</td><td class="mono center">$n \times 1$</td><td>Vector de errores no observables</td></tr>
-  </tbody>
-</table>
-</div>
-
-<h3 class="sub-title">Ejemplo numérico — 5 observaciones, 2 regresores</h3>
-<p>Modelo: $y_i = \beta_0 + \beta_1\,\text{Ingreso}_i + \beta_2\,\text{Educación}_i + \varepsilon_i$</p>
-
-<div id="mat-example" class="mat-row"></div>
 
 <div class="callout amber">
-  <div class="callout-title">Linealidad en los parámetros, no en las variables</div>
+  <div class="callout-title">¿Linealidad en los parámetros, no en las variables</div>
   <p style="margin:0;font-size:.95rem">El modelo es lineal en $\boldsymbol{\beta}$, no necesariamente en $\mathbf{X}$. Son perfectamente válidos: $x_i^2$, $\ln(x_i)$, $x_{1i}\cdot x_{2i}$ (interacciones). La condición es que $y$ sea una función lineal de los parámetros $\beta_j$.</p>
 </div>
 
-<!-- ═══ 2. INTERPRETACIÓN ═══ -->
-<h2 class="sec-title">1.2 Interpretación de coeficientes</h2>
-<p>Bajo el supuesto de exogeneidad estricta $E[\varepsilon_i|\mathbf{X}]=0$, el coeficiente $\beta_j$ tiene la interpretación:</p>
+<!-- ═══ 1.3 ═══ -->
+<h2 class="sec-title">1.3 El modelo en nuestro ejemplo de riesgos</h2>
 
-$$\beta_j = \frac{\partial\, E[y_i \mid \mathbf{x}_i]}{\partial x_{ji}}$$
+<p>Supongamos que tenemos datos de 5 empresas. Para cada una observamos su <strong>pérdida por incumplimiento</strong> (% del crédito), su <strong>apalancamiento</strong> (deuda/capital) y la <strong>volatilidad</strong> anualizada de su activo (%).</p>
 
-<p>Es decir, el <strong>cambio esperado en $y$</strong> ante un incremento unitario en $x_j$, <strong>manteniendo constantes todas las demás variables</strong> (condición <em>ceteris paribus</em>).</p>
-
-<h3 class="sub-title">Tipos de modelos según la transformación de $y$ y $x$</h3>
-<div class="tbl-wrap">
+<div class="tbl-wrap" style="margin:1rem 0">
 <table class="tbl">
-  <thead><tr><th>Modelo</th><th>Especificación</th><th>Interpretación de $\beta_j$</th></tr></thead>
+  <thead><tr><th>Empresa</th><th>Pérdida $y_i$ (%)</th><th>Apalancamiento $x_{1i}$</th><th>Volatilidad $x_{2i}$ (%)</th></tr></thead>
   <tbody>
-    <tr><td>Lineal–lineal</td><td class="mono">$y = \beta_0 + \beta_1 x$</td><td>$\Delta y = \beta_1 \cdot \Delta x$ (cambio absoluto)</td></tr>
-    <tr><td>Log–lineal</td><td class="mono">$\ln(y) = \beta_0 + \beta_1 x$</td><td>$\%\Delta y \approx 100\cdot\beta_1 \cdot \Delta x$ (semi-elasticidad)</td></tr>
-    <tr><td>Lineal–log</td><td class="mono">$y = \beta_0 + \beta_1 \ln(x)$</td><td>$\Delta y \approx \beta_1 / 100 \cdot \%\Delta x$</td></tr>
-    <tr><td>Log–log</td><td class="mono">$\ln(y) = \beta_0 + \beta_1 \ln(x)$</td><td>$\%\Delta y \approx \beta_1 \cdot \%\Delta x$ (elasticidad)</td></tr>
+    <tr><td class="center">A</td><td class="mono">2.5</td><td class="mono">1.2</td><td class="mono">15</td></tr>
+    <tr><td class="center">B</td><td class="mono">4.8</td><td class="mono">2.5</td><td class="mono">22</td></tr>
+    <tr><td class="center">C</td><td class="mono">1.8</td><td class="mono">0.8</td><td class="mono">12</td></tr>
+    <tr><td class="center">D</td><td class="mono">6.2</td><td class="mono">3.1</td><td class="mono">28</td></tr>
+    <tr><td class="center">E</td><td class="mono">3.5</td><td class="mono">1.8</td><td class="mono">18</td></tr>
   </tbody>
 </table>
 </div>
 
-<!-- ═══ 3. DESCOMPOSICION ═══ -->
-<h2 class="sec-title">1.3 Descomposición de la varianza y $R^2$</h2>
-<p>MCO descompone la variabilidad de $\mathbf{y}$ en dos componentes <strong>ortogonales</strong>:</p>
+<p>El modelo que queremos estimar es:</p>
+$$\text{Pérdida}_i = \beta_0 + \beta_1 \cdot \text{Apalancamiento}_i + \beta_2 \cdot \text{Volatilidad}_i + \varepsilon_i$$
 
-$$\underbrace{\sum_{i=1}^n(y_i-\bar{y})^2}_{\text{SST (total)}} = \underbrace{\sum_{i=1}^n(\hat{y}_i-\bar{y})^2}_{\text{SSR (explicada)}} + \underbrace{\sum_{i=1}^n\hat{e}_i^2}_{\text{SSE (residual)}}$$
+<h3 class="sub-title">Notación matricial compacta</h3>
+<p>Podemos escribir las 5 ecuaciones simultáneamente como $\mathbf{y} = \mathbf{X}\boldsymbol{\beta} + \boldsymbol{\varepsilon}$:</p>
+
+<div id="mat-example" class="mat-row"></div>
+
+<div class="tbl-wrap" style="margin:1rem 0">
+<table class="tbl">
+  <thead><tr><th>Símbolo</th><th>Dimensión</th><th>Descripción</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">$\mathbf{y}$</td><td class="mono center">$n \times 1$</td><td>Vector de pérdidas observadas (variable dependiente)</td></tr>
+    <tr><td class="mono">$\mathbf{X}$</td><td class="mono center">$n \times (k+1)$</td><td>Matriz de diseño: columna de 1s + apalancamiento + volatilidad</td></tr>
+    <tr><td class="mono">$\boldsymbol{\beta}$</td><td class="mono center">$(k+1) \times 1$</td><td>Vector de parámetros desconocidos a estimar</td></tr>
+    <tr><td class="mono">$\boldsymbol{\varepsilon}$</td><td class="mono center">$n \times 1$</td><td>Vector de errores — el riesgo idiosincrático no explicado</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ═══ 1.4 ═══ -->
+<h2 class="sec-title">1.4 ¿Qué mide la regresión? — Descomposición de la varianza</h2>
+
+<p>Una vez estimado el modelo, obtenemos valores ajustados $\hat{y}_i$ (la pérdida que el modelo predice) y residuales $\hat{e}_i = y_i - \hat{y}_i$ (lo que el modelo no logra explicar). La variabilidad total de la pérdida se descompone en dos partes <strong>ortogonales</strong>:</p>
+
+$$\underbrace{\sum_{i=1}^n(y_i-\bar{y})^2}_{\text{SST}} = \underbrace{\sum_{i=1}^n(\hat{y}_i-\bar{y})^2}_{\text{SSR}} + \underbrace{\sum_{i=1}^n\hat{e}_i^2}_{\text{SSE}}$$
 
 <div class="grid3" style="margin:1.25rem 0">
-  <div class="stat-card"><div class="stat-val" id="sst-val">—</div><div class="stat-label">SST (varianza total)</div></div>
-  <div class="stat-card"><div class="stat-val" id="ssr-val">—</div><div class="stat-label">SSR (varianza explicada)</div></div>
-  <div class="stat-card"><div class="stat-val" id="sse-val">—</div><div class="stat-label">SSE (varianza residual)</div></div>
+  <div class="card" style="text-align:center">
+    <div style="font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--g);margin-bottom:.5rem">SST — Total</div>
+    <p style="font-size:.88rem;margin:0"><strong>Sum of Squares Total</strong></p>
+    <p style="font-size:.85rem;margin:.3rem 0 0;color:var(--muted)">Variabilidad total de la pérdida. Mide cuánto varían las pérdidas respecto a su promedio $\bar{y}$.</p>
+  </div>
+  <div class="card" style="text-align:center">
+    <div style="font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--blue);margin-bottom:.5rem">SSR — Explicada</div>
+    <p style="font-size:.88rem;margin:0"><strong>Sum of Squares Regression</strong></p>
+    <p style="font-size:.85rem;margin:.3rem 0 0;color:var(--muted)">Variabilidad explicada por el modelo. Cuánto del riesgo logramos capturar con apalancamiento y volatilidad.</p>
+  </div>
+  <div class="card" style="text-align:center">
+    <div style="font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--red);margin-bottom:.5rem">SSE — Residual</div>
+    <p style="font-size:.88rem;margin:0"><strong>Sum of Squares Error</strong></p>
+    <p style="font-size:.85rem;margin:.3rem 0 0;color:var(--muted)">Variabilidad no explicada: el riesgo idiosincrático que no se puede predecir con estos indicadores.</p>
+  </div>
 </div>
 
 <h3 class="sub-title">Coeficiente de determinación $R^2$</h3>
+<p>El $R^2$ resume esta descomposición en un solo número:</p>
+
 $$R^2 = \frac{\text{SSR}}{\text{SST}} = 1 - \frac{\text{SSE}}{\text{SST}} \in [0, 1]$$
 
-<p>El $R^2$ <strong>ajustado</strong> penaliza por el número de regresores:</p>
-$$\bar{R}^2 = 1 - \frac{n-1}{n-k-1}(1-R^2)$$
-
-<div class="callout amber">
-  <div class="callout-title">Limitaciones del R²</div>
-  <ul style="padding-left:1.1rem;font-size:.95rem;margin:0">
-    <li style="margin:.25rem 0">Agregar cualquier regresor (incluso irrelevante) <strong>nunca disminuye</strong> el $R^2$. Por eso se prefiere $\bar{R}^2$.</li>
-    <li style="margin:.25rem 0">Un $R^2$ alto no implica causalidad ni ausencia de sesgo.</li>
-    <li style="margin:.25rem 0">No es comparable entre modelos con distinta variable dependiente (e.g., $y$ vs. $\ln y$).</li>
-  </ul>
+<div class="callout blue">
+  <div class="callout-title">Interpretación en riesgos</div>
+  <p style="margin:0;font-size:.95rem">$R^2 = 0.85$ significaría que el apalancamiento y la volatilidad <strong>explican el 85% de la variabilidad en las pérdidas</strong>. El 15% restante es riesgo idiosincrático — factores no incluidos en el modelo.</p>
 </div>
 
-<!-- ═══ 4. INTERACTIVO ═══ -->
-<h2 class="sec-title">1.4 Explorador interactivo — regresión simple</h2>
-<p class="lead">Ajusta la pendiente $\beta_1$ y el intercepto $\beta_0$ para ver cómo cambian SST, SSR, SSE y $R^2$. La línea roja es la recta MCO real (mínima SSE).</p>
+<div class="grid3" style="margin:1rem 0">
+  <div class="stat-card"><div class="stat-val" id="sst-val">—</div><div class="stat-label">SST</div></div>
+  <div class="stat-card"><div class="stat-val" id="ssr-val">—</div><div class="stat-label">SSR</div></div>
+  <div class="stat-card"><div class="stat-val" id="sse-val">—</div><div class="stat-label">SSE</div></div>
+</div>
+<div class="stat-card" style="margin:.5rem 0"><div class="stat-val" id="r2-val" style="color:var(--blue)">—</div><div class="stat-label">R² — proporción del riesgo explicado</div></div>
+
+<!-- ═══ 1.5 ═══ -->
+<h2 class="sec-title">1.5 Explorador interactivo</h2>
+<p class="lead">Ajusta la pendiente $\beta_1$ y el intercepto $\beta_0$ para ver cómo cambian SST, SSR, SSE y $R^2$. La línea verde punteada es la recta MCO (mínima SSE).</p>
 
 <div class="grid2">
   <div>
     <div class="slider-row">
-      <label>$\beta_0$ (intercepto)</label>
+      <label>$\beta_0$</label>
       <input type="range" id="sl-b0" min="-2" max="4" step="0.05" oninput="updatePlot()">
       <span class="sv" id="vb0">—</span>
     </div>
     <div class="slider-row">
-      <label>$\beta_1$ (pendiente)</label>
-      <input type="range" id="sl-b1" min="-0.5" max="1.5" step="0.01" oninput="updatePlot()">
+      <label>$\beta_1$</label>
+      <input type="range" id="sl-b1" min="0" max="3" step="0.02" oninput="updatePlot()">
       <span class="sv" id="vb1">—</span>
     </div>
   </div>
@@ -263,86 +182,27 @@ $$\bar{R}^2 = 1 - \frac{n-1}{n-k-1}(1-R^2)$$
 </div>
 
 <div class="chart-wrap" style="height:300px">
-  <canvas id="scatter-chart" role="img" aria-label="Diagrama de dispersión con recta de regresión ajustable por sliders.">Diagrama de dispersión interactivo.</canvas>
+  <canvas id="scatter-chart"></canvas>
 </div>
 
-<!-- ═══ 5. GAUSS-MARKOV ═══ -->
-<h2 class="sec-title">1.5 El Teorema de Gauss-Markov</h2>
+<!-- ═══ 1.6 ═══ -->
+<h2 class="sec-title">1.6 Tipos de datos y regresión</h2>
+<p>La regresión lineal se aplica a distintos tipos de datos. Los supuestos son los mismos; la diferencia está en qué supuesto es más crítico.</p>
 
-<div class="callout">
-  <div class="callout-title">Teorema de Gauss-Markov</div>
-  <p style="margin:0">Bajo los supuestos 1 a 5 (más rango completo), el estimador MCO es el <strong>BLUE</strong> (<em>Best Linear Unbiased Estimator</em>): el de menor varianza dentro de la clase de todos los estimadores lineales insesgados.</p>
-</div>
-
-<p>Las tres propiedades que garantiza el teorema:</p>
-<div class="grid3" style="margin:1rem 0">
-  <div class="card">
-    <span class="badge bg">Insesgado</span>
-    <p style="margin:.5rem 0 0;font-size:.9rem">$$E[\hat{\boldsymbol{\beta}}] = \boldsymbol{\beta}$$
-    En promedio, el estimador acierta al parámetro verdadero.</p>
-  </div>
-  <div class="card">
-    <span class="badge bg">Eficiente (BLUE)</span>
-    <p style="margin:.5rem 0 0;font-size:.9rem">$$\text{Var}(\hat{\boldsymbol{\beta}}) = \sigma^2(\mathbf{X}^\top\mathbf{X})^{-1}$$
-    Ningún otro estimador lineal insesgado tiene menor varianza.</p>
-  </div>
-  <div class="card">
-    <span class="badge bg">Consistente</span>
-    <p style="margin:.5rem 0 0;font-size:.9rem">$$\hat{\boldsymbol{\beta}} \xrightarrow{p} \boldsymbol{\beta} \quad (n\to\infty)$$
-    Converge al verdadero $\boldsymbol{\beta}$ con suficientes datos.</p>
-  </div>
-</div>
-
-<h3 class="sub-title">Resumen de los 6 supuestos</h3>
 <div class="tbl-wrap">
 <table class="tbl">
-  <thead><tr><th>#</th><th>Supuesto</th><th>Fórmula</th><th>Violación típica</th></tr></thead>
+  <thead><tr><th>Tipo</th><th>Ejemplo en riesgos</th><th>Supuesto clave</th><th>División muestra</th></tr></thead>
   <tbody>
-    <tr><td class="center">1</td><td>Linealidad en $\boldsymbol{\beta}$</td><td class="mono">$y=\mathbf{X}\boldsymbol{\beta}+\boldsymbol{\varepsilon}$</td><td>Omisión de no-linealidades</td></tr>
-    <tr><td class="center">2</td><td>Exogeneidad estricta</td><td class="mono">$E[\varepsilon_i|\mathbf{X}]=0$</td><td>Endogeneidad, variable omitida</td></tr>
-    <tr><td class="center">3</td><td>No multicolinealidad perfecta</td><td class="mono">$\text{rank}(\mathbf{X})=k+1$</td><td>Variables redundantes</td></tr>
-    <tr><td class="center">4</td><td>Homocedasticidad</td><td class="mono">$\text{Var}(\varepsilon_i|\mathbf{X})=\sigma^2$</td><td>Varianza crece con el nivel de $y$</td></tr>
-    <tr><td class="center">5</td><td>No autocorrelación</td><td class="mono">$\text{Cov}(\varepsilon_i,\varepsilon_j)=0$</td><td>Series de tiempo con inercia</td></tr>
-    <tr><td class="center">+6</td><td>Normalidad (inferencia finita)</td><td class="mono">$\varepsilon_i\sim\mathcal{N}(0,\sigma^2)$</td><td>Distribución asimétrica de errores</td></tr>
+    <tr><td><strong>Corte transversal</strong></td><td>Pérdida ~ apalancamiento + volatilidad (varias empresas, un momento)</td><td>Muestreo aleatorio</td><td>Aleatoria 80/20</td></tr>
+    <tr><td><strong>Serie de tiempo</strong></td><td>VaR diario ~ rendimiento del mercado + spread crediticio</td><td>No autocorrelación, estacionariedad</td><td><strong>Temporal</strong> (nunca aleatoria)</td></tr>
+    <tr><td><strong>Panel</strong></td><td>Pérdida de N empresas durante T trimestres</td><td>Heterogeneidad no observada</td><td>Efectos fijos/aleatorios</td></tr>
   </tbody>
 </table>
 </div>
 
-<p style="font-size:.88rem;color:var(--muted);margin-top:.5rem">Los supuestos se estudian en detalle con sus pruebas formales en la <a href="s03_supuestos.html" style="color:var(--g)">Sección 03</a>.</p>
-
-<!-- ═══ 6. APLICABILIDAD ═══ -->
-<h2 class="sec-title">1.6 Corte transversal vs. series de tiempo</h2>
-<p>La regresión lineal se aplica a distintos tipos de datos. Los supuestos son los mismos; la diferencia está en qué supuesto es más crítico y cómo se divide la muestra.</p>
-
-<div class="tbl-wrap">
-<table class="tbl">
-  <thead><tr><th>Tipo de datos</th><th>Ejemplo</th><th>Supuesto clave adicional</th><th>División muestra</th></tr></thead>
-  <tbody>
-    <tr>
-      <td><strong>Corte transversal</strong></td>
-      <td>Precio casas ~ área, hab., zona</td>
-      <td>Muestreo aleatorio (sup. 2)</td>
-      <td>Aleatoria 80/20</td>
-    </tr>
-    <tr>
-      <td><strong>Serie de tiempo</strong></td>
-      <td>PIB ~ inversión, consumo, gasto</td>
-      <td>No autocorrelación (sup. 5) · estacionariedad</td>
-      <td><strong>Temporal</strong> (nunca aleatoria)</td>
-    </tr>
-    <tr>
-      <td><strong>Panel</strong></td>
-      <td>Salarios ~ educación, año</td>
-      <td>Heterogeneidad no observada</td>
-      <td>Efectos fijos / aleatorios</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-<div class="callout amber">
+<div class="callout amber" style="margin-top:1rem">
   <div class="callout-title">Advertencia: data leakage en series de tiempo</div>
-  <p style="margin:0;font-size:.95rem">En series de tiempo, usar división <em>aleatoria</em> introduce <strong>data leakage</strong>: el modelo "ve" el futuro durante el entrenamiento, produciendo métricas artificialmente optimistas. La división correcta siempre es temporal: primeras $T$ observaciones para entrenamiento, últimas $h$ para prueba.</p>
+  <p style="margin:0;font-size:.95rem">En series de tiempo, usar división <em>aleatoria</em> introduce <strong>data leakage</strong>: el modelo "ve" el futuro durante el entrenamiento. La división correcta siempre es temporal.</p>
 </div>
 
 <!-- nav -->
@@ -356,8 +216,8 @@ $$\bar{R}^2 = 1 - \frac{n-1}{n-k-1}(1-R^2)$$
 <footer>EARF · SEPI ESE · Instituto Politécnico Nacional &nbsp;·&nbsp; Ana Lorena Jiménez Preciado</footer>
 
 <script>
-/* datos de ejemplo */
-const Xd=[2,3,4,6,7], Yd=[2.1,2.6,2.8,3.8,4.1];
+/* datos de ejemplo — riesgo crediticio */
+const Xd=[1.2,2.5,0.8,3.1,1.8], Yd=[2.5,4.8,1.8,6.2,3.5];
 const n=Xd.length;
 const xb=Xd.reduce((a,b)=>a+b)/n, yb=Yd.reduce((a,b)=>a+b)/n;
 const Sxx=Xd.reduce((s,x)=>s+(x-xb)**2,0);
@@ -365,15 +225,15 @@ const Sxy=Xd.reduce((s,x,i)=>s+(x-xb)*(Yd[i]-yb),0);
 const b1_ols=Sxy/Sxx, b0_ols=yb-b1_ols*xb;
 const f=(v,d=3)=>typeof v==='number'?v.toFixed(d):v;
 
-/* matrix example */
-const Xmat=[[1,2,3],[1,3,5],[1,4,6],[1,6,4],[1,7,8]];
-const Yvec=[2.1,2.6,2.8,3.8,4.1];
+/* matrices display */
+const Yvec=[2.5,4.8,1.8,6.2,3.5];
+const Xmat=[[1,1.2,15],[1,2.5,22],[1,0.8,12],[1,3.1,28],[1,1.8,18]];
 document.getElementById('mat-example').innerHTML=`
-  <div class="mat-block"><span class="mat-lbl">X =</span><span class="mat-br">[</span>
-  <table class="mat">${Xmat.map(r=>`<tr>${r.map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}</table>
-  <span class="mat-br">]</span></div>
   <div class="mat-block"><span class="mat-lbl">y =</span><span class="mat-br">[</span>
   <table class="mat">${Yvec.map(v=>`<tr><td>${v}</td></tr>`).join('')}</table>
+  <span class="mat-br">]</span></div>
+  <div class="mat-block"><span class="mat-lbl">X =</span><span class="mat-br">[</span>
+  <table class="mat">${Xmat.map(r=>`<tr>${r.map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}</table>
   <span class="mat-br">]</span></div>
   <div class="mat-block"><span class="mat-lbl">β =</span><span class="mat-br">[</span>
   <table class="mat">${['β₀','β₁','β₂'].map(v=>`<tr><td>${v}</td></tr>`).join('')}</table>
@@ -382,47 +242,49 @@ document.getElementById('mat-example').innerHTML=`
   <table class="mat">${['ε₁','ε₂','ε₃','ε₄','ε₅'].map(v=>`<tr><td>${v}</td></tr>`).join('')}</table>
   <span class="mat-br">]</span></div>`;
 
-/* SST SSR SSE con OLS */
+/* SST SSR SSE con OLS (simple: y ~ x1 para el interactivo) */
 const yhat_ols=Xd.map(x=>b0_ols+b1_ols*x);
 const SST=Yd.reduce((s,y)=>s+(y-yb)**2,0);
 const SSE_ols=Yd.reduce((s,y,i)=>s+(y-yhat_ols[i])**2,0);
 const SSR_ols=SST-SSE_ols;
+const R2_ols=SSR_ols/SST;
 document.getElementById('sst-val').textContent=f(SST);
 document.getElementById('ssr-val').textContent=f(SSR_ols);
 document.getElementById('sse-val').textContent=f(SSE_ols);
+document.getElementById('r2-val').textContent=f(R2_ols,4);
 
-/* scatter interactive */
+/* scatter interactivo */
 let chart=null;
-const sl0=document.getElementById('sl-b0'), sl1=document.getElementById('sl-b1');
-sl0.value=f(b0_ols,2); sl1.value=f(b1_ols,2);
+const sl0=document.getElementById('sl-b0'),sl1=document.getElementById('sl-b1');
+sl0.value=f(b0_ols,2);sl1.value=f(b1_ols,2);
 
 function updatePlot(){
-  const b0=parseFloat(sl0.value), b1=parseFloat(sl1.value);
+  const b0=parseFloat(sl0.value),b1=parseFloat(sl1.value);
   document.getElementById('vb0').textContent=f(b0,2);
   document.getElementById('vb1').textContent=f(b1,2);
   const yh=Xd.map(x=>b0+b1*x);
   const sse=Yd.reduce((s,y,i)=>s+(y-yh[i])**2,0);
-  const ssr=SST-sse; const r2=Math.max(0,ssr/SST);
+  const ssr=SST-sse;const r2=Math.max(0,ssr/SST);
   document.getElementById('metrics-card').innerHTML=
     `<div class="kv"><span class="kv-k">SST (fija)</span><span class="kv-v">${f(SST)}</span></div>`+
     `<div class="kv"><span class="kv-k">SSE (minimizar)</span><span class="kv-v" style="color:${sse<SSE_ols*1.01?'var(--green)':'var(--red)'}">${f(sse)}</span></div>`+
     `<div class="kv"><span class="kv-k">SSR</span><span class="kv-v">${f(Math.max(0,ssr))}</span></div>`+
-    `<div class="kv"><span class="kv-k">R²</span><span class="kv-v">${f(r2)}</span></div>`+
-    `<div class="kv"><span class="kv-k">R² MCO (máx posible)</span><span class="kv-v" style="color:var(--green)">${f(1-SSE_ols/SST)}</span></div>`;
+    `<div class="kv"><span class="kv-k">R²</span><span class="kv-v">${f(r2,4)}</span></div>`+
+    `<div class="kv"><span class="kv-k">R² MCO (máx)</span><span class="kv-v" style="color:var(--green)">${f(R2_ols,4)}</span></div>`;
 
-  const xline=[1,8], yols=xline.map(x=>b0_ols+b1_ols*x), ycur=xline.map(x=>b0+b1*x);
+  const xline=[0.5,3.5],yols=xline.map(x=>b0_ols+b1_ols*x),ycur=xline.map(x=>b0+b1*x);
   const residSegs=Xd.flatMap((x,i)=>[{x,y:Yd[i]},{x,y:yh[i]},{x:null,y:null}]);
 
   if(!chart){
     const ctx=document.getElementById('scatter-chart').getContext('2d');
     chart=new Chart(ctx,{type:'scatter',data:{datasets:[
-      {label:'Observaciones',data:Xd.map((x,i)=>({x,y:Yd[i]})),backgroundColor:'#185FA5',pointRadius:6},
+      {label:'Empresas',data:Xd.map((x,i)=>({x,y:Yd[i]})),backgroundColor:'#185FA5',pointRadius:7},
       {label:'Recta actual',data:ycur.map((y,i)=>({x:xline[i],y})),type:'line',borderColor:'#7b002c',borderWidth:2.5,pointRadius:0,tension:0},
       {label:'Recta MCO',data:yols.map((y,i)=>({x:xline[i],y})),type:'line',borderColor:'#0F6E56',borderWidth:1.5,pointRadius:0,tension:0,borderDash:[6,4]},
       {label:'Residuales',data:residSegs,type:'line',borderColor:'rgba(123,0,44,.35)',borderWidth:1.5,pointRadius:0,borderDash:[4,3]}
     ]},options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:12,font:{size:12}}}},
-      scales:{x:{title:{display:true,text:'x (ingreso)'},min:1,max:8},y:{title:{display:true,text:'y (gasto)'},min:1.5,max:5}}
+      scales:{x:{title:{display:true,text:'Apalancamiento (x₁)'},min:0.3,max:3.8},y:{title:{display:true,text:'Pérdida (%)'},min:0,max:8}}
     }});
   } else {
     chart.data.datasets[1].data=ycur.map((y,i)=>({x:xline[i],y}));

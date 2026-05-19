@@ -3,904 +3,266 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MCO vs. Máxima Verosimilitud — EARF SEPI IPN</title>
-
-<!-- KaTeX para fórmulas matemáticas -->
+<title>S02 — MCO vs. Máxima Verosimilitud · EARF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
   onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
-
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-
-<!-- Google Fonts -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-
+<link rel="stylesheet" href="styles.css">
 <style>
-/* ── tokens ── */
-:root {
-  --guinda:       #7b002c;
-  --guinda-dark:  #560020;
-  --guinda-light: #f8f0f3;
-  --guinda-mid:   #d4a0b0;
-  --blue:         #185FA5;
-  --blue-light:   #e6f1fb;
-  --green:        #0F6E56;
-  --green-light:  #e1f5ee;
-  --amber:        #b86e00;
-  --amber-light:  #fef3e2;
-  --text:         #1a1a1a;
-  --text-muted:   #5a5a5a;
-  --text-faint:   #909090;
-  --border:       #e0d6da;
-  --surface:      #ffffff;
-  --bg:           #faf8f9;
-  --mono:         'JetBrains Mono', monospace;
-  --serif:        'Lora', Georgia, serif;
-  --sans:         'DM Sans', system-ui, sans-serif;
-  --radius:       10px;
-  --shadow:       0 2px 12px rgba(123,0,44,.08);
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: var(--sans);
-  background: var(--bg);
-  color: var(--text);
-  line-height: 1.7;
-  font-size: 16px;
-}
-
-/* ── layout ── */
-.page-wrap { max-width: 860px; margin: 0 auto; padding: 0 1.5rem 4rem; }
-
-/* ── header ── */
-.site-header {
-  background: var(--guinda);
-  color: #fff;
-  padding: 0;
-  margin-bottom: 2.5rem;
-}
-.header-inner {
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 1.25rem 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-}
-.header-logo {
-  width: 44px; height: 44px;
-  background: rgba(255,255,255,.15);
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--serif);
-  font-weight: 600;
-  font-size: 15px;
-  color: #fff;
-  flex-shrink: 0;
-  letter-spacing: .04em;
-}
-.header-text { flex: 1; }
-.header-title {
-  font-family: var(--serif);
-  font-size: 1.15rem;
-  font-weight: 600;
-  color: #fff;
-  line-height: 1.3;
-}
-.header-sub {
-  font-size: 12px;
-  color: rgba(255,255,255,.65);
-  margin-top: 2px;
-  letter-spacing: .03em;
-}
-.header-badge {
-  font-size: 11px;
-  background: rgba(255,255,255,.15);
-  color: rgba(255,255,255,.85);
-  padding: 3px 10px;
-  border-radius: 20px;
-  white-space: nowrap;
-}
-
-/* ── section heading ── */
-.sec-title {
-  font-family: var(--serif);
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--guinda);
-  margin: 2.5rem 0 .5rem;
-  padding-bottom: .4rem;
-  border-bottom: 2px solid var(--guinda-mid);
-}
-.sub-title {
-  font-family: var(--serif);
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--guinda-dark);
-  margin: 1.75rem 0 .5rem;
-}
-.sub2-title {
-  font-size: .9rem;
-  font-weight: 500;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: .07em;
-  margin: 1.25rem 0 .4rem;
-}
-
-/* ── prose ── */
-p { margin: .6rem 0 1rem; color: var(--text); }
-.lead { font-size: 1.05rem; color: var(--text-muted); margin-bottom: 1.25rem; }
-
-/* ── tcolorbox-style callout ── */
-.callout {
-  border-left: 3px solid var(--guinda);
-  background: var(--guinda-light);
-  border-radius: 0 var(--radius) var(--radius) 0;
-  padding: .9rem 1.1rem;
-  margin: 1rem 0 1.25rem;
-}
-.callout-title {
-  font-size: .78rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  color: var(--guinda);
-  margin-bottom: .4rem;
-}
-.callout.blue  { border-color: var(--blue);  background: var(--blue-light); }
-.callout.blue .callout-title { color: var(--blue); }
-.callout.green { border-color: var(--green); background: var(--green-light); }
-.callout.green .callout-title { color: var(--green); }
-.callout.amber { border-color: var(--amber); background: var(--amber-light); }
-.callout.amber .callout-title { color: var(--amber); }
-
-/* ── cards ── */
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1.1rem 1.25rem;
-  box-shadow: var(--shadow);
-}
-.card + .card { margin-top: .75rem; }
-
-.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap: .9rem; margin: 1rem 0; }
-.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: .9rem; margin: 1rem 0; }
-
-/* ── step list ── */
-.steps { list-style: none; margin: .75rem 0; }
-.steps li {
-  display: flex; gap: .9rem; align-items: flex-start;
-  padding: .5rem 0;
-  border-bottom: 1px dashed var(--border);
-}
-.steps li:last-child { border: none; }
-.step-n {
-  min-width: 24px; height: 24px;
-  border-radius: 50%;
-  background: var(--guinda);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 600;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-.step-body { font-size: .95rem; line-height: 1.65; }
-
-/* ── formula block ── */
-.formula {
-  background: #f5f2f0;
-  border: 1px solid #e8e0dc;
-  border-radius: var(--radius);
-  padding: .75rem 1.1rem;
-  font-family: var(--mono);
-  font-size: .88rem;
-  color: var(--text);
-  margin: .6rem 0;
-  overflow-x: auto;
-  line-height: 1.8;
-}
-.formula .hi  { color: var(--blue);  font-weight: 600; }
-.formula .hi2 { color: var(--green); font-weight: 600; }
-.formula .hi3 { color: var(--guinda);font-weight: 600; }
-
-/* ── matrix display ── */
-.matrix-row {
-  display: flex; align-items: flex-start; gap: 1.5rem;
-  flex-wrap: wrap; margin: .75rem 0;
-}
-.matrix-block { display: flex; align-items: center; gap: 3px; }
-.mat-label { font-size: .9rem; font-family: var(--mono); color: var(--text-muted); margin-right: 4px; }
-.mat-bracket { font-size: 2.4rem; line-height: 1; color: var(--text-muted); font-weight: 200; }
-table.mat td { padding: 3px 10px; text-align: right; font-family: var(--mono); font-size: .88rem; }
-
-/* ── data table ── */
-.data-table { width: 100%; border-collapse: collapse; font-size: .88rem; overflow-x: auto; }
-.data-table th {
-  background: var(--guinda-light);
-  color: var(--guinda-dark);
-  font-weight: 500;
-  font-size: .78rem;
-  text-transform: uppercase;
-  letter-spacing: .05em;
-  padding: 6px 10px;
-  text-align: right;
-  border-bottom: 2px solid var(--guinda-mid);
-}
-.data-table th:first-child { text-align: center; }
-.data-table td { padding: 6px 10px; text-align: right; font-family: var(--mono); border-bottom: 1px solid var(--border); }
-.data-table td:first-child { text-align: center; font-weight: 600; color: var(--guinda); }
-.data-table tr:last-child td { border-top: 2px solid var(--guinda-mid); border-bottom: none; font-weight: 600; background: var(--guinda-light); }
-.data-table tr:hover td { background: #fdf7f9; }
-.table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); }
-
-/* ── kv rows ── */
-.kv { display: flex; justify-content: space-between; align-items: center; font-size: .9rem; padding: 5px 0; border-bottom: 1px solid var(--border); }
-.kv:last-child { border: none; }
-.kv-k { color: var(--text-muted); }
-.kv-v { font-family: var(--mono); font-weight: 600; }
-.kv-v.blue  { color: var(--blue); }
-.kv-v.green { color: var(--green); }
-.kv-v.guinda{ color: var(--guinda); }
-
-/* ── tabs ── */
-.tabs {
-  display: flex; gap: 4px; flex-wrap: wrap;
-  border-bottom: 2px solid var(--border);
-  margin-bottom: 1.5rem;
-  padding-bottom: 0;
-}
-.tab {
-  padding: 7px 18px;
-  font-size: .88rem;
-  font-weight: 500;
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
-  cursor: pointer;
-  border-radius: 6px 6px 0 0;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
-  transition: color .15s, border-color .15s, background .15s;
-}
-.tab:hover { color: var(--guinda); background: var(--guinda-light); }
-.tab.active { color: var(--guinda); border-bottom-color: var(--guinda); background: var(--guinda-light); font-weight: 600; }
-
-.panel { display: none; animation: fadeIn .2s ease; }
-.panel.active { display: block; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; } }
-
-/* ── slider ── */
-.slider-row { display: flex; align-items: center; gap: 12px; margin: .75rem 0; }
-.slider-row label { font-size: .88rem; color: var(--text-muted); white-space: nowrap; min-width: 30px; }
-.slider-row input[type=range] { flex: 1; accent-color: var(--blue); height: 4px; }
-.slider-row .val { font-family: var(--mono); font-size: .88rem; font-weight: 600; color: var(--blue); min-width: 42px; }
-
-/* ── comparison table ── */
-.cmp-table { width: 100%; border-collapse: collapse; font-size: .88rem; }
-.cmp-table th { padding: 8px 12px; text-align: center; font-weight: 600; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
-.cmp-table th:first-child { text-align: left; }
-.cmp-table th.blue  { color: var(--blue);  background: var(--blue-light); }
-.cmp-table th.green { color: var(--green); background: var(--green-light); }
-.cmp-table th.head  { color: var(--text-muted); background: var(--bg); }
-.cmp-table td { padding: 7px 12px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.5; }
-.cmp-table td:first-child { color: var(--text-muted); font-size: .85rem; font-weight: 500; }
-.cmp-table td.blue  { color: var(--blue); font-family: var(--mono); font-size: .85rem; }
-.cmp-table td.green { color: var(--green); font-family: var(--mono); font-size: .85rem; }
-.cmp-table tr:last-child td { border: none; }
-
-/* ── chart wrappers ── */
-.chart-wrap { position: relative; width: 100%; margin: .75rem 0; }
-
-/* ── note ── */
-.note { font-size: .82rem; color: var(--text-faint); margin-top: .4rem; line-height: 1.6; }
-
-/* ── badge ── */
-.badge {
-  display: inline-block; font-size: .75rem; font-weight: 600;
-  padding: 2px 9px; border-radius: 20px;
-  letter-spacing: .04em;
-}
-.badge-guinda { background: var(--guinda-light); color: var(--guinda-dark); }
-.badge-blue   { background: var(--blue-light);   color: var(--blue); }
-.badge-green  { background: var(--green-light);  color: var(--green); }
-.badge-amber  { background: var(--amber-light);  color: var(--amber); }
-
-/* ── footer ── */
-footer {
-  margin-top: 4rem;
-  padding: 1.5rem;
-  border-top: 1px solid var(--border);
-  text-align: center;
-  font-size: .8rem;
-  color: var(--text-faint);
-}
-
-/* ── responsive ── */
-@media (max-width: 600px) {
-  .header-title { font-size: 1rem; }
-  .sec-title { font-size: 1.25rem; }
-  .tab { padding: 6px 12px; font-size: .82rem; }
-}
+.hero::after{content:'02'}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:2px solid var(--border);margin-bottom:1.5rem}
+.tab{padding:7px 16px;font-size:.85rem;font-weight:500;border:none;background:transparent;color:var(--muted);cursor:pointer;border-radius:6px 6px 0 0;border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .15s,border-color .15s,background .15s}
+.tab:hover{color:var(--g);background:var(--gl)}
+.tab.active{color:var(--g);border-bottom-color:var(--g);background:var(--gl);font-weight:600}
+.panel{display:none;animation:fadeIn .2s ease}.panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+.data-table{width:100%;border-collapse:collapse;font-size:.88rem}
+.data-table th{background:var(--gl);color:var(--gd);font-weight:500;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;padding:6px 10px;text-align:right;border-bottom:2px solid var(--gm)}
+.data-table th:first-child{text-align:center}
+.data-table td{padding:6px 10px;text-align:right;font-family:var(--mono);border-bottom:1px solid var(--border)}
+.data-table td:first-child{text-align:center;font-weight:600;color:var(--g)}
+.cmp-table{width:100%;border-collapse:collapse;font-size:.88rem}
+.cmp-table th{padding:8px 12px;text-align:center;font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em}
+.cmp-table th:first-child{text-align:left}
+.cmp-table th.blue{color:var(--blue);background:var(--bl)}
+.cmp-table th.green{color:var(--green);background:var(--grn)}
+.cmp-table th.head{color:var(--muted);background:var(--bg)}
+.cmp-table td{padding:7px 12px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.5}
+.cmp-table td:first-child{color:var(--muted);font-size:.85rem;font-weight:500}
+.cmp-table td.blue{color:var(--blue);font-family:var(--mono);font-size:.85rem}
+.cmp-table td.green{color:var(--green);font-family:var(--mono);font-size:.85rem}
 </style>
 </head>
 <body>
 
-<header class="site-header">
-  <div class="header-inner">
-    <div class="header-logo">IPN</div>
-    <div class="header-text">
-      <div class="header-title">Regresión Lineal — MCO vs. Máxima Verosimilitud</div>
-      <div class="header-sub">EARF · SEPI ESE · Ana Lorena Jiménez Preciado</div>
-    </div>
-    <span class="header-badge">Sección 2</span>
-  </div>
-</header>
-
-<div class="page-wrap">
-
-<!-- ═══════════════════════════════════════════════ INTRO -->
-<h1 class="sec-title">2) MCO vs. Máxima Verosimilitud</h1>
-<p class="lead">Dos rutas distintas para estimar $\hat{\boldsymbol{\beta}}$ que, bajo normalidad, convergen al mismo resultado — pero difieren en la estimación de $\sigma^2$ y en el marco inferencial que ofrecen.</p>
-
-<div class="callout">
-  <div class="callout-title">Modelo de referencia</div>
-  <p style="margin:0">$$\mathbf{y} = \mathbf{X}\boldsymbol{\beta} + \boldsymbol{\varepsilon}, \qquad \mathbf{X} \in \mathbb{R}^{n\times(k+1)},\quad \boldsymbol{\beta}\in\mathbb{R}^{k+1}$$</p>
+<div class="topbar">
+  <a href="index.html">Inicio</a><span class="topbar-sep">›</span>
+  <a href="s01_modelo_lineal.html">S01</a><span class="topbar-sep">›</span>
+  <span class="topbar-curr">Sección 02 — MCO vs MV</span>
+  <span class="topbar-badge">S02 / 06</span>
 </div>
 
-<!-- ═══════════════════════════════════════════════ TABS -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">Sección 02 · Estimación</div>
+    <h1 class="hero-title">MCO vs. Máxima Verosimilitud</h1>
+    <p class="hero-lead">Dos caminos para estimar $\hat{\boldsymbol{\beta}}$ que, bajo normalidad, convergen al mismo resultado. Derivación completa con ejemplo numérico de riesgo crediticio.</p>
+  </div>
+</div>
+
+<div class="page">
+
+<div class="callout">
+  <div class="callout-title">Modelo de referencia — Riesgo crediticio</div>
+  <p style="margin:0">$$\text{Pérdida}_i = \beta_0 + \beta_1\,\text{Apalancamiento}_i + \beta_2\,\text{Volatilidad}_i + \varepsilon_i$$</p>
+  <p style="margin:.5rem 0 0;font-size:.9rem;color:var(--muted)">Notación matricial: $\mathbf{y} = \mathbf{X}\boldsymbol{\beta} + \boldsymbol{\varepsilon}$, con $n=5$ empresas y $k=2$ regresores.</p>
+</div>
+
 <div class="tabs">
   <button class="tab active" onclick="showTab('datos',this)">① Datos</button>
-  <button class="tab" onclick="showTab('mco',this)">② MCO paso a paso</button>
-  <button class="tab" onclick="showTab('mv',this)">③ Máxima verosimilitud</button>
-  <button class="tab" onclick="showTab('sigma',this)">④ Estimación de σ²</button>
-  <button class="tab" onclick="showTab('viz',this)">⑤ Visualización</button>
-  <button class="tab" onclick="showTab('resumen',this)">⑥ Tabla resumen</button>
+  <button class="tab" onclick="showTab('mco',this)">② MCO</button>
+  <button class="tab" onclick="showTab('mv',this)">③ Máxima Verosimilitud</button>
+  <button class="tab" onclick="showTab('equiv',this)">④ Equivalencia</button>
+  <button class="tab" onclick="showTab('sigma',this)">⑤ Estimación σ²</button>
+  <button class="tab" onclick="showTab('resumen',this)">⑥ Resumen</button>
 </div>
 
-<!-- ══════════════════ PANEL 1: DATOS ══════════════════ -->
+<!-- ══ PANEL 1: DATOS ══ -->
 <div id="tab-datos" class="panel active">
+<h2 class="sub-title">Datos — 5 empresas, 2 regresores</h2>
+<p>Continuamos con nuestro ejemplo de riesgo crediticio. La variable dependiente (<strong>Pérdida</strong>) siempre aparece primero:</p>
 
-  <h2 class="sub-title">Datos de ejemplo — regresión simple ($k=1$, $n=5$)</h2>
-  <p>Estimamos el modelo $y_i = \beta_0 + \beta_1 x_i + \varepsilon_i$ con datos de <strong>ingreso mensual</strong> ($x$, miles de MXN) y <strong>gasto en alimentos</strong> ($y$, miles de MXN).</p>
-
-  <div class="table-wrap" style="margin:1rem 0">
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>$i$</th>
-          <th>$x_i$</th>
-          <th>$y_i$</th>
-          <th>$x_i - \bar{x}$</th>
-          <th>$y_i - \bar{y}$</th>
-          <th>$(x_i-\bar{x})^2$</th>
-          <th>$(x_i-\bar{x})(y_i-\bar{y})$</th>
-        </tr>
-      </thead>
-      <tbody id="data-body"></tbody>
-    </table>
-  </div>
-
-  <div class="callout blue">
-    <div class="callout-title">Medias muestrales</div>
-    <p style="margin:0;font-family:var(--mono);font-size:.9rem" id="means-show"></p>
-  </div>
-
-  <h3 class="sub2-title">Representación matricial</h3>
-  <p>La primera columna de $\mathbf{X}$ es un vector de unos para el intercepto $\beta_0$:</p>
-  <div class="matrix-row" id="matrix-display"></div>
-
+<div class="tbl-wrap" style="margin:1rem 0">
+<table class="data-table">
+  <thead><tr><th>$i$</th><th>Pérdida $y_i$</th><th>Apal. $x_{1i}$</th><th>Vol. $x_{2i}$</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>2.5</td><td>1.2</td><td>15</td></tr>
+    <tr><td>2</td><td>4.8</td><td>2.5</td><td>22</td></tr>
+    <tr><td>3</td><td>1.8</td><td>0.8</td><td>12</td></tr>
+    <tr><td>4</td><td>6.2</td><td>3.1</td><td>28</td></tr>
+    <tr><td>5</td><td>3.5</td><td>1.8</td><td>18</td></tr>
+  </tbody>
+</table>
 </div>
 
-<!-- ══════════════════ PANEL 2: MCO ══════════════════ -->
+<h3 class="sub2">Representación matricial — $\mathbf{y}$ primero, luego $\mathbf{X}$</h3>
+<div id="matrix-display" class="mat-row"></div>
+</div>
+
+<!-- ══ PANEL 2: MCO ══ -->
 <div id="tab-mco" class="panel">
+<h2 class="sub-title">2.1 Mínimos Cuadrados Ordinarios — Derivación completa</h2>
+<p>MCO busca el vector $\hat{\boldsymbol{\beta}}$ que minimiza la suma de cuadrados de los errores:</p>
+$$\hat{\boldsymbol{\beta}}_{\text{MCO}} = \arg\min_{\boldsymbol{\beta}} \text{SSE}(\boldsymbol{\beta}) = \arg\min_{\boldsymbol{\beta}} (\mathbf{y} - \mathbf{X}\boldsymbol{\beta})^\top(\mathbf{y} - \mathbf{X}\boldsymbol{\beta})$$
 
-  <h2 class="sub-title">2.1) Mínimos Cuadrados Ordinarios</h2>
-  <p>MCO minimiza la suma de cuadrados de los residuales:</p>
-  $$\hat{\boldsymbol{\beta}}_{\text{MCO}} = \arg\min_{\boldsymbol{\beta}} \|\mathbf{y} - \mathbf{X}\boldsymbol{\beta}\|^2$$
+<h3 class="sub2">Paso 1 — Expandir la función objetivo</h3>
+<p>Desarrollamos el producto:</p>
+$$\text{SSE}(\boldsymbol{\beta}) = \mathbf{y}^\top\mathbf{y} - 2\boldsymbol{\beta}^\top\mathbf{X}^\top\mathbf{y} + \boldsymbol{\beta}^\top\mathbf{X}^\top\mathbf{X}\boldsymbol{\beta}$$
 
-  <ul class="steps">
-    <li><div class="step-n">1</div><div class="step-body">Derivar e igualar a cero: $\frac{\partial\,\text{SSE}}{\partial\boldsymbol{\beta}} = -2\mathbf{X}^\top(\mathbf{y}-\mathbf{X}\boldsymbol{\beta})=\mathbf{0}$</div></li>
-    <li><div class="step-n">2</div><div class="step-body">Ecuaciones normales: $\mathbf{X}^\top\mathbf{X}\,\hat{\boldsymbol{\beta}} = \mathbf{X}^\top\mathbf{y}$</div></li>
-    <li><div class="step-n">3</div><div class="step-body">Solución analítica: $\hat{\boldsymbol{\beta}} = (\mathbf{X}^\top\mathbf{X})^{-1}\mathbf{X}^\top\mathbf{y}$</div></li>
-  </ul>
-
-  <h3 class="sub2-title">Paso 1 — Calcular $\mathbf{X}^\top\mathbf{X}$</h3>
-  <div class="formula" id="xtx-show"></div>
-
-  <h3 class="sub2-title">Paso 2 — Calcular $\mathbf{X}^\top\mathbf{y}$</h3>
-  <div class="formula" id="xty-show"></div>
-
-  <h3 class="sub2-title">Paso 3 — Invertir $\mathbf{X}^\top\mathbf{X}$</h3>
-  <p>Para una matriz $2\times 2$: $\begin{bmatrix}a&b\\c&d\end{bmatrix}^{-1} = \dfrac{1}{ad-bc}\begin{bmatrix}d&-b\\-c&a\end{bmatrix}$</p>
-  <div class="formula" id="inv-show"></div>
-
-  <h3 class="sub2-title">Paso 4 — $\hat{\boldsymbol{\beta}} = (\mathbf{X}^\top\mathbf{X})^{-1}\mathbf{X}^\top\mathbf{y}$</h3>
-  <div class="formula" id="beta-show"></div>
-
-  <div class="callout green" style="margin-top:1rem">
-    <div class="callout-title">Fórmula directa para regresión simple ($k=1$)</div>
-    $$\hat{\beta}_1 = \frac{S_{xy}}{S_{xx}} = \frac{\sum(x_i-\bar{x})(y_i-\bar{y})}{\sum(x_i-\bar{x})^2}, \qquad \hat{\beta}_0 = \bar{y} - \hat{\beta}_1\bar{x}$$
-    <p style="margin-top:.4rem;font-size:.9rem">Algebraicamente equivalente a la solución matricial. Con nuestros datos:</p>
-    <p style="font-family:var(--mono);font-size:.9rem;margin:0" id="direct-formula"></p>
-  </div>
-
-  <h3 class="sub2-title">Residuales $\hat{e}_i = y_i - \hat{y}_i$</h3>
-  <div class="table-wrap">
-    <table class="data-table">
-      <thead><tr><th>$i$</th><th>$y_i$</th><th>$\hat{y}_i = \hat{\beta}_0 + \hat{\beta}_1 x_i$</th><th>$\hat{e}_i$</th><th>$\hat{e}_i^2$</th></tr></thead>
-      <tbody id="resid-body"></tbody>
-    </table>
-  </div>
-  <div class="formula" id="sse-show" style="margin-top:.75rem"></div>
-
-  <div class="callout" style="margin-top:1rem">
-    <div class="callout-title">Propiedades del estimador MCO bajo Gauss-Markov</div>
-    <div class="grid3" style="margin:.5rem 0 0">
-      <div><span class="badge badge-guinda">Insesgado</span><p style="font-size:.85rem;margin:.3rem 0 0">$E[\hat{\boldsymbol{\beta}}]=\boldsymbol{\beta}$</p></div>
-      <div><span class="badge badge-guinda">BLUE</span><p style="font-size:.85rem;margin:.3rem 0 0">Mínima varianza entre estimadores lineales insesgados</p></div>
-      <div><span class="badge badge-guinda">Consistente</span><p style="font-size:.85rem;margin:.3rem 0 0">$\hat{\boldsymbol{\beta}}\xrightarrow{p}\boldsymbol{\beta}$ cuando $n\to\infty$</p></div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════════ PANEL 3: MV ══════════════════ -->
-<div id="tab-mv" class="panel">
-
-  <h2 class="sub-title">2.2) Máxima Verosimilitud</h2>
-  <p>Bajo el supuesto $\varepsilon_i \sim \mathcal{N}(0,\sigma^2)$ i.i.d., cada observación tiene densidad:</p>
-  $$f(y_i\mid\mathbf{x}_i,\boldsymbol{\beta},\sigma^2) = \frac{1}{\sqrt{2\pi\sigma^2}}\exp\!\left(-\frac{(y_i-\mathbf{x}_i^\top\boldsymbol{\beta})^2}{2\sigma^2}\right)$$
-
-  <p>La <strong>log-verosimilitud</strong> para toda la muestra es:</p>
-  $$\ell(\boldsymbol{\beta},\sigma^2) = -\frac{n}{2}\ln(2\pi) - \frac{n}{2}\ln(\sigma^2) - \frac{1}{2\sigma^2}\underbrace{\sum_{i=1}^n(y_i-\mathbf{x}_i^\top\boldsymbol{\beta})^2}_{\text{SSE}}$$
-
-  <ul class="steps">
-    <li><div class="step-n">1</div><div class="step-body">El tercer término es $-\text{SSE}/(2\sigma^2)$. Para cualquier $\sigma^2>0$ fijo, maximizar $\ell$ en $\boldsymbol{\beta}$ equivale a <strong>minimizar SSE</strong>.</div></li>
-    <li><div class="step-n">2</div><div class="step-body">Las ecuaciones normales son idénticas a MCO → $\hat{\boldsymbol{\beta}}_{\text{MV}} = \hat{\boldsymbol{\beta}}_{\text{MCO}}$.</div></li>
-    <li><div class="step-n">3</div><div class="step-body">Con $\hat{\boldsymbol{\beta}}$ fijo, maximizamos $\ell$ en $\sigma^2$: $\frac{\partial\ell}{\partial\sigma^2}=-\frac{n}{2\sigma^2}+\frac{\text{SSE}}{2\sigma^4}=0\implies\hat{\sigma}^2_{\text{MV}}=\frac{\text{SSE}}{n}$</div></li>
-  </ul>
-
-  <div class="callout amber">
-    <div class="callout-title">Conclusión clave</div>
-    <p style="margin:0">$\hat{\boldsymbol{\beta}}_{\text{MV}} = \hat{\boldsymbol{\beta}}_{\text{MCO}}$ bajo normalidad. La única diferencia es el divisor en la estimación de $\sigma^2$.</p>
-  </div>
-
-  <h3 class="sub2-title">Superficie de log-verosimilitud — perfil en $\beta_1$ (con $\hat{\sigma}^2_\text{MV}$ fijo)</h3>
-  <p>Mueve el slider para ver cómo varía $\ell$. El <strong>máximo coincide exactamente</strong> con $\hat{\beta}_1^\text{MCO}$.</p>
-
-  <div class="slider-row">
-    <label>$\beta_1$</label>
-    <input type="range" id="b1-slider" min="0" max="1" step="0.005" oninput="updateLL()">
-    <span class="val" id="b1-val"></span>
-  </div>
-
-  <div class="chart-wrap" style="height:240px">
-    <canvas id="ll-chart" role="img" aria-label="Superficie de log-verosimilitud perfilada en β₁. El máximo se alcanza en β̂₁ MCO.">La log-verosimilitud alcanza su máximo en el mismo β₁ que MCO.</canvas>
-  </div>
-
-  <div class="formula" id="ll-current" style="margin-top:.5rem"></div>
-
-  <div class="callout blue" style="margin-top:1rem">
-    <div class="callout-title">Evaluación numérica en nuestros datos</div>
-    <p style="font-family:var(--mono);font-size:.9rem;margin:0" id="mv-numeric"></p>
-  </div>
-</div>
-
-<!-- ══════════════════ PANEL 4: SIGMA ══════════════════ -->
-<div id="tab-sigma" class="panel">
-
-  <h2 class="sub-title">④ La única diferencia real: estimación de $\sigma^2$</h2>
-  <p>Ambos métodos producen el mismo $\hat{\boldsymbol{\beta}}$, pero divergen en cómo estiman la varianza del error. Esto importa especialmente en muestras pequeñas.</p>
-
-  <div class="grid2">
-    <div class="card">
-      <div style="font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--blue);margin-bottom:.75rem">MCO — insesgado</div>
-      <div class="formula">s² = SSE / (n − k − 1)</div>
-      <div id="s2-mco-detail" style="margin:.75rem 0"></div>
-      <p class="note">El divisor son los <strong>grados de libertad</strong> residuales. Al estimar $k+1$ parámetros "consumimos" $k+1$ grados de libertad. Resultado: $E[s^2]=\sigma^2$.</p>
-    </div>
-    <div class="card">
-      <div style="font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--green);margin-bottom:.75rem">MV — sesgado</div>
-      <div class="formula">σ̂² = SSE / n</div>
-      <div id="s2-mv-detail" style="margin:.75rem 0"></div>
-      <p class="note">El divisor es $n$ (todas las observaciones). $E[\hat{\sigma}^2_\text{MV}]=\frac{n-k-1}{n}\sigma^2 < \sigma^2$. Subestima sistemáticamente.</p>
-    </div>
-  </div>
-
-  <div class="callout" style="margin-top:1rem">
-    <div class="callout-title">Magnitud del sesgo</div>
-    $$E[\hat{\sigma}^2_\text{MV}] - \sigma^2 = -\frac{k+1}{n}\sigma^2$$
-    <p style="margin:.4rem 0 0;font-size:.9rem" id="sesgo-calc">El sesgo relativo es $(k+1)/n$. En nuestro ejemplo: ...</p>
-  </div>
-
-  <h3 class="sub2-title">Sesgo relativo en función del tamaño de muestra $n$</h3>
-  <p>El sesgo desaparece cuando $n\to\infty$ (ambos estimadores son asintóticamente equivalentes).</p>
-  <div class="chart-wrap" style="height:220px">
-    <canvas id="bias-chart" role="img" aria-label="Gráfico del sesgo relativo del estimador MV de sigma-cuadrado en función del tamaño de muestra n.">El sesgo relativo de MV cae hacia cero conforme crece n.</canvas>
-  </div>
-
-  <h3 class="sub2-title">Comparación numérica con nuestros datos ($n=5$, $k=1$)</h3>
-  <div class="card" id="sigma-compare"></div>
-</div>
-
-<!-- ══════════════════ PANEL 5: VIZ ══════════════════ -->
-<div id="tab-viz" class="panel">
-
-  <h2 class="sub-title">⑤ Visualización del ajuste</h2>
-
-  <h3 class="sub2-title">Diagrama de dispersión con recta MCO y residuales</h3>
-  <div class="chart-wrap" style="height:320px">
-    <canvas id="scatter-chart" role="img" aria-label="Diagrama de dispersión con la recta de regresión MCO y los residuales dibujados como segmentos verticales.">Diagrama de dispersión con recta ajustada MCO y residuales.</canvas>
-  </div>
-  <p class="note">Las líneas verticales punteadas son los residuales $\hat{e}_i = y_i - \hat{y}_i$. MCO minimiza la suma de sus cuadrados.</p>
-
-  <h3 class="sub2-title" style="margin-top:1.5rem">Log-verosimilitud $\ell(\beta_0, \beta_1)$ — mapa de calor (contornos)</h3>
-  <p>El máximo global de la superficie de verosimilitud coincide con el mínimo de SSE. El punto rojo es $(\hat{\beta}_0, \hat{\beta}_1)_\text{MCO}$.</p>
-  <div class="chart-wrap" style="height:320px">
-    <canvas id="contour-chart" role="img" aria-label="Mapa de contornos de la log-verosimilitud en el espacio de parámetros β₀ y β₁.">Contornos de la log-verosimilitud. El máximo coincide con MCO.</canvas>
-  </div>
-  <p class="note">Cada curva de nivel une combinaciones $(\beta_0,\beta_1)$ con la misma log-verosimilitud. Las curvas son elipses porque la función objetivo (SSE) es cuadrática.</p>
-
-</div>
-
-<!-- ══════════════════ PANEL 6: RESUMEN ══════════════════ -->
-<div id="tab-resumen" class="panel">
-
-  <h2 class="sub-title">⑥ Tabla comparativa completa</h2>
-
-  <div class="table-wrap" style="margin:1rem 0">
-    <table class="cmp-table">
-      <thead>
-        <tr>
-          <th class="head">Aspecto</th>
-          <th class="blue">MCO</th>
-          <th class="green">Máxima Verosimilitud</th>
-        </tr>
-      </thead>
-      <tbody id="cmp-body"></tbody>
-    </table>
-  </div>
-
-  <h3 class="sub2-title" style="margin-top:1.5rem">Resultado numérico final</h3>
-  <div class="grid2" style="margin-top:.75rem">
-    <div class="card">
-      <div style="font-size:.8rem;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem">MCO</div>
-      <div id="final-mco"></div>
-    </div>
-    <div class="card">
-      <div style="font-size:.8rem;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem">Máxima Verosimilitud</div>
-      <div id="final-mv"></div>
-    </div>
-  </div>
-
-  <div class="callout amber" style="margin-top:1.5rem">
-    <div class="callout-title">¿Cuándo importa la diferencia?</div>
-    <ul style="padding-left:1.2rem;font-size:.95rem;margin:0">
-      <li style="margin:.3rem 0"><strong>$n$ grande:</strong> ambas estimaciones de $\sigma^2$ convergen → diferencia despreciable.</li>
-      <li style="margin:.3rem 0"><strong>$n$ pequeño:</strong> MV subestima $\sigma^2$, produciendo errores estándar demasiado optimistas.</li>
-      <li style="margin:.3rem 0"><strong>Inferencia:</strong> MCO usa la distribución $t_{n-k-1}$ exacta; MV usa distribuciones asintóticas (normal, $\chi^2$, $F$).</li>
-      <li style="margin:.3rem 0"><strong>Extensiones:</strong> MV es el punto de partida natural para Logit, Probit, Poisson — donde no hay solución MCO.</li>
-    </ul>
-  </div>
-
-</div><!-- end panels -->
-
-<!-- ═══════════════════════════════════════════════ TEORIA FULL -->
-<h1 class="sec-title" style="margin-top:3rem">Desarrollo teórico completo</h1>
-
-<h2 class="sub-title">MCO — derivación matricial</h2>
-<p>Partimos de la función objetivo:</p>
-$$\text{SSE}(\boldsymbol{\beta}) = (\mathbf{y}-\mathbf{X}\boldsymbol{\beta})^\top(\mathbf{y}-\mathbf{X}\boldsymbol{\beta}) = \mathbf{y}^\top\mathbf{y} - 2\boldsymbol{\beta}^\top\mathbf{X}^\top\mathbf{y} + \boldsymbol{\beta}^\top\mathbf{X}^\top\mathbf{X}\boldsymbol{\beta}$$
-<p>Tomando la derivada matricial e igualando a cero:</p>
+<h3 class="sub2">Paso 2 — Derivar respecto a $\boldsymbol{\beta}$ (condición de primer orden)</h3>
+<p>Usamos las reglas de derivación matricial: $\frac{\partial(\mathbf{a}^\top\boldsymbol{\beta})}{\partial\boldsymbol{\beta}}=\mathbf{a}$ y $\frac{\partial(\boldsymbol{\beta}^\top\mathbf{A}\boldsymbol{\beta})}{\partial\boldsymbol{\beta}}=2\mathbf{A}\boldsymbol{\beta}$:</p>
 $$\frac{\partial\,\text{SSE}}{\partial\boldsymbol{\beta}} = -2\mathbf{X}^\top\mathbf{y} + 2\mathbf{X}^\top\mathbf{X}\boldsymbol{\beta} = \mathbf{0}$$
-$$\implies \quad \boxed{\hat{\boldsymbol{\beta}}_\text{MCO} = (\mathbf{X}^\top\mathbf{X})^{-1}\mathbf{X}^\top\mathbf{y}}$$
-<p>La segunda derivada $\frac{\partial^2\text{SSE}}{\partial\boldsymbol{\beta}\partial\boldsymbol{\beta}^\top}=2\mathbf{X}^\top\mathbf{X}$ es semidefinida positiva (condición suficiente de mínimo).</p>
 
-<h2 class="sub-title">MV — derivación de $\hat{\sigma}^2$</h2>
-<p>Con $\hat{\boldsymbol{\beta}}$ fijo, derivamos $\ell$ respecto a $\sigma^2$ (o equivalentemente respecto a $\tau = 1/\sigma^2$):</p>
-$$\frac{\partial\ell}{\partial\sigma^2} = -\frac{n}{2\sigma^2} + \frac{\text{SSE}}{2\sigma^4} = 0 \implies \hat{\sigma}^2_\text{MV} = \frac{\text{SSE}}{n}$$
-<p>La verificación de segundo orden confirma que es un máximo. Comparación con el estimador MCO:</p>
-$$s^2_\text{MCO} = \frac{\text{SSE}}{n-k-1}, \qquad \hat{\sigma}^2_\text{MV} = \frac{\text{SSE}}{n} = \frac{n-k-1}{n}\,s^2_\text{MCO}$$
+<h3 class="sub2">Paso 3 — Ecuaciones normales</h3>
+$$\mathbf{X}^\top\mathbf{X}\,\hat{\boldsymbol{\beta}} = \mathbf{X}^\top\mathbf{y}$$
+
+<h3 class="sub2">Paso 4 — Solución analítica</h3>
+<p>Si $\mathbf{X}^\top\mathbf{X}$ es invertible (rango completo):</p>
+$$\boxed{\hat{\boldsymbol{\beta}}_{\text{MCO}} = (\mathbf{X}^\top\mathbf{X})^{-1}\mathbf{X}^\top\mathbf{y}}$$
+
+<h3 class="sub2">Paso 5 — Verificación: segunda derivada (condición suficiente)</h3>
+$$\frac{\partial^2\text{SSE}}{\partial\boldsymbol{\beta}\,\partial\boldsymbol{\beta}^\top} = 2\mathbf{X}^\top\mathbf{X} \quad \text{(semidefinida positiva } \Rightarrow \text{mínimo)}$$
+
+<h3 class="sub2">Ejemplo numérico</h3>
+<div class="fml" id="xtx-show"></div>
+<div class="fml" id="xty-show"></div>
+<div class="fml" id="beta-show"></div>
+
+<h3 class="sub2">Residuales y SSE</h3>
+<div class="tbl-wrap">
+<table class="data-table">
+  <thead><tr><th>$i$</th><th>$y_i$</th><th>$\hat{y}_i$</th><th>$\hat{e}_i$</th><th>$\hat{e}_i^2$</th></tr></thead>
+  <tbody id="resid-body"></tbody>
+</table>
+</div>
+<div class="fml" id="sse-show" style="margin-top:.75rem"></div>
+</div>
+
+<!-- ══ PANEL 3: MV ══ -->
+<div id="tab-mv" class="panel">
+<h2 class="sub-title">2.2 Máxima Verosimilitud — Derivación completa</h2>
+<p>Bajo el supuesto $\varepsilon_i \sim \mathcal{N}(0,\sigma^2)$ i.i.d., cada observación tiene densidad:</p>
+$$f(y_i\mid\mathbf{x}_i,\boldsymbol{\beta},\sigma^2) = \frac{1}{\sqrt{2\pi\sigma^2}}\exp\!\left(-\frac{(y_i-\mathbf{x}_i^\top\boldsymbol{\beta})^2}{2\sigma^2}\right)$$
+
+<h3 class="sub2">Paso 1 — Verosimilitud conjunta</h3>
+<p>Por independencia, la verosimilitud es el producto de las densidades individuales:</p>
+$$L(\boldsymbol{\beta},\sigma^2) = \prod_{i=1}^n f(y_i\mid\mathbf{x}_i,\boldsymbol{\beta},\sigma^2)$$
+
+<h3 class="sub2">Paso 2 — Log-verosimilitud</h3>
+$$\ell(\boldsymbol{\beta},\sigma^2) = -\frac{n}{2}\ln(2\pi) - \frac{n}{2}\ln(\sigma^2) - \frac{1}{2\sigma^2}\underbrace{\sum_{i=1}^n(y_i-\mathbf{x}_i^\top\boldsymbol{\beta})^2}_{\text{SSE}}$$
+
+<h3 class="sub2">Paso 3 — Derivar respecto a $\boldsymbol{\beta}$</h3>
+$$\frac{\partial\ell}{\partial\boldsymbol{\beta}} = \frac{1}{\sigma^2}\left(\mathbf{X}^\top\mathbf{y} - \mathbf{X}^\top\mathbf{X}\boldsymbol{\beta}\right) = \mathbf{0}$$
+<p>Esto da exactamente las <strong>mismas ecuaciones normales</strong> que MCO.</p>
+
+<h3 class="sub2">Paso 4 — Derivar respecto a $\sigma^2$</h3>
+$$\frac{\partial\ell}{\partial\sigma^2} = -\frac{n}{2\sigma^2} + \frac{\text{SSE}}{2\sigma^4} = 0 \quad\implies\quad \boxed{\hat{\sigma}^2_{\text{MV}} = \frac{\text{SSE}}{n}}$$
+
+<div class="callout blue">
+  <div class="callout-title">Evaluación numérica</div>
+  <p style="font-family:var(--mono);font-size:.9rem;margin:0" id="mv-numeric"></p>
+</div>
+</div>
+
+<!-- ══ PANEL 4: EQUIVALENCIA ══ -->
+<div id="tab-equiv" class="panel">
+<h2 class="sub-title">2.3 ¿Por qué MCO y MV llegan al mismo $\hat{\boldsymbol{\beta}}$?</h2>
+
+<div class="callout green">
+  <div class="callout-title">Teorema de equivalencia</div>
+  <p style="margin:0;font-size:.95rem">Bajo el supuesto de normalidad $\varepsilon_i \sim \mathcal{N}(0,\sigma^2)$, los estimadores de MCO y MV para $\boldsymbol{\beta}$ son <strong>idénticos</strong>: $\hat{\boldsymbol{\beta}}_{\text{MCO}} = \hat{\boldsymbol{\beta}}_{\text{MV}}$.</p>
+</div>
+
+<h3 class="sub2">Demostración</h3>
+
+<ul class="steps">
+  <li><div class="sn">1</div><div class="sb"><strong>MCO minimiza:</strong> $\text{SSE}(\boldsymbol{\beta}) = (\mathbf{y}-\mathbf{X}\boldsymbol{\beta})^\top(\mathbf{y}-\mathbf{X}\boldsymbol{\beta}) = \sum_{i=1}^n(y_i - \mathbf{x}_i^\top\boldsymbol{\beta})^2$</div></li>
+  <li><div class="sn">2</div><div class="sb"><strong>MV maximiza:</strong> $\ell(\boldsymbol{\beta},\sigma^2) = \underbrace{-\frac{n}{2}\ln(2\pi) - \frac{n}{2}\ln(\sigma^2)}_{\text{no depende de }\boldsymbol{\beta}} - \frac{1}{2\sigma^2}\,\text{SSE}(\boldsymbol{\beta})$</div></li>
+  <li><div class="sn">3</div><div class="sb"><strong>Observación clave:</strong> Para cualquier $\sigma^2 > 0$ fijo, maximizar $\ell$ en $\boldsymbol{\beta}$ equivale a maximizar $-\text{SSE}/(2\sigma^2)$, lo cual equivale a <strong>minimizar SSE</strong>.</div></li>
+  <li><div class="sn">4</div><div class="sb"><strong>Condiciones de primer orden — lado a lado:</strong></div></li>
+</ul>
+
+<div class="grid2" style="margin:1rem 0">
+  <div class="card">
+    <div style="font-size:.78rem;font-weight:600;color:var(--blue);text-transform:uppercase;margin-bottom:.5rem">MCO: $\frac{\partial\,\text{SSE}}{\partial\boldsymbol{\beta}} = \mathbf{0}$</div>
+    <p style="font-size:.9rem;margin:0">$$-2\mathbf{X}^\top\mathbf{y} + 2\mathbf{X}^\top\mathbf{X}\boldsymbol{\beta} = \mathbf{0}$$</p>
+    <p style="font-size:.85rem;margin:.3rem 0 0;color:var(--muted)">Dividiendo entre 2:</p>
+    <p style="font-size:.9rem;margin:.2rem 0 0">$$\mathbf{X}^\top\mathbf{X}\hat{\boldsymbol{\beta}} = \mathbf{X}^\top\mathbf{y}$$</p>
+  </div>
+  <div class="card">
+    <div style="font-size:.78rem;font-weight:600;color:var(--green);text-transform:uppercase;margin-bottom:.5rem">MV: $\frac{\partial\ell}{\partial\boldsymbol{\beta}} = \mathbf{0}$</div>
+    <p style="font-size:.9rem;margin:0">$$\frac{1}{\sigma^2}(\mathbf{X}^\top\mathbf{y} - \mathbf{X}^\top\mathbf{X}\boldsymbol{\beta}) = \mathbf{0}$$</p>
+    <p style="font-size:.85rem;margin:.3rem 0 0;color:var(--muted)">Multiplicando por $\sigma^2$:</p>
+    <p style="font-size:.9rem;margin:.2rem 0 0">$$\mathbf{X}^\top\mathbf{X}\hat{\boldsymbol{\beta}} = \mathbf{X}^\top\mathbf{y}$$</p>
+  </div>
+</div>
 
 <div class="callout">
-  <div class="callout-title">Corrección de Bessel</div>
-  <p style="margin:0">Dividir entre $n-k-1$ en lugar de $n$ se llama <strong>corrección de Bessel</strong>. Garantiza que $E[s^2]=\sigma^2$. La intuición: al estimar $k+1$ parámetros sobre los mismos datos usados para calcular los residuales, "sobre-ajustamos" y los residuales subestiman los errores verdaderos. La corrección compensa esto.</p>
+  <div class="callout-title">Conclusión</div>
+  <p style="margin:0">Ambas condiciones de primer orden son <strong>algebraicamente idénticas</strong>. Por lo tanto $\hat{\boldsymbol{\beta}}_{\text{MCO}} = \hat{\boldsymbol{\beta}}_{\text{MV}} = (\mathbf{X}^\top\mathbf{X})^{-1}\mathbf{X}^\top\mathbf{y}$.</p>
 </div>
 
-</div><!-- end page-wrap -->
+<h3 class="sub2">¿Dónde está la diferencia entonces?</h3>
+<div class="callout amber">
+  <div class="callout-title">La única diferencia: estimación de $\sigma^2$</div>
+  <p style="margin:0;font-size:.95rem">MCO y MV difieren <strong>solo</strong> en cómo estiman la varianza del error:</p>
+  <p style="margin:.5rem 0 0;font-family:var(--mono);font-size:.9rem">MCO: $s^2 = \frac{\text{SSE}}{n-k-1}$ &nbsp;(insesgado) &nbsp;&nbsp;vs&nbsp;&nbsp; MV: $\hat{\sigma}^2 = \frac{\text{SSE}}{n}$ &nbsp;(sesgado)</p>
+  <p style="margin:.5rem 0 0;font-size:.9rem">El divisor de MCO descuenta los $k+1$ grados de libertad consumidos al estimar los parámetros (corrección de Bessel).</p>
+</div>
+</div>
 
-<footer>
-  EARF · SEPI ESE · Instituto Politécnico Nacional &nbsp;·&nbsp;
-  Ana Lorena Jiménez Preciado &nbsp;·&nbsp;
-  Regresión Lineal — Sección 2
-</footer>
+<!-- ══ PANEL 5: SIGMA ══ -->
+<div id="tab-sigma" class="panel">
+<h2 class="sub-title">2.4 Estimación de $\sigma^2$ — la diferencia real</h2>
 
-<script>
-/* ── datos ── */
-const X_v = [2,3,4,6,7];
-const Y_v = [2.1,2.6,2.8,3.8,4.1];
-const n = X_v.length, k = 1;
-const xbar = X_v.reduce((a,b)=>a+b,0)/n;
-const ybar = Y_v.reduce((a,b)=>a+b,0)/n;
-const Sxx  = X_v.reduce((s,x)=>s+(x-xbar)**2,0);
-const Sxy  = X_v.reduce((s,x,i)=>s+(x-xbar)*(Y_v[i]-ybar),0);
-const b1   = Sxy/Sxx;
-const b0   = ybar - b1*xbar;
-const yhat = X_v.map(x=>b0+b1*x);
-const resid= Y_v.map((y,i)=>y-yhat[i]);
-const SSE  = resid.reduce((s,e)=>s+e*e,0);
-const s2_mco = SSE/(n-k-1);
-const s2_mv  = SSE/n;
-const SST  = Y_v.reduce((s,y)=>s+(y-ybar)**2,0);
-const R2   = 1-SSE/SST;
+<div class="grid2">
+  <div class="card">
+    <div style="font-size:.78rem;font-weight:600;color:var(--blue);text-transform:uppercase;margin-bottom:.5rem">MCO — insesgado</div>
+    <p style="font-size:.95rem">$$s^2 = \frac{\text{SSE}}{n - k - 1} = \frac{\text{SSE}}{5 - 2 - 1} = \frac{\text{SSE}}{2}$$</p>
+    <div id="s2-mco-detail"></div>
+    <p style="font-size:.82rem;color:var(--muted);margin:.5rem 0 0">$E[s^2]=\sigma^2$ — en promedio, acierta al valor verdadero.</p>
+  </div>
+  <div class="card">
+    <div style="font-size:.78rem;font-weight:600;color:var(--green);text-transform:uppercase;margin-bottom:.5rem">MV — sesgado</div>
+    <p style="font-size:.95rem">$$\hat{\sigma}^2_{\text{MV}} = \frac{\text{SSE}}{n} = \frac{\text{SSE}}{5}$$</p>
+    <div id="s2-mv-detail"></div>
+    <p style="font-size:.82rem;color:var(--muted);margin:.5rem 0 0">$E[\hat{\sigma}^2_{\text{MV}}]=\frac{n-k-1}{n}\sigma^2 < \sigma^2$ — subestima sistemáticamente.</p>
+  </div>
+</div>
 
-const f = (v,d=4) => typeof v==='number' ? v.toFixed(d) : v;
+<div class="callout" style="margin-top:1rem">
+  <div class="callout-title">Sesgo relativo</div>
+  $$\text{Sesgo} = -\frac{k+1}{n}\sigma^2 = -\frac{3}{5}\sigma^2 = -60\%$$
+  <p style="margin:.5rem 0 0;font-size:.9rem">Con $n=100$, el sesgo sería solo $-3\%$. Con $n\to\infty$, ambos coinciden.</p>
+</div>
+</div>
 
-/* ── tab logic ── */
-function showTab(id, btn){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.getElementById('tab-'+id).classList.add('active');
-  if(btn) btn.classList.add('active');
-  if(id==='mv')     setTimeout(buildLLChart,50);
-  if(id==='sigma')  setTimeout(buildBiasChart,50);
-  if(id==='viz')    setTimeout(()=>{buildScatter();buildContour();},50);
-  if(id==='resumen')buildResumen();
-}
+<!-- ══ PANEL 6: RESUMEN ══ -->
+<div id="tab-resumen" class="panel">
+<h2 class="sub-title">Tabla comparativa</h2>
+<div class="tbl-wrap" style="margin:1rem 0">
+<table class="cmp-table">
+  <thead><tr><th class="head">Aspecto</th><th class="blue">MCO</th><th class="green">Máxima Verosimilitud</th></tr></thead>
+  <tbody id="cmp-body"></tbody>
+</table>
+</div>
 
-/* ── PANEL 1: datos ── */
-(function(){
-  let rows='';
-  X_v.forEach((x,i)=>{
-    const dx=x-xbar, dy=Y_v[i]-ybar;
-    rows+=`<tr>
-      <td>${i+1}</td><td>${f(x,1)}</td><td>${f(Y_v[i],1)}</td>
-      <td>${f(dx,2)}</td><td>${f(dy,2)}</td>
-      <td>${f(dx*dx,4)}</td><td>${f(dx*dy,4)}</td></tr>`;
-  });
-  rows+=`<tr>
-    <td>Σ</td>
-    <td>${f(X_v.reduce((a,b)=>a+b,0),1)}</td>
-    <td>${f(Y_v.reduce((a,b)=>a+b,0),1)}</td>
-    <td>0.00</td><td>0.00</td>
-    <td>${f(Sxx,4)}</td><td>${f(Sxy,4)}</td></tr>`;
-  document.getElementById('data-body').innerHTML=rows;
-  document.getElementById('means-show').textContent=
-    `x̄ = ${f(xbar,2)}   ȳ = ${f(ybar,2)}   Sxx = Σ(xᵢ−x̄)² = ${f(Sxx,4)}   Sxy = Σ(xᵢ−x̄)(yᵢ−ȳ) = ${f(Sxy,4)}`;
+<div class="grid2" style="margin-top:1rem">
+  <div class="card">
+    <div style="font-size:.78rem;font-weight:600;color:var(--blue);text-transform:uppercase;margin-bottom:.5rem">Resultado MCO</div>
+    <div id="final-mco"></div>
+  </div>
+  <div class="card">
+    <div style="font-size:.78rem;font-weight:600;color:var(--green);text-transform:uppercase;margin-bottom:.5rem">Resultado MV</div>
+    <div id="final-mv"></div>
+  </div>
+</div>
+</div>
 
-  const matX = X_v.map(x=>`<tr><td>1</td><td>${f(x,1)}</td></tr>`).join('');
-  const matY = Y_v.map(y=>`<tr><td>${f(y,1)}</td></tr>`).join('');
-  document.getElementById('matrix-display').innerHTML=
-    `<div class="matrix-block"><span class="mat-label">X =</span><span class="mat-bracket">[</span><table class="mat">${matX}</table><span class="mat-bracket">]</span></div>
-     <div class="matrix-block"><span class="mat-label">y =</span><span class="mat-bracket">[</span><table class="mat">${matY}</table><span class="mat-bracket">]</span></div>`;
-})();
+<!-- nav -->
+<div class="nav-footer">
+  <a href="s01_modelo_lineal.html" class="nav-btn">← S01: Introducción</a>
+  <a href="s03_supuestos.html" class="nav-btn">S03: Supuestos →</a>
+</div>
 
-/* ── PANEL 2: MCO ── */
-(function(){
-  const A=n, B=X_v.reduce((a,b)=>a+b,0);
-  const C=X_v.reduce((s,x)=>s+x*x,0);
-  const D=Y_v.reduce((a,b)=>a+b,0);
-  const E_=X_v.reduce((s,x,i)=>s+x*Y_v[i],0);
-  const det=A*C-B*B;
+</div>
+<footer>EARF · SEPI ESE · Instituto Politécnico Nacional &nbsp;·&nbsp; Ana Lorena Jiménez Preciado</footer>
 
-  document.getElementById('xtx-show').innerHTML=
-    `<span class="hi">X'X</span> = [[n, Σxᵢ], [Σxᵢ, Σxᵢ²]]\n`+
-    `     = [[${A}, ${f(B,1)}], [${f(B,1)}, ${f(C,1)}]]`;
-  document.getElementById('xty-show').innerHTML=
-    `<span class="hi">X'y</span> = [Σyᵢ, Σxᵢyᵢ]\n`+
-    `     = [${f(D,2)}, ${f(E_,2)}]`;
-  document.getElementById('inv-show').innerHTML=
-    `det(X'X) = ${A}·${f(C,1)} − ${f(B,1)}² = ${f(A*C,1)} − ${f(B*B,1)} = <span class="hi">${f(det,2)}</span>\n\n`+
-    `(X'X)⁻¹ = (1/${f(det,2)}) · [[${f(C,1)}, −${f(B,1)}], [−${f(B,1)}, ${A}]]`;
-  document.getElementById('beta-show').innerHTML=
-    `<span class="hi">β̂₀ = ${f(b0,6)}</span>\n<span class="hi">β̂₁ = ${f(b1,6)}</span>\n\n`+
-    `Recta estimada: ŷ = ${f(b0,4)} + ${f(b1,4)}·x`;
-  document.getElementById('direct-formula').textContent=
-    `β̂₁ = Sxy/Sxx = ${f(Sxy,4)} / ${f(Sxx,4)} = ${f(b1,6)}\nβ̂₀ = ȳ − β̂₁·x̄ = ${f(ybar,4)} − ${f(b1,6)}·${f(xbar,4)} = ${f(b0,6)}`;
-
-  let rows2='', sseCheck=0;
-  X_v.forEach((x,i)=>{
-    const e=resid[i]; sseCheck+=e*e;
-    rows2+=`<tr>
-      <td>${i+1}</td><td>${f(Y_v[i],2)}</td>
-      <td>${f(yhat[i],4)}</td>
-      <td style="color:${e>=0?'var(--blue)':'#a32d2d'}">${f(e,6)}</td>
-      <td>${f(e*e,8)}</td></tr>`;
-  });
-  rows2+=`<tr><td>Σ</td><td></td><td></td><td style="font-size:.8rem;color:var(--text-faint)">≈ 0</td><td>${f(sseCheck,8)}</td></tr>`;
-  document.getElementById('resid-body').innerHTML=rows2;
-  document.getElementById('sse-show').innerHTML=
-    `SSE = Σêᵢ² = ${f(SSE,8)}\nR²  = 1 − SSE/SST = 1 − ${f(SSE,6)}/${f(SST,6)} = ${f(R2,4)}`;
-})();
-
-/* ── PANEL 3: MV — chart ── */
-let llChart=null;
-function buildLLChart(){
-  if(llChart){llChart.destroy();llChart=null;}
-  const slider=document.getElementById('b1-slider');
-  slider.value=b1.toFixed(3);
-  const b1range=[];
-  for(let v=0;v<=1;v+=0.005) b1range.push(+v.toFixed(3));
-  const ll_vals=b1range.map(bv=>{
-    const sse=X_v.reduce((s,x,i)=>{const e=Y_v[i]-(ybar+(bv-b1)*xbar)-bv*x;return s+e*e;},0);
-    return -(n/2)*Math.log(2*Math.PI)-(n/2)*Math.log(s2_mv)-(sse/(2*s2_mv));
-  });
-  const ll_max=-(n/2)*Math.log(2*Math.PI)-(n/2)*Math.log(s2_mv)-(SSE/(2*s2_mv));
-  const optIdx=b1range.findIndex(v=>Math.abs(v-+b1.toFixed(3))<0.003);
-
-  document.getElementById('mv-numeric').textContent=
-    `ℓ_max = ${f(ll_max,4)}   en β̂₀=${f(b0,4)}, β̂₁=${f(b1,4)}\nσ̂²_MV = SSE/n = ${f(SSE,6)}/${n} = ${f(s2_mv,6)}`;
-
-  const ctx=document.getElementById('ll-chart').getContext('2d');
-  llChart=new Chart(ctx,{type:'line',data:{
-    labels:b1range.map(v=>v.toFixed(2)),
-    datasets:[
-      {label:'ℓ(β₁)',data:ll_vals,borderColor:'#185FA5',borderWidth:2,pointRadius:0,tension:0.3,fill:false},
-      {label:'máximo',data:b1range.map((_,i)=>i===optIdx?ll_vals[i]:null),
-        borderColor:'var(--guinda)',borderWidth:0,pointRadius:8,pointBackgroundColor:'var(--guinda)',showLine:false,
-        pointStyle:'star'}
-    ]
-  },options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`ℓ = ${c.parsed.y.toFixed(4)}`}}},
-    scales:{
-      x:{title:{display:true,text:'β₁'},ticks:{maxTicksLimit:11,autoSkip:true}},
-      y:{title:{display:true,text:'log-verosimilitud  ℓ(β₁)'}}
-    }
-  }});
-  updateLL();
-}
-function updateLL(){
-  if(!llChart)return;
-  const bv=parseFloat(document.getElementById('b1-slider').value);
-  document.getElementById('b1-val').textContent=bv.toFixed(3);
-  const sse_cur=X_v.reduce((s,x,i)=>{const e=Y_v[i]-(ybar+(bv-b1)*xbar)-bv*x;return s+e*e;},0);
-  const ll_cur=-(n/2)*Math.log(2*Math.PI)-(n/2)*Math.log(s2_mv)-(sse_cur/(2*s2_mv));
-  const ll_max=-(n/2)*Math.log(2*Math.PI)-(n/2)*Math.log(s2_mv)-(SSE/(2*s2_mv));
-  document.getElementById('ll-current').innerHTML=
-    `β₁ = ${bv.toFixed(3)}  →  <span class="hi">ℓ = ${ll_cur.toFixed(4)}</span>    `+
-    `(máximo en β̂₁ = ${f(b1,4)}: ℓ = ${ll_max.toFixed(4)})`;
-}
-
-/* ── PANEL 4: sigma ── */
-let biasChart=null;
-function buildBiasChart(){
-  if(biasChart){biasChart.destroy();biasChart=null;}
-  const ns=[3,5,8,10,15,20,30,50,100,200,500];
-  const bias=ns.map(ni=>(k+1)/ni*100);
-  document.getElementById('s2-mco-detail').innerHTML=
-    `<div class="kv"><span class="kv-k">SSE</span><span class="kv-v blue">${f(SSE,8)}</span></div>`+
-    `<div class="kv"><span class="kv-k">n − k − 1 = ${n}−1−1</span><span class="kv-v blue">${n-k-1}</span></div>`+
-    `<div class="kv"><span class="kv-k">s²</span><span class="kv-v blue">${f(s2_mco,8)}</span></div>`+
-    `<div class="kv"><span class="kv-k">s (desv. est.)</span><span class="kv-v blue">${f(Math.sqrt(s2_mco),6)}</span></div>`;
-  document.getElementById('s2-mv-detail').innerHTML=
-    `<div class="kv"><span class="kv-k">SSE</span><span class="kv-v green">${f(SSE,8)}</span></div>`+
-    `<div class="kv"><span class="kv-k">n = ${n}</span><span class="kv-v green">${n}</span></div>`+
-    `<div class="kv"><span class="kv-k">σ̂²</span><span class="kv-v green">${f(s2_mv,8)}</span></div>`+
-    `<div class="kv"><span class="kv-k">σ̂ (desv. est.)</span><span class="kv-v green">${f(Math.sqrt(s2_mv),6)}</span></div>`;
-  document.getElementById('sesgo-calc').textContent=
-    `Sesgo relativo = (k+1)/n = ${k+1}/${n} = ${f((k+1)/n*100,1)}%. Con n=100 sería ${f((k+1)/100*100,1)}%.`;
-  document.getElementById('sigma-compare').innerHTML=
-    `<div class="kv"><span class="kv-k">s²_MCO (insesgado)</span><span class="kv-v blue">${f(s2_mco,8)}</span></div>`+
-    `<div class="kv"><span class="kv-k">σ̂²_MV (sesgado)</span><span class="kv-v green">${f(s2_mv,8)}</span></div>`+
-    `<div class="kv"><span class="kv-k">Diferencia (s² − σ̂²)</span><span class="kv-v guinda">${f(s2_mco-s2_mv,8)}</span></div>`+
-    `<div class="kv"><span class="kv-k">Cociente s²/σ̂²</span><span class="kv-v">${f(s2_mco/s2_mv,4)} = n/(n−k−1) = ${n}/${n-k-1}</span></div>`;
-
-  const ctx=document.getElementById('bias-chart').getContext('2d');
-  biasChart=new Chart(ctx,{type:'line',data:{
-    labels:ns.map(String),
-    datasets:[{
-      label:'Sesgo relativo (%)',data:bias.map(v=>+v.toFixed(3)),
-      borderColor:'#D85A30',borderWidth:2,pointRadius:4,pointBackgroundColor:'#D85A30',tension:0.3,fill:false
-    }]
-  },options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{display:false}},
-    scales:{
-      x:{title:{display:true,text:'Tamaño de muestra  n'}},
-      y:{title:{display:true,text:'Sesgo relativo (%)'},min:0,ticks:{callback:v=>v+'%'}}
-    }
-  }});
-}
-
-/* ── PANEL 5: viz ── */
-let scatterChart=null, contourChart=null;
-function buildScatter(){
-  if(scatterChart){scatterChart.destroy();scatterChart=null;}
-  const xline=[1,8], yline=xline.map(x=>b0+b1*x);
-  const residSegs=X_v.flatMap((x,i)=>[{x,y:Y_v[i]},{x,y:yhat[i]},{x:null,y:null}]);
-  const ctx=document.getElementById('scatter-chart').getContext('2d');
-  scatterChart=new Chart(ctx,{type:'scatter',data:{datasets:[
-    {label:'Observaciones',data:X_v.map((x,i)=>({x,y:Y_v[i]})),
-      backgroundColor:'#185FA5',pointRadius:7,pointHoverRadius:9},
-    {label:'ŷ (MCO)',data:X_v.map((x,i)=>({x,y:yhat[i]})),
-      backgroundColor:'#D85A30',pointRadius:5,pointStyle:'triangle'},
-    {label:'Recta MCO',data:xline.map((x,i)=>({x,y:yline[i]})),
-      type:'line',borderColor:'#D85A30',borderWidth:2,pointRadius:0,tension:0},
-    {label:'Residuales',data:residSegs,
-      type:'line',borderColor:'rgba(25,95,165,.4)',borderWidth:1.5,
-      pointRadius:0,borderDash:[5,4]}
-  ]},options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:12,font:{size:12}}}},
-    scales:{
-      x:{title:{display:true,text:'x — ingreso (miles MXN)'},min:1,max:8},
-      y:{title:{display:true,text:'y — gasto (miles MXN)'},min:1.5,max:5}
-    }
-  }});
-}
-function buildContour(){
-  if(contourChart){contourChart.destroy();contourChart=null;}
-  const b0range=[], b1range=[];
-  for(let v=b0-1;v<=b0+1.01;v+=0.05) b0range.push(+v.toFixed(2));
-  for(let v=b1-.5;v<=b1+.51;v+=0.025) b1range.push(+v.toFixed(3));
-  const ll_max=-(n/2)*Math.log(2*Math.PI)-(n/2)*Math.log(s2_mv)-(SSE/(2*s2_mv));
-  const levels=[-0.5,-1,-2,-4,-8,-16].map(d=>ll_max+d);
-  const pts=[];
-  b0range.forEach(bv0=>b1range.forEach(bv1=>{
-    const sse=X_v.reduce((s,x,i)=>{const e=Y_v[i]-bv0-bv1*x;return s+e*e;},0);
-    const ll=-(n/2)*Math.log(2*Math.PI)-(n/2)*Math.log(s2_mv)-(sse/(2*s2_mv));
-    levels.forEach((lv,li)=>{
-      if(Math.abs(ll-lv)<0.08) pts.push({x:bv0,y:bv1,li});
-    });
-  }));
-  const colors=['#7b002c','#185FA5','#0F6E56','#B86E00','#888','#bbb'];
-  const datasets=levels.map((lv,li)=>({
-    label:`ℓ = ${f(lv,2)}`,
-    data:pts.filter(p=>p.li===li).map(p=>({x:p.x,y:p.y})),
-    backgroundColor:colors[li],pointRadius:2,showLine:false
-  }));
-  datasets.push({
-    label:'β̂ MCO',data:[{x:b0,y:b1}],
-    backgroundColor:'var(--guinda)',pointRadius:10,pointStyle:'star',showLine:false
-  });
-  const ctx=document.getElementById('contour-chart').getContext('2d');
-  contourChart=new Chart(ctx,{type:'scatter',data:{datasets},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},
-        tooltip:{callbacks:{label:c=>`(β₀=${c.parsed.x.toFixed(2)}, β₁=${c.parsed.y.toFixed(3)})`}}},
-      scales:{
-        x:{title:{display:true,text:'β₀'},min:b0-1,max:b0+1},
-        y:{title:{display:true,text:'β₁'},min:b1-.5,max:b1+.5}
-      }
-    }
-  });
-}
-
-/* ── PANEL 6: resumen ── */
-function buildResumen(){
-  const rows=[
-    ['Criterio de estimación','Minimizar SSE = Σêᵢ²','Maximizar ℓ(β,σ² | y)'],
-    ['Supuesto distribucional','Solo Gauss-Markov (1–5)','Normalidad de errores'],
-    ['Estimador β̂','(X\'X)⁻¹X\'y','Idéntico bajo normalidad'],
-    ['β̂₀ (numérico)',f(b0,6),f(b0,6)],
-    ['β̂₁ (numérico)',f(b1,6),f(b1,6)],
-    ['Estimador σ²','s² = SSE/(n−k−1)  (insesgado)','σ̂² = SSE/n  (sesgado)'],
-    ['σ² numérico (n=5)',f(s2_mco,6)+' = SSE/'+f(n-k-1,0),f(s2_mv,6)+' = SSE/'+n],
-    ['Sesgo en σ²','0','−(k+1)/n · σ²  =  −'+f((k+1)/n*100,1)+'% (n=5)'],
-    ['Inferencia en muestra finita','t y F exactos','Razón de verosimilitud (asintótico)'],
-    ['Extensiones','WLS, GLS, errores robustos','Logit, Probit, Poisson, GLM'],
-  ];
-  document.getElementById('cmp-body').innerHTML=rows.map(([a,m,v])=>
-    `<tr><td>${a}</td><td class="blue">${m}</td><td class="green">${v}</td></tr>`).join('');
-  document.getElementById('final-mco').innerHTML=
-    `<div class="kv"><span class="kv-k">β̂₀</span><span class="kv-v blue">${f(b0,6)}</span></div>`+
-    `<div class="kv"><span class="kv-k">β̂₁</span><span class="kv-v blue">${f(b1,6)}</span></div>`+
-    `<div class="kv"><span class="kv-k">s² (insesgado)</span><span class="kv-v blue">${f(s2_mco,8)}</span></div>`+
-    `<div class="kv"><span class="kv-k">s</span><span class="kv-v blue">${f(Math.sqrt(s2_mco),6)}</span></div>`+
-    `<div class="kv"><span class="kv-k">R²</span><span class="kv-v blue">${f(R2,4)}</span></div>`;
-  document.getElementById('final-mv').innerHTML=
-    `<div class="kv"><span class="kv-k">β̂₀ (MV)</span><span class="kv-v green">${f(b0,6)}</span></div>`+
-    `<div class="kv"><span class="kv-k">β̂₁ (MV)</span><span class="kv-v green">${f(b1,6)}</span></div>`+
-    `<div class="kv"><span class="kv-k">σ̂² (sesgado)</span><span class="kv-v green">${f(s2_mv,8)}</span></div>`+
-    `<div class="kv"><span class="kv-k">σ̂</span><span class="kv-v green">${f(Math.sqrt(s2_mv),6)}</span></div>`+
-    `<div class="kv"><span class="kv-k">ℓ_max</span><span class="kv-v green">${f(-(n/2)*Math.log(2*Math.PI)-(n/2)*Math.log(s2_mv)-(SSE/(2*s2_mv)),4)}</span></div>`;
-}
-</script>
+<script src="mco_mv_script.js"></script>
 </body>
 </html>

@@ -126,13 +126,47 @@ footer{border-top:1px solid var(--border);padding:1.5rem 2rem;text-align:center;
   <div class="hero-inner">
     <div class="hero-tag">Sección 03 · Diagnóstico</div>
     <h1 class="hero-title">Supuestos de Gauss-Markov</h1>
-    <p class="hero-lead">Los 6 supuestos con su intuición, consecuencias de la violación, pruebas estadísticas formales y soluciones — todo ilustrado con ejemplos interactivos.</p>
+    <p class="hero-lead">El teorema que garantiza la optimalidad de MCO, los 6 supuestos con sus pruebas formales y soluciones — vinculados al ejemplo de riesgo crediticio.</p>
   </div>
 </div>
 
 <div class="page">
 
-<p class="lead">Haz clic en cada supuesto para expandir su contenido. Los semáforos muestran qué tan crítica es la violación para nuestro modelo de ejemplo.</p>
+<!-- ═══ GAUSS-MARKOV ═══ -->
+<h2 class="sec-title">3.0 El Teorema de Gauss-Markov</h2>
+
+<div class="callout">
+  <div class="callout-title">Teorema de Gauss-Markov</div>
+  <p style="margin:0">Bajo los supuestos 1 a 5 (más rango completo), el estimador MCO es el <strong>BLUE</strong> (<em>Best Linear Unbiased Estimator</em>): el de menor varianza dentro de la clase de todos los estimadores lineales insesgados.</p>
+</div>
+
+<p>En nuestro modelo de riesgo crediticio, esto significa que si los supuestos se cumplen, <strong>no existe otro estimador lineal insesgado que estime la pérdida con mayor precisión</strong> que MCO.</p>
+
+<div class="grid3" style="margin:1rem 0">
+  <div class="card">
+    <span class="badge" style="background:var(--gl);color:var(--gd)">Insesgado</span>
+    <p style="margin:.5rem 0 0;font-size:.9rem">$$E[\hat{\boldsymbol{\beta}}] = \boldsymbol{\beta}$$
+    En promedio, el estimador acierta al verdadero efecto del apalancamiento y la volatilidad sobre la pérdida.</p>
+  </div>
+  <div class="card">
+    <span class="badge" style="background:var(--gl);color:var(--gd)">Eficiente (BLUE)</span>
+    <p style="margin:.5rem 0 0;font-size:.9rem">$$\text{Var}(\hat{\boldsymbol{\beta}}) = \sigma^2(\mathbf{X}^\top\mathbf{X})^{-1}$$
+    Ningún otro estimador lineal insesgado tiene menor varianza.</p>
+  </div>
+  <div class="card">
+    <span class="badge" style="background:var(--gl);color:var(--gd)">Consistente</span>
+    <p style="margin:.5rem 0 0;font-size:.9rem">$$\hat{\boldsymbol{\beta}} \xrightarrow{p} \boldsymbol{\beta} \quad (n\to\infty)$$
+    Con más empresas en la muestra, la estimación converge al valor verdadero.</p>
+  </div>
+</div>
+
+<div class="callout amber">
+  <div class="callout-title">Pero... ¿se cumplen los supuestos?</div>
+  <p style="margin:0;font-size:.95rem">El teorema solo vale si los supuestos se satisfacen. Si el modelo de pérdida tiene errores heterocedásticos (la varianza del error crece con el tamaño del crédito) o variables omitidas, MCO pierde sus propiedades óptimas. De ahí la importancia de verificarlos.</p>
+</div>
+
+<h2 class="sec-title">3.1 Los 6 supuestos — diagnóstico</h2>
+<p class="lead">Haz clic en cada supuesto para expandir su contenido. Los semáforos muestran qué tan crítica es la violación.</p>
 
 <!-- ── OVERVIEW TABLE ── -->
 <div class="tbl-wrap" style="margin-bottom:2rem">
@@ -435,7 +469,7 @@ footer{border-top:1px solid var(--border);padding:1.5rem 2rem;text-align:center;
 <!-- nav -->
 <div class="nav-footer">
   <a href="mco_vs_mv.html" class="nav-btn">← S02: MCO vs MV</a>
-  <a href="index.html" class="nav-btn">Inicio ↗</a>
+  <a href="s04_vif_metricas.html" class="nav-btn">S04: VIF y Métricas →</a>
 </div>
 
 </div><!-- end page -->
